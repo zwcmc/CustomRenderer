@@ -1,13 +1,13 @@
-#include "Camera.h"
+#include "renderer/Camera.h"
 
-Camera::Camera(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+Camera::Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix)
     : m_ProjectionMatrix(projectionMatrix), m_ViewMatrix(viewMatrix), m_Position(glm::vec3(0.0f, 0.0f, -3.0f)), m_Rotation(glm::vec3(0.0f, 0.0f, 0.0f)),
         m_Fovy(glm::radians(45.0f)), m_Aspect(1.0f), m_ZNear(0.1f), m_ZFar(1000.0f)
 {
     updateViewMatrix();
 }
 
-Camera::Camera(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::vec3& position, glm::vec3& rotation)
+Camera::Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::vec3 &position, glm::vec3 &rotation)
     : m_ProjectionMatrix(projectionMatrix), m_ViewMatrix(viewMatrix), m_Position(position), m_Rotation(rotation),
         m_Fovy(glm::radians(45.0f)), m_Aspect(1.0f), m_ZNear(0.1f), m_ZFar(1000.0f)
 {
@@ -24,25 +24,25 @@ Camera* Camera::perspectiveCamera(float fovy, float aspect, float zNear, float z
     return camera;
 }
 
-void Camera::setPosition(const glm::vec3& position)
+void Camera::setPosition(const glm::vec3 &position)
 {
     this->m_Position = position;
     updateViewMatrix();
 }
 
-void Camera::setRotation(const glm::vec3& rotation)
+void Camera::setRotation(const glm::vec3 &rotation)
 {
     this->m_Rotation = rotation;
     updateViewMatrix();
 }
 
-void Camera::translate(const glm::vec3& offset)
+void Camera::translate(const glm::vec3 &offset)
 {
     this->m_Position += offset;
     updateViewMatrix();
 }
 
-void Camera::rotate(const glm::vec3& delta)
+void Camera::rotate(const glm::vec3 &delta)
 {
     this->m_Rotation += delta * ROTATION_SPEED;
     updateViewMatrix();

@@ -6,16 +6,16 @@
 class Camera
 {
 public:
-    Camera(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
-    Camera(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::vec3& position, glm::vec3& rotation);
+    Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix);
+    Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::vec3 &position, glm::vec3 &rotation);
     ~Camera() = default;
 
     static Camera* perspectiveCamera(float fovy, float aspect, float zNear, float zFar);
 
-    void setPosition(const glm::vec3& position);
-    void setRotation(const glm::vec3& rotation);
-    void translate(const glm::vec3& offset);
-    void rotate(const glm::vec3& delta);
+    void setPosition(const glm::vec3 &position);
+    void setRotation(const glm::vec3 &rotation);
+    void translate(const glm::vec3 &offset);
+    void rotate(const glm::vec3 &delta);
     void setAspectRatio(float aspect);
 
     glm::mat4& getViewMatrix();

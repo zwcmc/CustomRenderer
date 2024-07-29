@@ -16,12 +16,12 @@ public:
         GEOMETRY
     };
 
-    Shader(const std::string& code, const ShaderType& shaderType, const std::string& filePath);
+    Shader(const std::string &code, const ShaderType &shaderType, const std::string &filePath);
     // Shader();
     ~Shader() = default;
 
     inline GLuint getShaderID() const { return m_ShaderID; };
-    static Shader fromFile(const std::string& filePath, const ShaderType& shaderType);
+    static Shader fromFile(const std::string &filePath, const ShaderType &shaderType);
 
     void deleteShader();
 private:

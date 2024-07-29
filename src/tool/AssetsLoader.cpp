@@ -1,10 +1,10 @@
-#include "AssetsLoader.h"
+#include "tool/AssetsLoader.h"
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 
-std::string AssetsLoader::loadCodeFromFile(const std::string& filePath) const
+std::string AssetsLoader::loadCodeFromFile(const std::string &filePath) const
 {
     std::string newPath = getAssetsPath() + filePath;
 

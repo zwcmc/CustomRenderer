@@ -1,6 +1,6 @@
-#include "ShaderProgram.h"
+#include "opengl/ShaderProgram.h"
 
-ShaderProgram::ShaderProgram(const std::string& name, const std::vector<Shader> shaders)
+ShaderProgram::ShaderProgram(const std::string &name, const std::vector<Shader> shaders)
     : m_ShaderProgramName(name), m_Shaders(shaders)
 {
     link();
@@ -12,7 +12,7 @@ ShaderProgram::~ShaderProgram()
         glDeleteProgram(m_ShaderProgramID);
 }
 
-void ShaderProgram::setUniform(const std::string& uniform_name, const glm::mat4x4& value) {
+void ShaderProgram::setUniform(const std::string &uniform_name, const glm::mat4x4 &value) {
     glUniformMatrix4fv(getUniformLocation(uniform_name), 1, GL_FALSE, value_ptr(value));
 }
 
@@ -46,7 +46,7 @@ void ShaderProgram::link()
     }
 }
 
-GLuint ShaderProgram::getUniformLocation(const std::string& uniformName)
+GLuint ShaderProgram::getUniformLocation(const std::string &uniformName)
 {
     return glGetUniformLocation(m_ShaderProgramID, uniformName.c_str());
 }

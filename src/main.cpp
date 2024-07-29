@@ -3,8 +3,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Renderer.h"
-#include "ShaderProgram.h"
+#include "renderer/Renderer.h"
+#include "opengl/ShaderProgram.h"
+
+#include "model/Cube.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -13,22 +15,6 @@ float m_LastX = WIDTH / 2.0f;
 float m_LastY = HEIGHT / 2.0f;
 bool m_LeftMouseButtonPressed = false;
 bool m_MiddleMouseButtonPressed = false;
-
-const char *vertexShaderSource = "#version 410 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "uniform mat4 model;\n"
-    "uniform mat4 view;\n"
-    "uniform mat4 projection;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char *fragmentShaderSource = "#version 410 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
 
 GLFWwindow* m_Window;
 Renderer* m_Renderer;
@@ -86,50 +72,11 @@ int main()
         return -1;
     }
 
-
     Shader vertexShader = Shader::fromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
     Shader fragmentShader = Shader::fromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
     ShaderProgram* program = new ShaderProgram("Default", { vertexShader, fragmentShader });
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
-    };
-    unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
-    };
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-    // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
-
-
+    Cube *cube = new Cube();
 
     // Renderer
     m_Renderer = new Renderer();
@@ -148,28 +95,19 @@ int main()
         // draw our first triangle
         program->useProgram();
 
-
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 p = camera->getProjectionMatrix();
         glm::mat4 v = camera->getViewMatrix();
         program->setUniform("model", model);
         program->setUniform("view", v);
         program->setUniform("projection", p);
-        // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, value_ptr(model));
-        // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, value_ptr(v));
-        // glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, value_ptr(p));
 
-
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        // glBindVertexArray(0); // no need to unbind it every time 
-
+        cube->draw();
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();
     }
-    
+
     glfwTerminate();
     return 0;
 }

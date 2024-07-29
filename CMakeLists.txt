@@ -10,11 +10,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
     src/main.cpp
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
+    src/opengl/Shader.cpp
+    src/opengl/ShaderProgram.cpp
+    src/opengl/VertexArray.cpp
+    src/opengl/VertexBuffer.cpp
+    src/opengl/ElementBuffer.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
-    src/renderer/Shader.cpp
-    src/renderer/ShaderProgram.cpp
     src/tool/AssetsLoader.cpp
+    src/model/Mesh.cpp
+    src/model/Quad.cpp
+    src/model/Cube.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -53,8 +59,6 @@ target_link_libraries(${PROJECT_NAME} glm)
 # target_link_libraries(${PROJECT_NAME} tinygltf)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
-target_include_directories(${PROJECT_NAME} PRIVATE src/renderer)
-target_include_directories(${PROJECT_NAME} PRIVATE src/tool)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glfw/include)
 # target_include_directories(${PROJECT_NAME} PRIVATE third_party/glm)

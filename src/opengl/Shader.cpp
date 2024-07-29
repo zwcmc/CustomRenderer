@@ -1,10 +1,10 @@
-#include "Shader.h"
+#include "opengl/Shader.h"
 
 #include <vector>
 
-#include "AssetsLoader.h"
+#include "tool/AssetsLoader.h"
 
-Shader::Shader(const std::string& code, const ShaderType& shaderType,  const std::string& filePath)
+Shader::Shader(const std::string &code, const ShaderType &shaderType,  const std::string &filePath)
     : m_Code(code), m_ShaderType(shaderType), m_FilePath(filePath), m_ShaderID(0)
 {
     // Load included files in shader
@@ -72,7 +72,7 @@ void Shader::compileShader()
     }
 }
 
-Shader Shader::fromFile(const std::string& filePath, const ShaderType& shaderType)
+Shader Shader::fromFile(const std::string &filePath, const ShaderType &shaderType)
 {
     const std::string code = AssetsLoader::getInstance().loadCodeFromFile(filePath);
     return Shader(code, shaderType, filePath);

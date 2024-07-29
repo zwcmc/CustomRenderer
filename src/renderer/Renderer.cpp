@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "renderer/Renderer.h"
 
 Renderer::Renderer()
     : m_Camera(NULL) { }
@@ -8,7 +8,7 @@ void Renderer::setCamera(Camera* camera)
     this->m_Camera = camera;
 }
 
-void Renderer::updateCamera(CameraUpdateType moveType, const glm::vec3& delta)
+void Renderer::updateCamera(CameraUpdateType moveType, const glm::vec3 &delta)
 {
     if (!this->m_Camera)
     {
