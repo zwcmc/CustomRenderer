@@ -14,8 +14,8 @@ public:
 
     void setPosition(const glm::vec3& position);
     void setRotation(const glm::vec3& rotation);
-    void translate(glm::vec3& offset);
-    void rotate(glm::vec3& delta);
+    void translate(const glm::vec3& offset);
+    void rotate(const glm::vec3& delta);
     void setAspectRatio(float aspect);
 
     glm::mat4& getViewMatrix();

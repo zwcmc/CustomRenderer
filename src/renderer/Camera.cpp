@@ -36,13 +36,13 @@ void Camera::setRotation(const glm::vec3& rotation)
     updateViewMatrix();
 }
 
-void Camera::translate(glm::vec3& offset)
+void Camera::translate(const glm::vec3& offset)
 {
     this->m_Position += offset;
     updateViewMatrix();
 }
 
-void Camera::rotate(glm::vec3& delta)
+void Camera::rotate(const glm::vec3& delta)
 {
     this->m_Rotation += delta * ROTATION_SPEED;
     updateViewMatrix();

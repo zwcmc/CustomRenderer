@@ -19,7 +19,7 @@ public:
 
     void setCamera(Camera* camera);
 
-    void updateCamera(CameraUpdateType moveType, glm::vec3& delta = glm::vec3(0.0f));
+    void updateCamera(CameraUpdateType moveType, const glm::vec3& delta = glm::vec3(0.0f));
 private:
     Camera* m_Camera;
 };
