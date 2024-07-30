@@ -4,9 +4,11 @@
 #include <GLFW/glfw3.h>
 
 #include "renderer/Renderer.h"
-#include "base/ShaderProgram.h"
 
-#include "model/Cube.h"
+#include "base/ShaderProgram.h"
+#include "model/Quad.h"
+
+#include "renderer/MeshRender.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -72,11 +74,13 @@ int main()
         return -1;
     }
 
-    Shader vertexShader = Shader::fromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
-    Shader fragmentShader = Shader::fromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
+    Shader vertexShader = Shader::readFromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
+    Shader fragmentShader = Shader::readFromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
     ShaderProgram* program = new ShaderProgram("Default", { vertexShader, fragmentShader });
-
-    Cube *cube = new Cube();
+    Quad* quad = new Quad();
+    MeshRender* meshRender = new MeshRender(quad, program);
+    Texture *albedo = new Texture("texture1", "textures/screenshot.png", true, false);
+    meshRender->addTexture(albedo);
 
     // Renderer
     m_Renderer = new Renderer();
@@ -92,17 +96,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // draw our first triangle
-        program->useProgram();
-
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 p = camera->getProjectionMatrix();
-        glm::mat4 v = camera->getViewMatrix();
-        program->setUniform("model", model);
-        program->setUniform("view", v);
-        program->setUniform("projection", p);
-
-        cube->draw();
+        meshRender->draw(camera);
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();

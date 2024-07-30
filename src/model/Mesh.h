@@ -7,23 +7,23 @@
 
 #include "base/VertexArray.h"
 #include "base/VertexBuffer.h"
+#include "base/texture/Texture.h"
+#include "base/ShaderProgram.h"
 
 class Mesh
 {
 public:
-    Mesh(std::vector<VertexPosition> &vertices);
-    Mesh(std::vector<VertexPosition> &vertices, std::vector<GLuint> &indices);
+    Mesh(std::vector<Vertex> &vertices);
+    Mesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices);
     virtual ~Mesh() = default;
 
     void draw();
-
 protected:
     VertexArray* m_VertexArray;
     VertexBuffer* m_VertexBuffer;
-
 private:
-    void initMesh(std::vector<VertexPosition> &vertices);
-    void initMesh(std::vector<VertexPosition> &vertices, std::vector<GLuint> &indices);
+    void initMesh(std::vector<Vertex> &vertices);
+    void initMesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices);
     void bindBuffers();
     void unBindBuffers();
 

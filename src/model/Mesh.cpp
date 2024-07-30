@@ -1,25 +1,25 @@
 #include "model/Mesh.h"
 
-Mesh::Mesh(std::vector<VertexPosition> &vertices)
+Mesh::Mesh(std::vector<Vertex> &vertices)
     : m_IsUseElementArrayBuffer(false), m_VertexLength(vertices.size()), m_IndicesLength(0)
 {
     initMesh(vertices);
 }
 
-Mesh::Mesh(std::vector<VertexPosition> &vertices, std::vector<GLuint> &indices)
+Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices)
     : m_IsUseElementArrayBuffer(false), m_VertexLength(vertices.size()), m_IndicesLength(indices.size())
 {
     initMesh(vertices, indices);
 }
 
-void Mesh::initMesh(std::vector<VertexPosition> &vertices)
+void Mesh::initMesh(std::vector<Vertex> &vertices)
 {
     m_VertexArray = new VertexArray();
     m_VertexBuffer = new VertexBuffer(vertices);
     unBindBuffers();
 }
 
-void Mesh::initMesh(std::vector<VertexPosition> &vertices, std::vector<GLuint> &indices)
+void Mesh::initMesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices)
 {
     m_IsUseElementArrayBuffer = !indices.empty();
     m_VertexArray = new VertexArray();

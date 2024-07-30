@@ -20,6 +20,7 @@ public:
 
     glm::mat4& getViewMatrix();
     glm::mat4& getProjectionMatrix();
+
 private:
     void setFovAspectZNearFar(float fovy, float aspect, float zNear, float zFar);
     void updateViewMatrix();

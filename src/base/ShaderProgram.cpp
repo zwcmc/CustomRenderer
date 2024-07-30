@@ -12,8 +12,14 @@ ShaderProgram::~ShaderProgram()
         glDeleteProgram(m_ShaderProgramID);
 }
 
-void ShaderProgram::setUniform(const std::string &uniform_name, const glm::mat4x4 &value) {
-    glUniformMatrix4fv(getUniformLocation(uniform_name), 1, GL_FALSE, value_ptr(value));
+void ShaderProgram::setUniformi(const std::string &uniformName, const int value)
+{
+    glUniform1i(getUniformLocation(uniformName), value);
+}
+
+void ShaderProgram::setUniform(const std::string &uniformName, const glm::mat4x4 &value)
+{
+    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, value_ptr(value));
 }
 
 void ShaderProgram::link()

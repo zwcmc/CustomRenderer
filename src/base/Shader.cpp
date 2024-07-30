@@ -72,7 +72,7 @@ void Shader::compileShader()
     }
 }
 
-Shader Shader::fromFile(const std::string &filePath, const ShaderType &shaderType)
+Shader Shader::readFromFile(const std::string &filePath, const ShaderType &shaderType)
 {
     const std::string code = AssetsLoader::getInstance().loadCodeFromFile(filePath);
     return Shader(code, shaderType, filePath);

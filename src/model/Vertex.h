@@ -5,13 +5,24 @@
 
 using namespace glm;
 
-struct VertexPosition
+struct Vertex
 {
-    vec3 position;
+    vec3 vertex;
+    vec2 texcoord;
 
-    VertexPosition(float x, float y, float z)
-        : position(vec3(x, y, z)) { }
+    Vertex(float x, float y, float z)
+        : vertex(vec3(x, y, z)), texcoord(vec2(0.0f))
+    { }
 
-    VertexPosition(vec3 p)
-        : position(p) { }
+    Vertex(vec3 v)
+        : vertex(v), texcoord(vec2(0.0f))
+    { }
+
+    Vertex(float x, float y, float z, float u, float v)
+        : vertex(vec3(x, y, z)), texcoord(vec2(u, v))
+    { }
+
+    Vertex(vec3 v, vec2 uv)
+        : vertex(v), texcoord(uv)
+    { }
 };

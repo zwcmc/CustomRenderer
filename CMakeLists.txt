@@ -15,8 +15,10 @@ set(SOURCES
     src/base/VertexArray.cpp
     src/base/VertexBuffer.cpp
     src/base/ElementBuffer.cpp
+    src/base/texture/Texture.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
+    src/renderer/MeshRender.cpp
     src/tool/AssetsLoader.cpp
     src/model/Mesh.cpp
     src/model/Quad.cpp
@@ -46,24 +48,23 @@ target_link_libraries(${PROJECT_NAME} glfw)
 add_subdirectory(third_party/glm)
 target_link_libraries(${PROJECT_NAME} glm)
 
+# tinygltf
+set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF CACHE BOOL "" FORCE)
+set(TINYGLTF_BUILD_GL_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(TINYGLTF_BUILD_VALIDATOR_EXAMPLE OFF CACHE BOOL "" FORCE)
+set(TINYGLTF_BUILD_BUILDER_EXAMPLE OFF CACHE BOOL "" FORCE)
+add_subdirectory(third_party/tinygltf)
+target_link_libraries(${PROJECT_NAME} tinygltf)
+
 # # imgui
 # add_subdirectory(third_party/imgui)
 # target_link_libraries(${PROJECT_NAME} imgui)
 
-# # tinygltf
-# set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF CACHE BOOL "" FORCE)
-# set(TINYGLTF_BUILD_GL_EXAMPLES OFF CACHE BOOL "" FORCE)
-# set(TINYGLTF_BUILD_VALIDATOR_EXAMPLE OFF CACHE BOOL "" FORCE)
-# set(TINYGLTF_BUILD_BUILDER_EXAMPLE OFF CACHE BOOL "" FORCE)
-# add_subdirectory(third_party/tinygltf)
-# target_link_libraries(${PROJECT_NAME} tinygltf)
-
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
-target_include_directories(${PROJECT_NAME} PRIVATE third_party/glfw/include)
+# target_include_directories(${PROJECT_NAME} PRIVATE third_party/glfw/include)
 # target_include_directories(${PROJECT_NAME} PRIVATE third_party/glm)
-# target_include_directories(${PROJECT_NAME} PRIVATE third_party/stb)
-# target_include_directories(${PROJECT_NAME} PRIVATE third_party/imgui)
 # target_include_directories(${PROJECT_NAME} PRIVATE third_party/tinygltf)
+# target_include_directories(${PROJECT_NAME} PRIVATE third_party/imgui)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

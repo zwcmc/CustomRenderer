@@ -12,11 +12,10 @@ public:
         return instance;
     }
 
-    std::string loadCodeFromFile(const std::string &filePath) const;
-
-private:
     static std::string getAssetsPath()
     {
         return "./../assets/";
     }
+
+    std::string loadCodeFromFile(const std::string &filePath) const;
 };
