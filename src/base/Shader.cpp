@@ -1,8 +1,9 @@
 #include "base/Shader.h"
 
 #include <vector>
+#include <fstream>
 
-#include "tool/AssetsLoader.h"
+#include "defines.h"
 
 Shader::Shader(const std::string &code, const ShaderType &shaderType,  const std::string &filePath)
     : m_Code(code), m_ShaderType(shaderType), m_FilePath(filePath), m_ShaderID(0)
@@ -32,7 +33,7 @@ void Shader::scanCodeForIncludes()
         const std::size_t length = m_Code.find('"', pos);
         const std::string pathToIncludedFile = m_Code.substr(pos, length - pos);
 
-        const std::string includedFileCode = AssetsLoader::getInstance().loadCodeFromFile(pathToIncludedFile) + "\n";
+        const std::string includedFileCode = readFile(pathToIncludedFile) + "\n";
 
         m_Code.replace(startPos, (length + 1) - startPos, includedFileCode);
 
@@ -72,8 +73,20 @@ void Shader::compileShader()
     }
 }
 
-Shader Shader::readFromFile(const std::string &filePath, const ShaderType &shaderType)
+std::string Shader::readFile(const std::string &filePath)
 {
-    const std::string code = AssetsLoader::getInstance().loadCodeFromFile(filePath);
-    return Shader(code, shaderType, filePath);
+    std::ifstream file(ASSETS_PATH + filePath);
+    std::string line = "", code = "";
+    if (file.is_open())
+    {
+        while (getline(file, line))
+            code += line + "\n";
+        file.close();
+    }
+    return code;
+}
+
+Shader Shader::fromFile(const std::string &filePath, const ShaderType &shaderType)
+{
+    return Shader(readFile(filePath), shaderType, filePath);
 }

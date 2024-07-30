@@ -21,10 +21,12 @@ public:
     ~Shader() = default;
 
     inline GLuint getShaderID() const { return m_ShaderID; };
-    static Shader readFromFile(const std::string &filePath, const ShaderType &shaderType);
+    static Shader fromFile(const std::string &filePath, const ShaderType &shaderType);
 
     void deleteShader();
+
 private:
+    static std::string readFile(const std::string &filePath);
     void scanCodeForIncludes();
     void compileShader();
 

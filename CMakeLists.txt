@@ -19,7 +19,6 @@ set(SOURCES
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
     src/renderer/MeshRender.cpp
-    src/tool/AssetsLoader.cpp
     src/model/Mesh.cpp
     src/model/Quad.cpp
     src/model/Cube.cpp

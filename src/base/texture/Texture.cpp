@@ -2,7 +2,7 @@
 
 #include <stb_image.h>
 
-#include "tool/AssetsLoader.h"
+#include "defines.h"
 
 GLuint Texture::unitCount = 0;
 
@@ -30,7 +30,7 @@ void Texture::generateTextureFromFile(const std::string &filePath)
     
     stbi_set_flip_vertically_on_load(m_FlipVertical);
 
-    std::string newPath = AssetsLoader::getAssetsPath() + filePath;
+    std::string newPath = ASSETS_PATH + filePath;
     unsigned char *data = stbi_load(newPath.c_str(), &m_Width, &m_Height, &m_Components, 0);
     if (!data)
     {

@@ -74,8 +74,8 @@ int main()
         return -1;
     }
 
-    Shader vertexShader = Shader::readFromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
-    Shader fragmentShader = Shader::readFromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
+    Shader vertexShader = Shader::fromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
+    Shader fragmentShader = Shader::fromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
     ShaderProgram* program = new ShaderProgram("Default", { vertexShader, fragmentShader });
     Quad* quad = new Quad();
     MeshRender* meshRender = new MeshRender(quad, program);
