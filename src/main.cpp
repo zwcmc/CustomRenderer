@@ -37,7 +37,7 @@ int main()
     // Init glfw
     if (!glfwInit())
     {
-        std::cout << "Failed to init glfw" << std::endl;
+        std::cerr << "Failed to init glfw" << std::endl;
         return -1;
     }
 
@@ -53,7 +53,7 @@ int main()
     m_Window = glfwCreateWindow(WIDTH, HEIGHT, "CustomRenderer", NULL, NULL);
     if (!m_Window)
     {
-        std::cout << "Failed to create window" << std::endl;
+        std::cerr << "Failed to create window" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -70,7 +70,7 @@ int main()
     // Load all opengl function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to init glad" << std::endl;
+        std::cerr << "Failed to init glad" << std::endl;
         return -1;
     }
 
@@ -108,7 +108,7 @@ int main()
 
 void errorCallback(int error, const char* description)
 {
-    std::cout << "glfw error: " << description << std::endl;
+    std::cerr << "glfw error: " << description << std::endl;
 }
 
 void resizeCallback(GLFWwindow* window, int width, int height)

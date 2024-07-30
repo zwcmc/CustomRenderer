@@ -12,7 +12,7 @@ void Renderer::updateCamera(CameraUpdateType moveType, const glm::vec3 &delta)
 {
     if (!this->m_Camera)
     {
-        std::cout << "Renderer: camera is NULL" << std::endl;
+        std::cerr << "Renderer: camera is NULL" << std::endl;
         return;
     }
     switch (moveType)
