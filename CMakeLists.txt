@@ -12,9 +12,6 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
     src/base/Shader.cpp
     src/base/ShaderProgram.cpp
-    src/base/VertexArray.cpp
-    src/base/VertexBuffer.cpp
-    src/base/ElementBuffer.cpp
     src/base/texture/Texture.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
