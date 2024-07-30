@@ -1,6 +1,6 @@
 # Custom Renderer
 
-A customized OpenGL renderer builds with C++ and OpenGL 4.1
+A customized OpenGL renderer made with C++ and OpenGL 4.1
 
 ## Feature
 
