@@ -6,7 +6,7 @@
 #include "renderer/Renderer.h"
 
 #include "base/ShaderProgram.h"
-#include "model/Quad.h"
+#include "model/Cube.h"
 
 #include "renderer/MeshRender.h"
 
@@ -74,11 +74,13 @@ int main()
         return -1;
     }
 
+    glEnable(GL_DEPTH_TEST);
+
     Shader vertexShader = Shader::fromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
     Shader fragmentShader = Shader::fromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
     ShaderProgram* program = new ShaderProgram("Default", { vertexShader, fragmentShader });
-    Quad* quad = new Quad();
-    MeshRender* meshRender = new MeshRender(quad, program);
+    Cube *cube = new Cube();
+    MeshRender *meshRender = new MeshRender(cube, program);
     Texture *albedo = new Texture("texture1", "textures/screenshot.png", true, false);
     meshRender->addTexture(albedo);
 

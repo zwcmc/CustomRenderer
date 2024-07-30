@@ -1,52 +1,104 @@
 #include "model/Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> &vertices)
-    : m_IsUseElementArrayBuffer(false), m_VertexLength(vertices.size()), m_IndicesLength(0)
+Mesh::Mesh(const std::vector<vec3> &vertices)
 {
-    initMesh(vertices);
+    m_Vertices = vertices;
+    initBuffers();
 }
 
-Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices)
-    : m_IsUseElementArrayBuffer(false), m_VertexLength(vertices.size()), m_IndicesLength(indices.size())
+Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords)
 {
-    initMesh(vertices, indices);
+    m_Vertices = vertices;
+    m_Texcoords = texcoords;
+    initBuffers();
 }
 
-void Mesh::initMesh(std::vector<Vertex> &vertices)
+Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
 {
-    m_VertexArray = new VertexArray();
-    m_VertexBuffer = new VertexBuffer(vertices);
-    unBindBuffers();
+    m_Vertices = vertices;
+    m_Indices = indices;
+    initBuffers();
 }
 
-void Mesh::initMesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices)
+Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<unsigned int> &indices)
 {
-    m_IsUseElementArrayBuffer = !indices.empty();
-    m_VertexArray = new VertexArray();
-    m_VertexBuffer = m_IsUseElementArrayBuffer ? new VertexBuffer(vertices, indices) : new VertexBuffer(vertices);
-    unBindBuffers();
+    m_Vertices = vertices;
+    m_Texcoords = texcoords;
+    m_Indices = indices;
+    initBuffers();
 }
 
-void Mesh::bindBuffers()
+Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices)
 {
-    if (m_VertexArray != nullptr && m_VertexBuffer != nullptr)
-        m_VertexArray->bind();
+    m_Vertices = vertices;
+    m_Texcoords = texcoords;
+    m_Normals = normals;
+    m_Indices = indices;
+    initBuffers();
 }
 
-void Mesh::unBindBuffers()
+void Mesh::initBuffers()
 {
-    if (m_VertexArray != nullptr && m_VertexBuffer != nullptr)
-        m_VertexArray->unBind();
-}
+    if (!m_VertexArrayID)
+    {
+        glGenVertexArrays(1, &m_VertexArrayID);
+        glGenBuffers(1, &m_VertexBufferID);
+        glGenBuffers(1, &m_ElementBufferID);
+    }
 
-void Mesh::draw()
-{
-    bindBuffers();
+    std::vector<float> data;
+    for (int i = 0; i < m_Vertices.size(); ++i)
+    {
+        data.push_back(m_Vertices[i].x);
+        data.push_back(m_Vertices[i].y);
+        data.push_back(m_Vertices[i].z);
 
-    if (m_IsUseElementArrayBuffer)
-        glDrawElements(GL_TRIANGLES, m_IndicesLength, GL_UNSIGNED_INT, 0);
-    else
-        glDrawArrays(GL_TRIANGLES, 0, m_VertexLength);
+        if (m_Texcoords.size() > 0)
+        {
+            data.push_back(m_Texcoords[i].x);
+            data.push_back(m_Texcoords[i].y);
+        }
 
-    unBindBuffers();
+        if (m_Normals.size() > 0)
+        {
+            data.push_back(m_Normals[i].x);
+            data.push_back(m_Normals[i].y);
+            data.push_back(m_Normals[i].z);
+        }
+    }
+
+    glBindVertexArray(m_VertexArrayID);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
+
+    if (m_Indices.size() > 0)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ElementBufferID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
+    }
+
+    size_t stride = 3 * sizeof(float);
+    if (m_Texcoords.size() > 0) stride += 2 * sizeof(float);
+    if (m_Normals.size() > 0) stride += 3 * sizeof(float);
+
+    size_t offset = 0;
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offset);
+    offset += 3 * sizeof(float);
+
+    if (m_Texcoords.size() > 0)
+    {
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offset);
+        offset += 2 * sizeof(float);
+    }
+
+    if (m_Normals.size() > 0)
+    {
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
+        offset += 3 * sizeof(float);
+    }
+
+    glBindVertexArray(0);
 }

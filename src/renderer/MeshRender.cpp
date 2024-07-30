@@ -1,6 +1,6 @@
 #include "renderer/MeshRender.h"
 
-MeshRender::MeshRender(Mesh* mesh, ShaderProgram* shaderProgram)
+MeshRender::MeshRender(Mesh *mesh, ShaderProgram *shaderProgram)
     : m_Mesh(mesh), m_ShaderProgram(shaderProgram), m_Textures({})
 { }
 
@@ -27,5 +27,16 @@ void MeshRender::draw(Camera* camera)
         texture->bind();
     }
 
-    m_Mesh->draw();
+    glBindVertexArray(m_Mesh->getVertexArrayID());
+
+    if (m_Mesh->getIndicesCount() > 0)
+    {
+        glDrawElements(GL_TRIANGLES, m_Mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
+    }
+    else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, m_Mesh->getVerticesCount());
+    }
+
+    glBindVertexArray(0);
 }

@@ -1,32 +1,33 @@
 #pragma once
 
-#include <iostream>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glad/glad.h>
 
-#include "model/Vertex.h"
-
-#include "base/VertexArray.h"
-#include "base/VertexBuffer.h"
-#include "base/texture/Texture.h"
-#include "base/ShaderProgram.h"
+using namespace glm;
 
 class Mesh
 {
 public:
-    Mesh(std::vector<Vertex> &vertices);
-    Mesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices);
-    virtual ~Mesh() = default;
+    Mesh() = default;
+    Mesh(const std::vector<vec3> &vertices);
+    Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords);
+    Mesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices);
+    Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<unsigned int> &indices);
+    Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices);
 
-    void draw();
-protected:
-    VertexArray* m_VertexArray;
-    VertexBuffer* m_VertexBuffer;
+    inline GLuint getVertexArrayID() { return m_VertexArrayID; }
+    inline GLsizei getIndicesCount() { return m_Indices.size(); }
+    inline GLsizei getVerticesCount() { return m_Vertices.size(); }
+
 private:
-    void initMesh(std::vector<Vertex> &vertices);
-    void initMesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices);
-    void bindBuffers();
-    void unBindBuffers();
+    void initBuffers();
 
-    bool m_IsUseElementArrayBuffer;
-    GLuint m_VertexLength, m_IndicesLength;
+    GLuint m_VertexArrayID, m_VertexBufferID, m_ElementBufferID;
+
+    std::vector<vec3> m_Vertices;
+    std::vector<vec2> m_Texcoords;
+    std::vector<vec3> m_Normals;
+
+    std::vector<unsigned int> m_Indices;
 };
