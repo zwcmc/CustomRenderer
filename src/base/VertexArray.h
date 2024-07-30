@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opengl/Buffer.h"
+#include "base/Buffer.h"
 
 class VertexArray : public Buffer
 {

@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "renderer/Renderer.h"
-#include "opengl/ShaderProgram.h"
+#include "base/ShaderProgram.h"
 
 #include "model/Cube.h"
 

@@ -1,4 +1,4 @@
-#include "opengl/ElementBuffer.h"
+#include "base/ElementBuffer.h"
 
 ElementBuffer::ElementBuffer(std::vector<GLuint> &indices) : Buffer()
 {

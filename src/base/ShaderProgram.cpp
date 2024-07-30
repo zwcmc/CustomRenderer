@@ -1,4 +1,4 @@
-#include "opengl/ShaderProgram.h"
+#include "base/ShaderProgram.h"
 
 ShaderProgram::ShaderProgram(const std::string &name, const std::vector<Shader> shaders)
     : m_ShaderProgramName(name), m_Shaders(shaders)

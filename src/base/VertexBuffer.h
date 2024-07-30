@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#include "opengl/ElementBuffer.h"
+#include "base/ElementBuffer.h"
 #include "model/Vertex.h"
 
 class VertexBuffer : public Buffer

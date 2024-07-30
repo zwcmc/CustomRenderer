@@ -5,8 +5,8 @@
 
 #include "model/Vertex.h"
 
-#include "opengl/VertexArray.h"
-#include "opengl/VertexBuffer.h"
+#include "base/VertexArray.h"
+#include "base/VertexBuffer.h"
 
 class Mesh
 {

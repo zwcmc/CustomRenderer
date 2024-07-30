@@ -1,4 +1,4 @@
-#include "opengl/VertexArray.h"
+#include "base/VertexArray.h"
 
 VertexArray::VertexArray() : Buffer()
 {

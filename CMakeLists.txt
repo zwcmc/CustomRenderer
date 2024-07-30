@@ -10,11 +10,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
     src/main.cpp
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
-    src/opengl/Shader.cpp
-    src/opengl/ShaderProgram.cpp
-    src/opengl/VertexArray.cpp
-    src/opengl/VertexBuffer.cpp
-    src/opengl/ElementBuffer.cpp
+    src/base/Shader.cpp
+    src/base/ShaderProgram.cpp
+    src/base/VertexArray.cpp
+    src/base/VertexBuffer.cpp
+    src/base/ElementBuffer.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
     src/tool/AssetsLoader.cpp

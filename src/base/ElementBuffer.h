@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#include "opengl/Buffer.h"
+#include "base/Buffer.h"
 
 class ElementBuffer : public Buffer
 {

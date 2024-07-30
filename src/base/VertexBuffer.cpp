@@ -1,4 +1,4 @@
-#include "opengl/VertexBuffer.h"
+#include "base/VertexBuffer.h"
 
 VertexBuffer::VertexBuffer(std::vector<VertexPosition> &vertices) : Buffer()
 {
