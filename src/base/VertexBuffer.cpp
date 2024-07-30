@@ -26,11 +26,6 @@ void VertexBuffer::unBind()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void VertexBuffer::initBuffer()
-{
-
-}
-
 void VertexBuffer::initBuffer(std::vector<Vertex> &vertices)
 {
     const static GLint vertexSize = sizeof(Vertex);

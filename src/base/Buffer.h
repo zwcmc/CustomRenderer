@@ -13,7 +13,5 @@ public:
 
     GLuint getBufferID() const { return m_BufferID; }
 protected:
-    virtual void initBuffer() = 0;
-
     GLuint m_BufferID;
 };

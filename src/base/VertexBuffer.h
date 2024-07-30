@@ -17,7 +17,6 @@ public:
     void unBind() override;
 
 protected:
-    void initBuffer() override;
     void initBuffer(std::vector<Vertex> &vertices);
     void initBuffer(std::vector<Vertex> &vertices, std::vector<GLuint> &indices);
 

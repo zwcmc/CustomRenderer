@@ -15,6 +15,5 @@ public:
     void unBind() override;
 
 protected:
-    void initBuffer() override;
     void initBuffer(std::vector<GLuint> &indices);
 };

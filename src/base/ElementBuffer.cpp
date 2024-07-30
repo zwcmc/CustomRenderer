@@ -11,10 +11,6 @@ ElementBuffer::~ElementBuffer()
     glDeleteBuffers(1, &m_BufferID);
 }
 
-void ElementBuffer::initBuffer()
-{
-}
-
 void ElementBuffer::initBuffer(std::vector<GLuint> &indiecs)
 {
     glGenBuffers(1, &m_BufferID);
