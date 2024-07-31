@@ -4,33 +4,27 @@
 #include <string>
 
 #include <glad/glad.h>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader
 {
 public:
-    enum class ShaderType
-    {
-        NONE,
-        VERTEX,
-        FRAGMENT,
-        GEOMETRY
-    };
+    Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource);
+    ~Shader();
 
-    Shader(const std::string &code, const ShaderType &shaderType, const std::string &filePath);
-    ~Shader() = default;
+    void use();
 
-    inline GLuint getShaderID() const { return m_ShaderID; };
-    static Shader fromFile(const std::string &filePath, const ShaderType &shaderType);
+    void setUniformi(const std::string &uniformName, const int value);
+    void setUniform(const std::string &uniformName, const glm::mat4x4 &value);
 
-    void deleteShader();
-
+    static Shader* fromFile(const std::string &name, const std::string &vsPath, const std::string &fsPath);
 private:
-    static std::string readFile(const std::string &filePath);
-    void scanCodeForIncludes();
-    void compileShader();
+    static std::string readCodeFromFile(const std::string &filePath);
+    void createShadersAndCompile(const std::string &vsSource, const std::string &fsSource);
 
-    std::string m_Code;
-    ShaderType m_ShaderType;
-    std::string m_FilePath;
+    GLuint getUniformLocation(const std::string &uniformName);
+
+    std::string m_ShaderName;
     GLuint m_ShaderID;
 };

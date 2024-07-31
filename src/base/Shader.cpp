@@ -5,73 +5,98 @@
 
 #include "defines.h"
 
-Shader::Shader(const std::string &code, const ShaderType &shaderType,  const std::string &filePath)
-    : m_Code(code), m_ShaderType(shaderType), m_FilePath(filePath), m_ShaderID(0)
+Shader::Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource)
+    : m_ShaderID(0)
 {
-    // Load included files in shader
-    scanCodeForIncludes();
-    // Compile shader
-    compileShader();
+    m_ShaderName = name;
+    createShadersAndCompile(vsSource, fsSource);
 }
 
-void Shader::deleteShader()
+Shader::~Shader()
 {
     if (m_ShaderID != 0)
-        glDeleteShader(m_ShaderID);
+        glDeleteProgram(m_ShaderID);
 }
 
-void Shader::scanCodeForIncludes()
+void Shader::use()
 {
-    std::size_t startPos = 0;
-    const static std::string includeDirective = "#include ";
-
-    while ((startPos = m_Code.find(includeDirective, startPos)) != std::string::npos)
-    {
-        const std::size_t pos = startPos + includeDirective.length() + 1;
-        const std::size_t length = m_Code.find('"', pos);
-        const std::string pathToIncludedFile = m_Code.substr(pos, length - pos);
-
-        const std::string includedFileCode = readFile(pathToIncludedFile) + "\n";
-
-        m_Code.replace(startPos, (length + 1) - startPos, includedFileCode);
-
-        startPos += includedFileCode.length();
-    }
+    if (m_ShaderID != 0)
+        glUseProgram(m_ShaderID);
 }
 
-void Shader::compileShader()
+void Shader::setUniformi(const std::string &uniformName, const int value)
 {
-    switch (m_ShaderType)
-    {
-        case ShaderType::VERTEX:
-            m_ShaderID = glCreateShader(GL_VERTEX_SHADER);
-            break;
-        case ShaderType::FRAGMENT:
-            m_ShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-            break;
-        case ShaderType::GEOMETRY:
-            m_ShaderID = glCreateShader(GL_GEOMETRY_SHADER);
-        default:
-            break;
-    }
+    glUniform1i(getUniformLocation(uniformName), value);
+}
 
-    const GLchar* code = m_Code.c_str();
-    glShaderSource(m_ShaderID, 1, &code, nullptr);
-    glCompileShader(m_ShaderID);
+void Shader::setUniform(const std::string &uniformName, const glm::mat4x4 &value)
+{
+    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, value_ptr(value));
+}
+
+GLuint Shader::getUniformLocation(const std::string &uniformName)
+{
+    return glGetUniformLocation(m_ShaderID, uniformName.c_str());
+}
+
+void Shader::createShadersAndCompile(const std::string &vsSource, const std::string &fsSource)
+{
+    GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
+    m_ShaderID = glCreateProgram();
+
+    const GLchar* vsCode = vsSource.c_str();
+    const GLchar* fsCode = fsSource.c_str();
+    glShaderSource(vsID, 1, &vsCode, nullptr);
+    glShaderSource(fsID, 1, &fsCode, nullptr);
+
+    glCompileShader(vsID);
+    glCompileShader(fsID);
 
     GLint success;
-    glGetShaderiv(m_ShaderID, GL_COMPILE_STATUS, &success);
+    GLint logLength = 0;
+    std::vector<GLchar> infoLog;
+    glGetShaderiv(vsID, GL_COMPILE_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+        glGetShaderiv(vsID, GL_INFO_LOG_LENGTH, &logLength);
+        infoLog.resize(logLength);
+        glGetShaderInfoLog(m_ShaderID, logLength, nullptr, infoLog.data());
+        std::cerr << "Failed to compile VERTEX SHADER at: " << m_ShaderName << "! \n Error log: " << infoLog.data() << std::endl;
+    }
+    glGetShaderiv(fsID, GL_COMPILE_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+        glGetShaderiv(vsID, GL_INFO_LOG_LENGTH, &logLength);
+        infoLog.resize(logLength);
+        glGetShaderInfoLog(fsID, logLength, nullptr, infoLog.data());
+        std::cerr << "Failed to compile FRAGMENT SHADER at: " << m_ShaderName << "! \n Error log: " << infoLog.data() << std::endl;
+    }
+
+    glAttachShader(m_ShaderID, vsID);
+    glAttachShader(m_ShaderID, fsID);
+    glLinkProgram(m_ShaderID);
+
+    glGetProgramiv(m_ShaderID, GL_LINK_STATUS, &success);
     if (success == GL_FALSE)
     {
         GLint logLength = 0;
-        glGetShaderiv(m_ShaderID, GL_INFO_LOG_LENGTH, &logLength);
-        std::vector<GLchar> infoLog(logLength);
-        glGetShaderInfoLog(m_ShaderID, logLength, nullptr, infoLog.data());
-        std::cerr << "Failed to compile shader. Shader path: " << m_FilePath << ". \n Error log: " << infoLog.data() << std::endl;
+        glGetProgramiv(m_ShaderID, GL_INFO_LOG_LENGTH, &logLength);
+        infoLog.resize(logLength);
+        glGetProgramInfoLog(m_ShaderID, logLength, nullptr, infoLog.data());
+        std::cerr << "Failed to link SHADER PROGRAM at: " << m_ShaderName << "! Error log:\n" << infoLog.data() << std::endl;
     }
+
+    glDeleteShader(vsID);
+    glDeleteShader(fsID);
 }
 
-std::string Shader::readFile(const std::string &filePath)
+Shader* Shader::fromFile(const std::string &name, const std::string &vsPath, const std::string &fsPath)
+{
+    return new Shader(name, readCodeFromFile(vsPath), readCodeFromFile(fsPath));
+}
+
+std::string Shader::readCodeFromFile(const std::string &filePath)
 {
     std::string newPath = ASSETS_PATH + filePath;
 
@@ -84,9 +109,4 @@ std::string Shader::readFile(const std::string &filePath)
     }
 
     return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-}
-
-Shader Shader::fromFile(const std::string &filePath, const ShaderType &shaderType)
-{
-    return Shader(readFile(filePath), shaderType, filePath);
 }

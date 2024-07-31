@@ -5,9 +5,8 @@
 
 #include "renderer/Renderer.h"
 
-#include "base/ShaderProgram.h"
+#include "base/Shader.h"
 #include "model/Cube.h"
-
 #include "renderer/MeshRender.h"
 
 const int WIDTH = 1280;
@@ -21,14 +20,13 @@ bool m_MiddleMouseButtonPressed = false;
 GLFWwindow* m_Window;
 Renderer* m_Renderer;
 
-// Window callback
+// Window callbacks
 void errorCallback(int error, const char* description);
 void resizeCallback(GLFWwindow* window, int width, int height);
-void processWindowInput(GLFWwindow* window);
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
-void processInput(GLFWwindow* window);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void cursorPositionCallback(GLFWwindow* window, double x, double y);
+void processWindowInput(GLFWwindow* window);
 
 int main()
 {
@@ -60,9 +58,8 @@ int main()
 
     glfwMakeContextCurrent(m_Window);
 
+    // Set callbacks
     glfwSetFramebufferSizeCallback(m_Window, resizeCallback);
-
-    // Camera update
     glfwSetScrollCallback(m_Window, scrollCallback);
     glfwSetMouseButtonCallback(m_Window, mouseButtonCallback);
     glfwSetCursorPosCallback(m_Window, cursorPositionCallback);
@@ -76,16 +73,18 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader vertexShader = Shader::fromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
-    Shader fragmentShader = Shader::fromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
-    ShaderProgram* program = new ShaderProgram("Default", { vertexShader, fragmentShader });
+    Shader* shader = Shader::fromFile("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
+
     Cube* cube = new Cube();
-    MeshRender* meshRender = new MeshRender(cube, program);
+    MeshRender* meshRender = new MeshRender(cube, shader);
+
     Texture* albedo = new Texture("texture1", "textures/screenshot.png", true, false);
     meshRender->addTexture(albedo);
 
     // Renderer
     m_Renderer = new Renderer();
+
+    m_Renderer->addMeshRender(meshRender);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     Camera* camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
@@ -98,7 +97,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        meshRender->draw(camera);
+        m_Renderer->render();
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();

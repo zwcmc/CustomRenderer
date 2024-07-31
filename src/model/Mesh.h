@@ -17,8 +17,8 @@ public:
     Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices);
 
     inline GLuint getVertexArrayID() { return m_VertexArrayID; }
-    inline GLsizei getIndicesCount() { return m_Indices.size(); }
-    inline GLsizei getVerticesCount() { return m_Vertices.size(); }
+    inline GLsizei getIndicesCount() { return static_cast<GLsizei>(m_Indices.size()); }
+    inline GLsizei getVerticesCount() { return static_cast<GLsizei>(m_Vertices.size()); }
 
 private:
     void initBuffers();

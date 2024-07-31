@@ -11,7 +11,6 @@ set(SOURCES
     src/main.cpp
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
     src/base/Shader.cpp
-    src/base/ShaderProgram.cpp
     src/base/texture/Texture.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp

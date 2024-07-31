@@ -1,7 +1,7 @@
 #include "renderer/MeshRender.h"
 
-MeshRender::MeshRender(Mesh *mesh, ShaderProgram *shaderProgram)
-    : m_Mesh(mesh), m_ShaderProgram(shaderProgram), m_Textures({})
+MeshRender::MeshRender(Mesh *mesh, Shader* shader)
+    : m_Mesh(mesh), m_Shader(shader), m_Textures({})
 { }
 
 void MeshRender::addTexture(Texture* texture)
@@ -11,19 +11,18 @@ void MeshRender::addTexture(Texture* texture)
 
 void MeshRender::draw(Camera* camera)
 {
-    // draw our first triangle
-    m_ShaderProgram->useProgram();
+    m_Shader->use();
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();
-    m_ShaderProgram->setUniform("model", model);
-    m_ShaderProgram->setUniform("view", v);
-    m_ShaderProgram->setUniform("projection", p);
+    m_Shader->setUniform("model", model);
+    m_Shader->setUniform("view", v);
+    m_Shader->setUniform("projection", p);
 
     for (auto &texture : m_Textures)
     {
-        m_ShaderProgram->setUniformi(texture->getTextureName(), texture->getTextureUnitIndex());
+        m_Shader->setUniformi(texture->getTextureName(), texture->getTextureUnitIndex());
         texture->bind();
     }
 

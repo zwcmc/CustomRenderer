@@ -82,7 +82,7 @@ void Mesh::initBuffers()
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
     }
 
-    size_t stride = 3 * sizeof(float);
+    GLsizei stride = 3 * sizeof(float);
     if (m_Texcoords.size() > 0) stride += 2 * sizeof(float);
     if (m_Normals.size() > 0) stride += 3 * sizeof(float);
 

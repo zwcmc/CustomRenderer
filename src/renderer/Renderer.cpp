@@ -1,14 +1,15 @@
 #include "renderer/Renderer.h"
 
 Renderer::Renderer()
-    : m_Camera(nullptr) { }
+    : m_Camera(nullptr)
+{ }
 
 void Renderer::setCamera(Camera* camera)
 {
     this->m_Camera = camera;
 }
 
-void Renderer::updateCamera(CameraUpdateType moveType, const glm::vec3 &delta)
+void Renderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta)
 {
     if (!this->m_Camera)
     {
@@ -35,5 +36,18 @@ void Renderer::updateCamera(CameraUpdateType moveType, const glm::vec3 &delta)
         }
         default:
             break;
+    }
+}
+
+void Renderer::addMeshRender(MeshRender* meshRender)
+{
+    m_MeshRenders.push_back(meshRender);
+}
+
+void Renderer::render()
+{
+    for (auto &meshRender : m_MeshRenders)
+    {
+        meshRender->draw(m_Camera);
     }
 }
