@@ -3,14 +3,17 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "ptr.h"
+
 class Camera
 {
+    SHARED_PTR(Camera)
 public:
     Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix);
     Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::vec3 &position, glm::vec3 &rotation);
     ~Camera() = default;
 
-    static Camera* perspectiveCamera(float fovy, float aspect, float zNear, float zFar);
+    static Camera::Ptr perspectiveCamera(float fovy, float aspect, float zNear, float zFar);
 
     void setPosition(const glm::vec3 &position);
     void setRotation(const glm::vec3 &rotation);

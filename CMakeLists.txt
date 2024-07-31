@@ -23,6 +23,7 @@ set(SOURCES
 )
 
 set(HEADERS
+    src/ptr.h
     src/AssetsLoader.h
     src/base/Shader.h
     src/base/Texture.h

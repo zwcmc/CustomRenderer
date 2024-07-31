@@ -7,10 +7,13 @@
 #include "model/Mesh.h"
 #include "base/Material.h"
 
+#include "ptr.h"
+
 class MeshRender
 {
+    SHARED_PTR(MeshRender)
 public:
-    MeshRender(Mesh* mesh, Material* mat);
+    MeshRender(Mesh::Ptr mesh, Material::Ptr mat);
     ~MeshRender() = default;
 
     void translate(const glm::vec3 &position);
@@ -18,10 +21,10 @@ public:
     void rotate(const float &radians, const glm::vec3 &axis);
 
     void update();
-    void draw(Camera* camera);
+    void draw(Camera::Ptr camera);
 private:
-    Mesh* m_Mesh;
-    Material* m_Material;
+    Mesh::Ptr m_Mesh;
+    Material::Ptr m_Material;
 
     glm::mat4 m_Transform;
 };

@@ -4,10 +4,13 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+#include "ptr.h"
+
 using namespace glm;
 
 class Mesh
 {
+    SHARED_PTR(Mesh)
 public:
     Mesh() = default;
     Mesh(const std::vector<vec3> &vertices);

@@ -1,11 +1,11 @@
 #include "base/Material.h"
 
-Material::Material(Shader* shader)
+Material::Material(Shader::Ptr shader)
 {
     m_Shader = shader;
 }
 
-void Material::addTexture(Texture* texture)
+void Material::addTexture(Texture::Ptr texture)
 {
     m_Textures.push_back(texture);
 }

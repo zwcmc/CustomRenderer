@@ -4,7 +4,7 @@ Renderer::Renderer()
     : m_Camera(nullptr)
 { }
 
-void Renderer::setCamera(Camera* camera)
+void Renderer::setCamera(Camera::Ptr camera)
 {
     this->m_Camera = camera;
 }
@@ -39,7 +39,7 @@ void Renderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &d
     }
 }
 
-void Renderer::addMeshRender(MeshRender* meshRender)
+void Renderer::addMeshRender(MeshRender::Ptr meshRender)
 {
     m_MeshRenders.push_back(meshRender);
 }

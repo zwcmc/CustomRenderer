@@ -21,7 +21,7 @@ bool m_LeftMouseButtonPressed = false;
 bool m_MiddleMouseButtonPressed = false;
 
 GLFWwindow* m_Window;
-Renderer* m_Renderer;
+Renderer::Ptr m_Renderer;
 
 // Window callbacks
 void errorCallback(int error, const char* description);
@@ -77,21 +77,22 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Renderer
-    m_Renderer = new Renderer();
+    m_Renderer = Renderer::New();
 
-    Shader* shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
-    Material* mat = new Material(shader);
-    Texture* albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
+    Shader::Ptr shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
+    Material::Ptr mat = Material::New(shader);
+
+    Texture::Ptr albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
     mat->addTexture(albedo);
 
-    Quad* mesh = new Quad();
-    MeshRender* meshRender = new MeshRender(mesh, mat);
+    Quad::Ptr mesh = Quad::New();
+    MeshRender::Ptr meshRender = MeshRender::New(mesh, mat);
     meshRender->scale(glm::vec3(1.5f, 1.5f, 1.0f));
     meshRender->translate(glm::vec3(1.0f, 0.0f, 0.0f));
     m_Renderer->addMeshRender(meshRender);
 
-    Cube* cube = new Cube();
-    MeshRender* cubeMeshRender = new MeshRender(cube, mat);
+    Cube::Ptr cube = Cube::New();
+    MeshRender::Ptr cubeMeshRender = MeshRender::New(cube, mat);
     cubeMeshRender->scale(glm::vec3(0.5f, 0.5f, 0.5f));
     cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -101,7 +102,7 @@ int main()
     AssetsLoader::loadglTFFile("cube/cube2.gltf");
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
-    Camera* camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+    Camera::Ptr camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
     m_Renderer->setCamera(camera);
 
     while (!glfwWindowShouldClose(m_Window))

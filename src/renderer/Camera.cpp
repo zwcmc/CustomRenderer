@@ -14,12 +14,12 @@ Camera::Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, c
     updateViewMatrix();
 }
 
-Camera* Camera::perspectiveCamera(float fovy, float aspect, float zNear, float zFar)
+Camera::Ptr Camera::perspectiveCamera(float fovy, float aspect, float zNear, float zFar)
 {
     glm::mat4 projection = glm::perspective(fovy, aspect, zNear, zFar);
     glm::mat4 view(1.0f);
 
-    Camera* camera = new Camera(projection, view);
+    Camera::Ptr camera = Camera::New(projection, view);
     camera->setFovAspectZNearFar(fovy, aspect, zNear, zFar);
     return camera;
 }

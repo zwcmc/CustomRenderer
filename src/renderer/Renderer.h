@@ -6,8 +6,11 @@
 #include "renderer/Camera.h"
 #include "renderer/MeshRender.h"
 
+#include "ptr.h"
+
 class Renderer
 {
+    SHARED_PTR(Renderer)
 public:
     enum class CameraUpdateType
     {
@@ -19,13 +22,13 @@ public:
     Renderer();
     ~Renderer() = default;
 
-    void setCamera(Camera* camera);
+    void setCamera(Camera::Ptr camera);
     void updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta = glm::vec3(0.0f));
-    void addMeshRender(MeshRender* render);
+    void addMeshRender(MeshRender::Ptr render);
 
     void render();
 private:
-    Camera* m_Camera;
-    std::vector<MeshRender*> m_MeshRenders;
+    Camera::Ptr m_Camera;
+    std::vector<MeshRender::Ptr> m_MeshRenders;
     // std::vector<Light*> m_Lights;
 };

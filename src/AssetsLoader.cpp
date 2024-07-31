@@ -3,7 +3,7 @@
 #include <fstream>
 #include <stb_image.h>
 
-Shader* AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
+Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
 {
     std::string vsPath = getAssetsPath() + vsFilePath;
     std::string fsPath = getAssetsPath() + fsFilePath;
@@ -15,7 +15,7 @@ Shader* AssetsLoader::loadShader(const std::string &name, const std::string &vsF
     if (!vsFile.is_open() || !fsFile.is_open())
     {
         std::cerr << "Failed to load shader, path: " + vsPath + " and " + fsPath << std::endl;
-        return new Shader();
+        return Shader::New();
     }
 
     std::string vsSource = readShader(vsFile, name);
@@ -24,16 +24,16 @@ Shader* AssetsLoader::loadShader(const std::string &name, const std::string &vsF
     vsFile.close();
     fsFile.close();
 
-    return new Shader(name, vsSource, fsSource);
+    return Shader::New(name, vsSource, fsSource);
 }
 
-Texture* AssetsLoader::loadTexture(const std::string& textureName, const std::string& filePath, bool flipVertical, bool useMipmap)
+Texture::Ptr AssetsLoader::loadTexture(const std::string& textureName, const std::string& filePath, bool flipVertical, bool useMipmap)
 {
     stbi_set_flip_vertically_on_load(flipVertical);
 
     std::string newPath = getAssetsPath() + filePath;
 
-    Texture* texture = new Texture();
+    Texture::Ptr texture = Texture::New();
 
     int width, height, components;
     unsigned char* data = stbi_load(newPath.c_str(), &width, &height, &components, 0);

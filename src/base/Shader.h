@@ -7,8 +7,11 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "ptr.h"
+
 class Shader
 {
+    SHARED_PTR(Shader)
 public:
     Shader();
     Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource);

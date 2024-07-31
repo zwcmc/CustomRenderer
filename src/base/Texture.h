@@ -4,8 +4,11 @@
 #include <string>
 #include <glad/glad.h>
 
+#include "ptr.h"
+
 class Texture
 {
+    SHARED_PTR(Texture)
 public:
     Texture();
     virtual ~Texture();

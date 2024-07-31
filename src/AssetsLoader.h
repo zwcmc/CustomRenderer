@@ -11,8 +11,8 @@
 class AssetsLoader
 {
 public:
-    static Shader* loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
-    static Texture* loadTexture(const std::string &textureName, const std::string &filePath, bool flipVertical = true, bool useMipmap = false);
+    static Shader::Ptr loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
+    static Texture::Ptr loadTexture(const std::string &textureName, const std::string &filePath, bool flipVertical = true, bool useMipmap = false);
     static void loadglTFFile(const std::string &filePath);
 private:
     AssetsLoader() = default;

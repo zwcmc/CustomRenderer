@@ -1,6 +1,6 @@
 #include "renderer/MeshRender.h"
 
-MeshRender::MeshRender(Mesh* mesh, Material* mat)
+MeshRender::MeshRender(Mesh::Ptr mesh, Material::Ptr mat)
     : m_Mesh(mesh), m_Material(mat), m_Transform(glm::mat4(1.0f))
 { }
 
@@ -19,7 +19,7 @@ void MeshRender::rotate(const float &radians, const glm::vec3 &axis)
     m_Transform = glm::rotate(m_Transform, radians, axis);
 }
 
-void MeshRender::draw(Camera* camera)
+void MeshRender::draw(Camera::Ptr camera)
 {
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();
