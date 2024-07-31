@@ -98,6 +98,8 @@ int main()
     cubeMeshRender->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
     m_Renderer->addMeshRender(cubeMeshRender);
 
+    AssetsLoader::loadglTFFile("cube/cube2.gltf");
+
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     Camera* camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
     m_Renderer->setCamera(camera);

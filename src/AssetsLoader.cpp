@@ -64,6 +64,70 @@ Texture* AssetsLoader::loadTexture(const std::string& textureName, const std::st
     return texture;
 }
 
+void AssetsLoader::loadglTFFile(const std::string &filePath)
+{
+    std::string newPath = getAssetsPath() + filePath;
+
+    tinygltf::Model glTFInput;
+    tinygltf::TinyGLTF glTFContext;
+    std::string error, warning;
+
+    bool fileLoaded = glTFContext.LoadASCIIFromFile(&glTFInput, &error, &warning, newPath);
+
+    if (fileLoaded)
+    {
+        const tinygltf::Scene &scene = glTFInput.scenes[0];
+        for (size_t i = 0; i < scene.nodes.size(); ++i)
+        {
+            const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
+            loadglTFNode(node, glTFInput);
+        }
+    }
+    else
+    {
+        std::cerr << "Could not open the glTF file: " << newPath << ", error: " << error << std::endl;
+    }
+}
+
+void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input)
+{
+    if (inputNode.translation.size() == 3)
+    {
+        glm::vec3 translation = glm::vec3(glm::make_vec3(inputNode.translation.data()));
+    }
+    if (inputNode.rotation.size() == 4)
+    {
+        glm::quat q = glm::make_quat(inputNode.rotation.data());
+        glm::mat4 m = glm::mat4(q);
+    }
+    if (inputNode.scale.size() == 3)
+    {
+        glm::vec3 scale = glm::vec3(glm::make_vec3(inputNode.scale.data()));
+    }
+    if (inputNode.matrix.size() == 16)
+    {
+        glm::mat4 m = glm::make_mat4x4(inputNode.matrix.data());
+    };
+
+    if (inputNode.children.size() > 0)
+    {
+        for (size_t i = 0; i < inputNode.children.size(); i++)
+        {
+            loadglTFNode(input.nodes[inputNode.children[i]], input);
+        }
+    }
+
+
+    if (inputNode.mesh > -1)
+    {
+        const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
+        for (size_t i = 0; i < mesh.primitives.size(); i++)
+        {
+            const tinygltf::Primitive& glTFPrimitive = mesh.primitives[i];
+        }
+    }
+}
+
 std::string AssetsLoader::readShader(std::ifstream& file, const std::string& name)
 {
     std::string source, line;
