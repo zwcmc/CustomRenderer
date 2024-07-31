@@ -10,6 +10,7 @@
 class Shader
 {
 public:
+    Shader();
     Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource);
     ~Shader();
 
@@ -17,10 +18,7 @@ public:
 
     void setUniformi(const std::string &uniformName, const int value);
     void setUniform(const std::string &uniformName, const glm::mat4x4 &value);
-
-    static Shader* fromFile(const std::string &name, const std::string &vsPath, const std::string &fsPath);
 private:
-    static std::string readCodeFromFile(const std::string &filePath);
     void createShadersAndCompile(const std::string &vsSource, const std::string &fsSource);
 
     GLuint getUniformLocation(const std::string &uniformName);

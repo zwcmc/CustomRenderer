@@ -9,9 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     src/main.cpp
+    src/AssetsLoader.cpp
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
     src/base/Shader.cpp
-    src/base/texture/Texture.cpp
+    src/base/Texture.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
     src/renderer/MeshRender.cpp

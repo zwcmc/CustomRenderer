@@ -9,6 +9,8 @@
 #include "model/Cube.h"
 #include "renderer/MeshRender.h"
 
+#include "AssetsLoader.h"
+
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
@@ -73,12 +75,11 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader* shader = Shader::fromFile("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
+    Shader* shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
 
     Cube* cube = new Cube();
     MeshRender* meshRender = new MeshRender(cube, shader);
-
-    Texture* albedo = new Texture("texture1", "textures/screenshot.png", true, false);
+    Texture* albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
     meshRender->addTexture(albedo);
 
     // Renderer

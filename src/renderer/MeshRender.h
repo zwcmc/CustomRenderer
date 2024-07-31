@@ -5,8 +5,10 @@
 
 #include "renderer/Camera.h"
 #include "base/Shader.h"
+#include "base/Texture.h"
+
 #include "model/Mesh.h"
-#include "base/texture/Texture.h"
+#include "base/Material.h"
 
 class MeshRender
 {
@@ -19,6 +21,8 @@ public:
     void draw(Camera* camera);
 private:
     Shader* m_Shader;
-    Mesh *m_Mesh;
     std::vector<Texture*> m_Textures;
+
+    Mesh* m_Mesh;
+    Material* m_Material;
 };

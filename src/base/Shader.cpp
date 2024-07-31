@@ -3,7 +3,11 @@
 #include <vector>
 #include <fstream>
 
-#include "defines.h"
+Shader::Shader()
+    : m_ShaderID(0), m_ShaderName("")
+{
+
+}
 
 Shader::Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource)
     : m_ShaderID(0)
@@ -89,24 +93,4 @@ void Shader::createShadersAndCompile(const std::string &vsSource, const std::str
 
     glDeleteShader(vsID);
     glDeleteShader(fsID);
-}
-
-Shader* Shader::fromFile(const std::string &name, const std::string &vsPath, const std::string &fsPath)
-{
-    return new Shader(name, readCodeFromFile(vsPath), readCodeFromFile(fsPath));
-}
-
-std::string Shader::readCodeFromFile(const std::string &filePath)
-{
-    std::string newPath = ASSETS_PATH + filePath;
-
-    std::ifstream in(newPath, std::ios::in);
-    in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-    if (!in) {
-        std::cerr << "Shader: Failed to read file: " + newPath << ", error: " << errno << std::endl;
-        std::abort();
-    }
-
-    return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
