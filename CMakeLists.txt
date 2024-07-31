@@ -17,6 +17,7 @@ set(SOURCES
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
     src/renderer/MeshRenderer.cpp
+    src/renderer/glTFRenderer.cpp
     src/model/Mesh.cpp
     src/model/Quad.cpp
     src/model/Cube.cpp
@@ -31,6 +32,7 @@ set(HEADERS
     src/renderer/Renderer.h
     src/renderer/Camera.h
     src/renderer/MeshRenderer.h
+    src/renderer/glTFRenderer.h
     src/model/Mesh.h
     src/model/Quad.h
     src/model/Cube.h

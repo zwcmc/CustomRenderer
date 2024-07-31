@@ -12,6 +12,8 @@
 
 #include "model/Models.h"
 
+#include "renderer/glTFRenderer.h"
+
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
@@ -85,21 +87,22 @@ int main()
     Texture::Ptr albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
     mat->addTexture(albedo);
 
-    Quad::Ptr mesh = Quad::New();
-    MeshRenderer::Ptr meshRender = MeshRenderer::New(mesh, mat);
-    meshRender->scale(glm::vec3(1.5f, 1.5f, 1.0f));
-    meshRender->translate(glm::vec3(1.0f, 0.0f, 0.0f));
-    m_Renderer->addMeshRenderer(meshRender);
+    // Quad::Ptr mesh = Quad::New();
+    // MeshRenderer::Ptr meshRender = MeshRenderer::New(mesh, mat);
+    // meshRender->scale(glm::vec3(1.5f, 1.5f, 1.0f));
+    // meshRender->translate(glm::vec3(1.0f, 0.0f, 0.0f));
+    // m_Renderer->addMeshRenderer(meshRender);
 
-    Cube::Ptr cube = Cube::New();
-    MeshRenderer::Ptr cubeMeshRender = MeshRenderer::New(cube, mat);
-    cubeMeshRender->scale(glm::vec3(0.5f, 0.5f, 0.5f));
-    cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    cubeMeshRender->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
-    m_Renderer->addMeshRenderer(cubeMeshRender);
+    // Cube::Ptr cube = Cube::New();
+    // MeshRenderer::Ptr cubeMeshRender = MeshRenderer::New(cube, mat);
+    // cubeMeshRender->scale(glm::vec3(0.5f, 0.5f, 0.5f));
+    // cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    // cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    // cubeMeshRender->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
+    // m_Renderer->addMeshRenderer(cubeMeshRender);
 
-    AssetsLoader::loadglTFFile("cube/cube2.gltf");
+    glTFRenderer::Ptr renderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+    renderer->setMaterial(mat);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     Camera::Ptr camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
@@ -113,6 +116,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_Renderer->render();
+
+        renderer->draw(camera);
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();
