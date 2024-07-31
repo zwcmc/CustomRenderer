@@ -13,6 +13,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
     src/base/Shader.cpp
     src/base/Texture.cpp
+    src/base/Material.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
     src/renderer/MeshRender.cpp
@@ -21,7 +22,20 @@ set(SOURCES
     src/model/Cube.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+set(HEADERS
+    src/AssetsLoader.h
+    src/base/Shader.h
+    src/base/Texture.h
+    src/base/Material.h
+    src/renderer/Renderer.h
+    src/renderer/Camera.h
+    src/renderer/MeshRender.h
+    src/model/Mesh.h
+    src/model/Quad.h
+    src/model/Cube.h
+)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} opengl32)
@@ -58,9 +72,5 @@ target_link_libraries(${PROJECT_NAME} tinygltf)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
-# target_include_directories(${PROJECT_NAME} PRIVATE third_party/glfw/include)
-# target_include_directories(${PROJECT_NAME} PRIVATE third_party/glm)
-# target_include_directories(${PROJECT_NAME} PRIVATE third_party/tinygltf)
-# target_include_directories(${PROJECT_NAME} PRIVATE third_party/imgui)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
