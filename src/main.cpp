@@ -6,7 +6,7 @@
 #include "renderer/Renderer.h"
 
 #include "base/Shader.h"
-#include "renderer/MeshRender.h"
+#include "renderer/MeshRenderer.h"
 #include "loader/AssetsLoader.h"
 #include "base/Material.h"
 
@@ -86,18 +86,18 @@ int main()
     mat->addTexture(albedo);
 
     Quad::Ptr mesh = Quad::New();
-    MeshRender::Ptr meshRender = MeshRender::New(mesh, mat);
+    MeshRenderer::Ptr meshRender = MeshRenderer::New(mesh, mat);
     meshRender->scale(glm::vec3(1.5f, 1.5f, 1.0f));
     meshRender->translate(glm::vec3(1.0f, 0.0f, 0.0f));
-    m_Renderer->addMeshRender(meshRender);
+    m_Renderer->addMeshRenderer(meshRender);
 
     Cube::Ptr cube = Cube::New();
-    MeshRender::Ptr cubeMeshRender = MeshRender::New(cube, mat);
+    MeshRenderer::Ptr cubeMeshRender = MeshRenderer::New(cube, mat);
     cubeMeshRender->scale(glm::vec3(0.5f, 0.5f, 0.5f));
     cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     cubeMeshRender->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
-    m_Renderer->addMeshRender(cubeMeshRender);
+    m_Renderer->addMeshRenderer(cubeMeshRender);
 
     AssetsLoader::loadglTFFile("cube/cube2.gltf");
 

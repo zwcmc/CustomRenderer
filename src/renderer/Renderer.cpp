@@ -39,7 +39,7 @@ void Renderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &d
     }
 }
 
-void Renderer::addMeshRender(MeshRender::Ptr meshRender)
+void Renderer::addMeshRenderer(MeshRenderer::Ptr meshRender)
 {
     m_MeshRenders.push_back(meshRender);
 }

@@ -1,25 +1,25 @@
-#include "renderer/MeshRender.h"
+#include "renderer/MeshRenderer.h"
 
-MeshRender::MeshRender(Mesh::Ptr mesh, Material::Ptr mat)
+MeshRenderer::MeshRenderer(Mesh::Ptr mesh, Material::Ptr mat)
     : m_Mesh(mesh), m_Material(mat), m_Transform(glm::mat4(1.0f))
 { }
 
-void MeshRender::translate(const glm::vec3 & position)
+void MeshRenderer::translate(const glm::vec3 & position)
 {
     m_Transform = glm::translate(m_Transform, position);
 }
 
-void MeshRender::scale(const glm::vec3 &scale)
+void MeshRenderer::scale(const glm::vec3 &scale)
 {
     m_Transform = glm::scale(m_Transform, scale);
 }
 
-void MeshRender::rotate(const float &radians, const glm::vec3 &axis)
+void MeshRenderer::rotate(const float &radians, const glm::vec3 &axis)
 {
     m_Transform = glm::rotate(m_Transform, radians, axis);
 }
 
-void MeshRender::draw(Camera::Ptr camera)
+void MeshRenderer::draw(Camera::Ptr camera)
 {
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();

@@ -9,18 +9,17 @@
 
 #include "ptr.h"
 
-class MeshRender
+class MeshRenderer
 {
-    SHARED_PTR(MeshRender)
+    SHARED_PTR(MeshRenderer)
 public:
-    MeshRender(Mesh::Ptr mesh, Material::Ptr mat);
-    ~MeshRender() = default;
+    MeshRenderer(Mesh::Ptr mesh, Material::Ptr mat);
+    ~MeshRenderer() = default;
 
     void translate(const glm::vec3 &position);
     void scale(const glm::vec3 &scale);
     void rotate(const float &radians, const glm::vec3 &axis);
 
-    void update();
     void draw(Camera::Ptr camera);
 private:
     Mesh::Ptr m_Mesh;

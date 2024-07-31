@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "renderer/Camera.h"
-#include "renderer/MeshRender.h"
+#include "renderer/MeshRenderer.h"
 
 #include "ptr.h"
 
@@ -24,11 +24,11 @@ public:
 
     void setCamera(Camera::Ptr camera);
     void updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta = glm::vec3(0.0f));
-    void addMeshRender(MeshRender::Ptr render);
+    void addMeshRenderer(MeshRenderer::Ptr render);
 
     void render();
 private:
     Camera::Ptr m_Camera;
-    std::vector<MeshRender::Ptr> m_MeshRenders;
+    std::vector<MeshRenderer::Ptr> m_MeshRenders;
     // std::vector<Light*> m_Lights;
 };

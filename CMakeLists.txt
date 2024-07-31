@@ -16,7 +16,7 @@ set(SOURCES
     src/base/Material.cpp
     src/renderer/Renderer.cpp
     src/renderer/Camera.cpp
-    src/renderer/MeshRender.cpp
+    src/renderer/MeshRenderer.cpp
     src/model/Mesh.cpp
     src/model/Quad.cpp
     src/model/Cube.cpp
@@ -30,7 +30,7 @@ set(HEADERS
     src/base/Material.h
     src/renderer/Renderer.h
     src/renderer/Camera.h
-    src/renderer/MeshRender.h
+    src/renderer/MeshRenderer.h
     src/model/Mesh.h
     src/model/Quad.h
     src/model/Cube.h
