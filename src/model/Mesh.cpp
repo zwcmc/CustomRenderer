@@ -1,12 +1,14 @@
 #include "model/Mesh.h"
 
 Mesh::Mesh(const std::vector<vec3> &vertices)
+    : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
     initBuffers();
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords)
+    : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
     m_Texcoords = texcoords;
@@ -14,6 +16,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
+    : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
     m_Indices = indices;
@@ -21,6 +24,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &i
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<unsigned int> &indices)
+    : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
     m_Texcoords = texcoords;
@@ -29,6 +33,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices)
+    : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
     m_Texcoords = texcoords;

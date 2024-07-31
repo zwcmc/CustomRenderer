@@ -28,6 +28,5 @@ private:
     std::vector<vec3> m_Vertices;
     std::vector<vec2> m_Texcoords;
     std::vector<vec3> m_Normals;
-
     std::vector<unsigned int> m_Indices;
 };
