@@ -1,4 +1,4 @@
-#include "AssetsLoader.h"
+#include "loader/AssetsLoader.h"
 
 #include <fstream>
 #include <stb_image.h>

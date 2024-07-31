@@ -7,7 +7,7 @@
 
 #include "base/Shader.h"
 #include "renderer/MeshRender.h"
-#include "AssetsLoader.h"
+#include "loader/AssetsLoader.h"
 #include "base/Material.h"
 
 #include "model/Models.h"
