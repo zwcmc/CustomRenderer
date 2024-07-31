@@ -1,32 +1,31 @@
 #include "renderer/MeshRender.h"
 
 MeshRender::MeshRender(Mesh* mesh, Material* mat)
-    : m_Mesh(mesh), m_Material(mat)
+    : m_Mesh(mesh), m_Material(mat), m_Transform(glm::mat4(1.0f))
 { }
+
+void MeshRender::translate(const glm::vec3 & position)
+{
+    m_Transform = glm::translate(m_Transform, position);
+}
+
+void MeshRender::scale(const glm::vec3 &scale)
+{
+    m_Transform = glm::scale(m_Transform, scale);
+}
+
+void MeshRender::rotate(const float &radians, const glm::vec3 &axis)
+{
+    m_Transform = glm::rotate(m_Transform, radians, axis);
+}
 
 void MeshRender::draw(Camera* camera)
 {
-    /*m_Shader->use();
-
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 p = camera->getProjectionMatrix();
-    glm::mat4 v = camera->getViewMatrix();
-    m_Shader->setMatrix("model", model);
-    m_Shader->setMatrix("view", v);
-    m_Shader->setMatrix("projection", p);
-
-    for (auto &texture : m_Textures)
-    {
-        m_Shader->setInt(texture->getTextureName(), texture->getTextureUnitIndex());
-        texture->bind();
-    }*/
-
-    glm::mat4 m = glm::mat4(1.0f);
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();
 
     m_Material->use();
-    m_Material->setMatrix("model", m);
+    m_Material->setMatrix("model", m_Transform);
     m_Material->setMatrix("view", v);
     m_Material->setMatrix("projection", p);
 

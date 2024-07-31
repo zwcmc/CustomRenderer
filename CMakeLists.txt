@@ -33,6 +33,7 @@ set(HEADERS
     src/model/Mesh.h
     src/model/Quad.h
     src/model/Cube.h
+    src/model/Models.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})

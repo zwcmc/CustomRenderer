@@ -6,12 +6,11 @@
 #include "renderer/Renderer.h"
 
 #include "base/Shader.h"
-#include "model/Quad.h"
 #include "renderer/MeshRender.h"
-
 #include "AssetsLoader.h"
-
 #include "base/Material.h"
+
+#include "model/Models.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -77,17 +76,27 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader* shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
-    Quad* mesh = new Quad();
-    Material* mat = new Material(shader);
-    Texture* albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
-    mat->addTexture(albedo);
-    MeshRender* meshRender = new MeshRender(mesh, mat);
-
     // Renderer
     m_Renderer = new Renderer();
 
+    Shader* shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
+    Material* mat = new Material(shader);
+    Texture* albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
+    mat->addTexture(albedo);
+
+    Quad* mesh = new Quad();
+    MeshRender* meshRender = new MeshRender(mesh, mat);
+    meshRender->scale(glm::vec3(1.5f, 1.5f, 1.0f));
+    meshRender->translate(glm::vec3(1.0f, 0.0f, 0.0f));
     m_Renderer->addMeshRender(meshRender);
+
+    Cube* cube = new Cube();
+    MeshRender* cubeMeshRender = new MeshRender(cube, mat);
+    cubeMeshRender->scale(glm::vec3(0.5f, 0.5f, 0.5f));
+    cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    cubeMeshRender->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
+    m_Renderer->addMeshRender(cubeMeshRender);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     Camera* camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
