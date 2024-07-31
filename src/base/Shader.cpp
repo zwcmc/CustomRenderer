@@ -14,8 +14,6 @@ Shader::Shader(const std::string &code, const ShaderType &shaderType,  const std
     compileShader();
 }
 
-// Shader::Shader() : m_Code(""), m_ShaderType(ShaderType::NONE), m_FilePath(""), m_ShaderID(0) { }
-
 void Shader::deleteShader()
 {
     if (m_ShaderID != 0)
@@ -58,7 +56,7 @@ void Shader::compileShader()
     }
 
     const GLchar* code = m_Code.c_str();
-    glShaderSource(m_ShaderID, 1, &code, NULL);
+    glShaderSource(m_ShaderID, 1, &code, nullptr);
     glCompileShader(m_ShaderID);
 
     GLint success;
@@ -68,22 +66,24 @@ void Shader::compileShader()
         GLint logLength = 0;
         glGetShaderiv(m_ShaderID, GL_INFO_LOG_LENGTH, &logLength);
         std::vector<GLchar> infoLog(logLength);
-        glGetShaderInfoLog(m_ShaderID, logLength, NULL, infoLog.data());
+        glGetShaderInfoLog(m_ShaderID, logLength, nullptr, infoLog.data());
         std::cerr << "Failed to compile shader. Shader path: " << m_FilePath << ". \n Error log: " << infoLog.data() << std::endl;
     }
 }
 
 std::string Shader::readFile(const std::string &filePath)
 {
-    std::ifstream file(ASSETS_PATH + filePath);
-    std::string line = "", code = "";
-    if (file.is_open())
-    {
-        while (getline(file, line))
-            code += line + "\n";
-        file.close();
+    std::string newPath = ASSETS_PATH + filePath;
+
+    std::ifstream in(newPath, std::ios::in);
+    in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    if (!in) {
+        std::cerr << "Shader: Failed to read file: " + newPath << ", error: " << errno << std::endl;
+        std::abort();
     }
-    return code;
+
+    return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
 Shader Shader::fromFile(const std::string &filePath, const ShaderType &shaderType)

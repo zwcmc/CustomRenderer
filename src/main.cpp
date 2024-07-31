@@ -50,7 +50,7 @@ int main()
 #endif
 
     // Create window
-    m_Window = glfwCreateWindow(WIDTH, HEIGHT, "CustomRenderer", NULL, NULL);
+    m_Window = glfwCreateWindow(WIDTH, HEIGHT, "CustomRenderer", nullptr, nullptr);
     if (!m_Window)
     {
         std::cerr << "Failed to create window" << std::endl;
@@ -79,9 +79,9 @@ int main()
     Shader vertexShader = Shader::fromFile("glsl_shaders/Default.vert", Shader::ShaderType::VERTEX);
     Shader fragmentShader = Shader::fromFile("glsl_shaders/Default.frag", Shader::ShaderType::FRAGMENT);
     ShaderProgram* program = new ShaderProgram("Default", { vertexShader, fragmentShader });
-    Cube *cube = new Cube();
-    MeshRender *meshRender = new MeshRender(cube, program);
-    Texture *albedo = new Texture("texture1", "textures/screenshot.png", true, false);
+    Cube* cube = new Cube();
+    MeshRender* meshRender = new MeshRender(cube, program);
+    Texture* albedo = new Texture("texture1", "textures/screenshot.png", true, false);
     meshRender->addTexture(albedo);
 
     // Renderer

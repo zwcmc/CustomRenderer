@@ -17,7 +17,6 @@ public:
     };
 
     Shader(const std::string &code, const ShaderType &shaderType, const std::string &filePath);
-    // Shader();
     ~Shader() = default;
 
     inline GLuint getShaderID() const { return m_ShaderID; };

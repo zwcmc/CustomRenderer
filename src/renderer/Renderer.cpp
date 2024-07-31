@@ -1,7 +1,7 @@
 #include "renderer/Renderer.h"
 
 Renderer::Renderer()
-    : m_Camera(NULL) { }
+    : m_Camera(nullptr) { }
 
 void Renderer::setCamera(Camera* camera)
 {
@@ -12,7 +12,7 @@ void Renderer::updateCamera(CameraUpdateType moveType, const glm::vec3 &delta)
 {
     if (!this->m_Camera)
     {
-        std::cerr << "Renderer: camera is NULL" << std::endl;
+        std::cerr << "Renderer: camera is nullptr" << std::endl;
         return;
     }
     switch (moveType)

@@ -31,7 +31,7 @@ void MeshRender::draw(Camera* camera)
 
     if (m_Mesh->getIndicesCount() > 0)
     {
-        glDrawElements(GL_TRIANGLES, m_Mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, m_Mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
     else
     {

@@ -41,7 +41,7 @@ void ShaderProgram::link()
         GLint logLength = 0;
         glGetProgramiv(m_ShaderProgramID, GL_INFO_LOG_LENGTH, &logLength);
         std::vector<GLchar> infoLog(logLength);
-        glGetProgramInfoLog(m_ShaderProgramID, logLength, NULL, infoLog.data());
+        glGetProgramInfoLog(m_ShaderProgramID, logLength, nullptr, infoLog.data());
         std::cerr << "Failed to link shader program: " << m_ShaderProgramName << ". Error log:\n" << infoLog.data() << std::endl;
     }
 
