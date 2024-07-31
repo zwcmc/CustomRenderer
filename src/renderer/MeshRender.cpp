@@ -1,30 +1,34 @@
 #include "renderer/MeshRender.h"
 
-MeshRender::MeshRender(Mesh *mesh, Shader* shader)
-    : m_Mesh(mesh), m_Shader(shader), m_Textures({})
+MeshRender::MeshRender(Mesh* mesh, Material* mat)
+    : m_Mesh(mesh), m_Material(mat)
 { }
-
-void MeshRender::addTexture(Texture* texture)
-{
-    m_Textures.push_back(texture);
-}
 
 void MeshRender::draw(Camera* camera)
 {
-    m_Shader->use();
+    /*m_Shader->use();
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();
-    m_Shader->setUniform("model", model);
-    m_Shader->setUniform("view", v);
-    m_Shader->setUniform("projection", p);
+    m_Shader->setMatrix("model", model);
+    m_Shader->setMatrix("view", v);
+    m_Shader->setMatrix("projection", p);
 
     for (auto &texture : m_Textures)
     {
-        m_Shader->setUniformi(texture->getTextureName(), texture->getTextureUnitIndex());
+        m_Shader->setInt(texture->getTextureName(), texture->getTextureUnitIndex());
         texture->bind();
-    }
+    }*/
+
+    glm::mat4 m = glm::mat4(1.0f);
+    glm::mat4 p = camera->getProjectionMatrix();
+    glm::mat4 v = camera->getViewMatrix();
+
+    m_Material->use();
+    m_Material->setMatrix("model", m);
+    m_Material->setMatrix("view", v);
+    m_Material->setMatrix("projection", p);
 
     glBindVertexArray(m_Mesh->getVertexArrayID());
 

@@ -6,10 +6,12 @@
 #include "renderer/Renderer.h"
 
 #include "base/Shader.h"
-#include "model/Cube.h"
+#include "model/Quad.h"
 #include "renderer/MeshRender.h"
 
 #include "AssetsLoader.h"
+
+#include "base/Material.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -76,11 +78,11 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     Shader* shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
-
-    Cube* cube = new Cube();
-    MeshRender* meshRender = new MeshRender(cube, shader);
+    Quad* mesh = new Quad();
+    Material* mat = new Material(shader);
     Texture* albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
-    meshRender->addTexture(albedo);
+    mat->addTexture(albedo);
+    MeshRender* meshRender = new MeshRender(mesh, mat);
 
     // Renderer
     m_Renderer = new Renderer();

@@ -13,16 +13,11 @@
 class MeshRender
 {
 public:
-    MeshRender(Mesh *mesh, Shader* shaderProgram);
+    MeshRender(Mesh* mesh, Material* mat);
     ~MeshRender() = default;
-
-    void addTexture(Texture* texture);
 
     void draw(Camera* camera);
 private:
-    Shader* m_Shader;
-    std::vector<Texture*> m_Textures;
-
     Mesh* m_Mesh;
     Material* m_Material;
 };

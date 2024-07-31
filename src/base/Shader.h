@@ -16,8 +16,8 @@ public:
 
     void use();
 
-    void setUniformi(const std::string &uniformName, const int value);
-    void setUniform(const std::string &uniformName, const glm::mat4x4 &value);
+    void setUniformInt(const std::string &uniformName, const int value);
+    void setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value);
 private:
     void createShadersAndCompile(const std::string &vsSource, const std::string &fsSource);
 

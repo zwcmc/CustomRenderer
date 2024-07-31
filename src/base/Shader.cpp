@@ -5,9 +5,7 @@
 
 Shader::Shader()
     : m_ShaderID(0), m_ShaderName("")
-{
-
-}
+{ }
 
 Shader::Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource)
     : m_ShaderID(0)
@@ -28,12 +26,12 @@ void Shader::use()
         glUseProgram(m_ShaderID);
 }
 
-void Shader::setUniformi(const std::string &uniformName, const int value)
+void Shader::setUniformInt(const std::string &uniformName, const int value)
 {
     glUniform1i(getUniformLocation(uniformName), value);
 }
 
-void Shader::setUniform(const std::string &uniformName, const glm::mat4x4 &value)
+void Shader::setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value)
 {
     glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, value_ptr(value));
 }
