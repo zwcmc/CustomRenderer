@@ -1,6 +1,7 @@
 #version 410 core
 
-in vec2 uv;
+in vec2 UV0;
+in vec3 Normal;
 
 uniform sampler2D albedoMap;
 uniform float albedoMapSet;
@@ -10,6 +11,6 @@ out vec4 FragColor;
 
 void main()
 {
-    vec4 color = albedoMapSet > 0.0 ? texture(albedoMap, uv) * baseColor : baseColor;
+    vec4 color = albedoMapSet > 0.0 ? texture(albedoMap, UV0) * baseColor : baseColor;
     FragColor = vec4(color.rgb, 1.0);
 }

@@ -196,9 +196,11 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
             // Vertices
             std::vector<vec3> vertices;
             std::vector<vec2> texcoords;
+            std::vector<vec3> normals;
             {
                 const float* vertexBuffer = nullptr;
                 const float* texcoordBuffer = nullptr;
+                const float* normalsBuffer = nullptr;
                 size_t vertexCount = 0;
 
                 if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end())
@@ -216,10 +218,18 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
                     texcoordBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                 }
 
+                if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end())
+                {
+                    const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
+                    const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
+                    normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                }
+
                 for (size_t i = 0; i < vertexCount; ++i)
                 {
                     vertices.push_back(glm::make_vec3(&vertexBuffer[i * 3]));
                     texcoords.push_back(texcoordBuffer ? glm::make_vec2(&texcoordBuffer[i * 2]) : glm::vec2(0.0f));
+                    normals.push_back(glm::normalize(normalsBuffer ? glm::make_vec3(&normalsBuffer[i * 3]) : glm::vec3(0.0f)));
                 }
             }
 
@@ -274,7 +284,7 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
             mat->addFloatProperty("albedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
             mat->addVectorProperty("baseColor", glTFMatData->baseColorFactor);
 
-            node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, indices), mat));
+            node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), mat));
         }
     }
 
