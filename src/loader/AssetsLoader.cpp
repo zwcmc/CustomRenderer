@@ -279,10 +279,10 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
             glTFRenderer::glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
 
             if (glTFMatData->baseColorTexture)
-                mat->addTextureProperty("albedoMap", glTFMatData->baseColorTexture);
+                mat->addTextureProperty("uAlbedoMap", glTFMatData->baseColorTexture);
 
-            mat->addFloatProperty("albedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
-            mat->addVectorProperty("baseColor", glTFMatData->baseColorFactor);
+            mat->addFloatProperty("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+            mat->addVectorProperty("uBaseColor", glTFMatData->baseColorFactor);
 
             node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), mat));
         }

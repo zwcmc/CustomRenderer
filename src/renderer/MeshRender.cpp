@@ -10,9 +10,9 @@ void MeshRender::draw(Camera::Ptr camera, glm::mat4 modelMatrix)
     glm::mat4 v = camera->getViewMatrix();
 
     m_Material->use();
-    m_Material->setMatrix("model", modelMatrix);
-    m_Material->setMatrix("view", v);
-    m_Material->setMatrix("projection", p);
+    m_Material->setMatrix("uModelMatrix", modelMatrix);
+    m_Material->setMatrix("uViewMatrix", v);
+    m_Material->setMatrix("uProjectionMatrix", p);
 
     glBindVertexArray(m_Mesh->getVertexArrayID());
 

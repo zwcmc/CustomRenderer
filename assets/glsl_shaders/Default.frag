@@ -3,14 +3,14 @@
 in vec2 UV0;
 in vec3 Normal;
 
-uniform sampler2D albedoMap;
-uniform float albedoMapSet;
-uniform vec4 baseColor;
+uniform sampler2D uAlbedoMap;
+uniform float uAlbedoMapSet;
+uniform vec4 uBaseColor;
 
 out vec4 FragColor;
 
 void main()
 {
-    vec4 color = albedoMapSet > 0.0 ? texture(albedoMap, UV0) * baseColor : baseColor;
+    vec4 color = uAlbedoMapSet > 0.0 ? texture(uAlbedoMap, UV0) * uBaseColor : uBaseColor;
     FragColor = vec4(color.rgb, 1.0);
 }
