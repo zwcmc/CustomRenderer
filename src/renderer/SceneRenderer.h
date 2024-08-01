@@ -4,13 +4,13 @@
 #include <vector>
 
 #include "renderer/Camera.h"
-#include "renderer/MeshRenderer.h"
+#include "renderer/ModelRenderer.h"
 
 #include "ptr.h"
 
-class Renderer
+class SceneRenderer
 {
-    SHARED_PTR(Renderer)
+    SHARED_PTR(SceneRenderer)
 public:
     enum class CameraUpdateType
     {
@@ -19,16 +19,16 @@ public:
         ASPECT_RATIO
     };
 
-    Renderer();
-    ~Renderer() = default;
+    SceneRenderer();
+    ~SceneRenderer() = default;
 
     void setCamera(Camera::Ptr camera);
     void updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta = glm::vec3(0.0f));
-    void addMeshRenderer(MeshRenderer::Ptr render);
+    void addModelRenderer(ModelRenderer::Ptr renderer);
 
     void render();
 private:
     Camera::Ptr m_Camera;
-    std::vector<MeshRenderer::Ptr> m_MeshRenders;
+    std::vector<ModelRenderer::Ptr> m_ModelRenders;
     // std::vector<Light*> m_Lights;
 };

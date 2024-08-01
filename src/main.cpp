@@ -3,16 +3,17 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "renderer/Renderer.h"
+#include "renderer/SceneRenderer.h"
 
 #include "base/Shader.h"
-#include "renderer/MeshRenderer.h"
+#include "renderer/MeshRender.h"
 #include "loader/AssetsLoader.h"
 #include "base/Material.h"
 
 #include "model/Models.h"
 
 #include "renderer/glTFRenderer.h"
+#include "renderer/ShapeRenderer.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -23,7 +24,7 @@ bool m_LeftMouseButtonPressed = false;
 bool m_MiddleMouseButtonPressed = false;
 
 GLFWwindow* m_Window;
-Renderer::Ptr m_Renderer;
+SceneRenderer::Ptr m_SceneRenderer;
 
 // Window callbacks
 void errorCallback(int error, const char* description);
@@ -78,35 +79,29 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    // Renderer
-    m_Renderer = Renderer::New();
+    // SceneRenderer
+    m_SceneRenderer = SceneRenderer::New();
 
-    Shader::Ptr shader = AssetsLoader::loadShader("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
-    Material::Ptr mat = Material::New(shader);
+    Shader::Ptr shader = AssetsLoader::loadShaderFromFile("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
+    
+    Material::Ptr shapeMat = Material::New(shader);
+    Texture::Ptr albedo = AssetsLoader::loadTextureFromFile("albedoMap", "textures/screenshot.png");
+    shapeMat->addTextureProperty(albedo);
+    shapeMat->addFloatProperty("albedoMapSet", 1.0f);
+    shapeMat->addVectorProperty("baseColor", glm::vec4(1.0f));
+    ShapeRenderer::Ptr quad = ShapeRenderer::New(Quad::New(), shapeMat);
+    quad->translate(glm::vec3(1.0f, 0.0f, 0.0f));
+    m_SceneRenderer->addModelRenderer(quad);
 
-    Texture::Ptr albedo = AssetsLoader::loadTexture("texture1", "textures/screenshot.png");
-    mat->addTexture(albedo);
-
-    // Quad::Ptr mesh = Quad::New();
-    // MeshRenderer::Ptr meshRender = MeshRenderer::New(mesh, mat);
-    // meshRender->scale(glm::vec3(1.5f, 1.5f, 1.0f));
-    // meshRender->translate(glm::vec3(1.0f, 0.0f, 0.0f));
-    // m_Renderer->addMeshRenderer(meshRender);
-
-    // Cube::Ptr cube = Cube::New();
-    // MeshRenderer::Ptr cubeMeshRender = MeshRenderer::New(cube, mat);
-    // cubeMeshRender->scale(glm::vec3(0.5f, 0.5f, 0.5f));
-    // cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    // cubeMeshRender->rotate(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    // cubeMeshRender->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
-    // m_Renderer->addMeshRenderer(cubeMeshRender);
-
-    glTFRenderer::Ptr renderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
-    renderer->setMaterial(mat);
+    // glTF models
+    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf", shader);
+    glTFModelRenderer->scale(glm::vec3(0.5f, 0.5f, 0.5f));
+    glTFModelRenderer->translate(glm::vec3(-2.0f, 0.0f, 0.0f));
+    m_SceneRenderer->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     Camera::Ptr camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
-    m_Renderer->setCamera(camera);
+    m_SceneRenderer->setCamera(camera);
 
     while (!glfwWindowShouldClose(m_Window))
     {
@@ -115,9 +110,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_Renderer->render();
-
-        renderer->draw(camera);
+        m_SceneRenderer->render();
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();
@@ -135,7 +128,7 @@ void errorCallback(int error, const char* description)
 void resizeCallback(GLFWwindow* window, int width, int height)
 {
     if (width > 0.0f && height > 0.0f)
-        m_Renderer->updateCamera(Renderer::CameraUpdateType::ASPECT_RATIO, glm::vec3(static_cast<float>(width), static_cast<float>(height), 0.0f));
+        m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::ASPECT_RATIO, glm::vec3(static_cast<float>(width), static_cast<float>(height), 0.0f));
 
     glViewport(0, 0, width, height);
 }
@@ -148,7 +141,7 @@ void processWindowInput(GLFWwindow* window)
 
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
-    m_Renderer->updateCamera(Renderer::CameraUpdateType::POSITION, glm::vec3(0.0f, 0.0f, static_cast<float>(yOffset)));
+    m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::POSITION, glm::vec3(0.0f, 0.0f, static_cast<float>(yOffset)));
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -181,8 +174,8 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
     m_LastY = ypos;
 
     if (m_LeftMouseButtonPressed)
-        m_Renderer->updateCamera(Renderer::CameraUpdateType::ROTATION, glm::vec3(dy, dx, 0.0f));
+        m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::ROTATION, glm::vec3(dy, dx, 0.0f));
     
     if (m_MiddleMouseButtonPressed)
-        m_Renderer->updateCamera(Renderer::CameraUpdateType::POSITION, glm::vec3(dx * 0.005f, -dy * 0.005f, 0.0f));
+        m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::POSITION, glm::vec3(dx * 0.005f, -dy * 0.005f, 0.0f));
 }

@@ -1,17 +1,12 @@
 #include "renderer/glTFRenderer.h"
 
-glTFRenderer::glTFRenderer() { }
-
-glTFRenderer::~glTFRenderer() { }
+glTFRenderer::glTFRenderer()
+    : m_ModelMatrix(glm::mat4(1.0f))
+{ }
 
 void glTFRenderer::addNode(glTFNode::Ptr node)
 {
     m_glTFNodes.push_back(node);
-}
-
-void glTFRenderer::setMaterial(Material::Ptr mat)
-{
-    m_Material = mat;
 }
 
 void glTFRenderer::draw(Camera::Ptr camera)
@@ -25,9 +20,24 @@ void glTFRenderer::draw(Camera::Ptr camera)
     }
 }
 
+void glTFRenderer::translate(const glm::vec3& p)
+{
+    m_ModelMatrix = glm::translate(m_ModelMatrix, p);
+}
+
+void glTFRenderer::scale(const glm::vec3& s)
+{
+    m_ModelMatrix = glm::scale(m_ModelMatrix, s);
+}
+
+void glTFRenderer::rotate(const float& radians, const glm::vec3& axis)
+{
+    m_ModelMatrix = glm::rotate(m_ModelMatrix, radians, axis);
+}
+
 void glTFRenderer::drawNode(Camera::Ptr camera, glTFNode::Ptr node)
 {
-    if (node->meshes.size() > 0)
+    if (node->meshRenders.size() > 0)
     {
         glm::mat4 modelMatrix = node->matrix;
         glTFNode::Ptr currentParent = node->parent.lock();
@@ -37,27 +47,11 @@ void glTFRenderer::drawNode(Camera::Ptr camera, glTFNode::Ptr node)
             currentParent = currentParent->parent.lock();
         }
 
-        for (auto mesh : node->meshes)
+        modelMatrix = m_ModelMatrix * modelMatrix;
+
+        for (auto mr : node->meshRenders)
         {
-            glm::mat4 p = camera->getProjectionMatrix();
-            glm::mat4 v = camera->getViewMatrix();
-            m_Material->use();
-            m_Material->setMatrix("model", modelMatrix);
-            m_Material->setMatrix("view", v);
-            m_Material->setMatrix("projection", p);
-
-            glBindVertexArray(mesh->getVertexArrayID());
-
-            if (mesh->getIndicesCount() > 0)
-            {
-                glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
-            }
-            else
-            {
-                glDrawArrays(GL_TRIANGLES, 0, mesh->getVerticesCount());
-            }
-
-            glBindVertexArray(0);
+            mr->draw(camera, modelMatrix);
         }
     }
 

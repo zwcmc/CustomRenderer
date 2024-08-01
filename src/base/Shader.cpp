@@ -16,19 +16,27 @@ Shader::Shader(const std::string &name, const std::string &vsSource, const std::
 
 Shader::~Shader()
 {
-    if (m_ShaderID != 0)
-        glDeleteProgram(m_ShaderID);
+    glDeleteProgram(m_ShaderID);
 }
 
 void Shader::use()
 {
-    if (m_ShaderID != 0)
-        glUseProgram(m_ShaderID);
+    glUseProgram(m_ShaderID);
 }
 
 void Shader::setUniformInt(const std::string &uniformName, const int value)
 {
     glUniform1i(getUniformLocation(uniformName), value);
+}
+
+void Shader::setUniformFloat(const std::string& uniformName, const float& value)
+{
+    glUniform1f(getUniformLocation(uniformName), value);
+}
+
+void Shader::setUniformVector(const std::string &uniformName, const glm::vec4 &value)
+{
+    glUniform4f(getUniformLocation(uniformName), value.x, value.y, value.z, value.w);
 }
 
 void Shader::setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value)

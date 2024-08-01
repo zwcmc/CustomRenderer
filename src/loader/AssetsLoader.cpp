@@ -3,7 +3,9 @@
 #include <fstream>
 #include <stb_image.h>
 
-Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
+std::vector<glTFRenderer::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
+
+Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
 {
     std::string vsPath = getAssetsPath() + vsFilePath;
     std::string fsPath = getAssetsPath() + fsFilePath;
@@ -27,31 +29,18 @@ Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string 
     return Shader::New(name, vsSource, fsSource);
 }
 
-Texture::Ptr AssetsLoader::loadTexture(const std::string& textureName, const std::string& filePath, bool flipVertical, bool useMipmap)
+Texture::Ptr AssetsLoader::loadTextureFromFile(const std::string& textureName, const std::string& filePath, bool useMipmap)
 {
-    stbi_set_flip_vertically_on_load(flipVertical);
-
-    std::string newPath = getAssetsPath() + filePath;
-
     Texture::Ptr texture = Texture::New();
 
+    stbi_set_flip_vertically_on_load(true);
+
+    std::string newPath = getAssetsPath() + filePath;
     int width, height, components;
     unsigned char* data = stbi_load(newPath.c_str(), &width, &height, &components, 0);
     if (data)
     {
-        GLenum format;
-        switch (components)
-        {
-            case 1:
-                format = GL_RED;
-                break;
-            case 3:
-                format = GL_RGB;
-                break;
-            case 4:
-                format = GL_RGBA;
-                break;
-        }
+        GLenum format = getFormat(components);
         texture->initTexture(textureName, width, height, components, format, data, useMipmap);
     }
     else
@@ -61,10 +50,29 @@ Texture::Ptr AssetsLoader::loadTexture(const std::string& textureName, const std
 
     stbi_image_free(data);
 
+    stbi_set_flip_vertically_on_load(false);
+
     return texture;
 }
 
-glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
+Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap)
+{
+    Texture::Ptr texture = Texture::New();
+
+    if (buffer)
+    {
+        GLenum format = getFormat(components);
+        texture->initTexture(textureName, width, height, components, format, buffer, useMipmap);
+    }
+    else
+    {
+        std::cerr << "Failer to create texture: "<< textureName << "! Texture buffer is nullptr." << std::endl;
+    }
+
+    return texture;
+}
+
+glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath, Shader::Ptr shader)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -77,11 +85,14 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
     bool fileLoaded = glTFContext.LoadASCIIFromFile(&glTFInput, &error, &warning, newPath);
     if (fileLoaded)
     {
+        // Load texture and material data
+        loadglTFMaterials(glTFInput);
+
         const tinygltf::Scene &scene = glTFInput.scenes[0];
         for (size_t i = 0; i < scene.nodes.size(); ++i)
         {
             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            loadglTFNode(node, glTFInput, renderer, nullptr);
+            loadglTFNode(node, glTFInput, renderer, nullptr, shader);
         }
     }
     else
@@ -92,11 +103,58 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
     return renderer;
 }
 
-void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent)
+void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
+{
+    // Load texture indices
+    std::vector<int> textureIndices;
+    {
+        textureIndices.resize(input.textures.size());
+        for (size_t index = 0; index < input.textures.size(); ++index) {
+            textureIndices[index] = input.textures[index].source;
+        }
+    }
+
+    // Create textures
+    std::vector<Texture::Ptr> textures;
+    {
+        textures.resize(input.images.size());
+        for (size_t index = 0; index < input.images.size(); ++index)
+        {
+            const tinygltf::Image& glTFImage = input.images[index];
+            unsigned char* buffer = const_cast<unsigned char*>(&glTFImage.image[0]);
+            textures[index] = createTextureFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void*>(buffer));
+        }
+    }
+
+    // load glTF materials
+    AssetsLoader::glTFMatDatas.clear();
+    {
+        AssetsLoader::glTFMatDatas.resize(input.materials.size());
+        for (size_t index = 0; index < input.materials.size(); ++index)
+        {
+            AssetsLoader::glTFMatDatas[index] = glTFRenderer::glTFMaterialData::New();
+
+            tinygltf::Material glTFMaterial = input.materials[index];
+            if (glTFMaterial.values.find("baseColorTexture") != glTFMaterial.values.end())
+            {
+                int textureIndex = glTFMaterial.values["baseColorTexture"].TextureIndex();
+                AssetsLoader::glTFMatDatas[index]->baseColorTexture = textures[textureIndices[textureIndex]];
+            }
+
+            if (glTFMaterial.values.find("baseColorFactor") != glTFMaterial.values.end())
+            {
+                AssetsLoader::glTFMatDatas[index]->baseColorFactor = glm::make_vec4(glTFMaterial.values["baseColorFactor"].ColorFactor().data());
+            }
+        }
+    }
+}
+
+void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent, Shader::Ptr shader)
 {
     glTFRenderer::glTFNode::Ptr node = glTFRenderer::glTFNode::New();
     node->parent = parent;
 
+    // Model matrix
     if (inputNode.translation.size() == 3)
     {
         glm::vec3 translation = glm::make_vec3(inputNode.translation.data());
@@ -119,11 +177,12 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
         node->matrix = m;
     };
 
+    // Load node's children
     if (inputNode.children.size() > 0)
     {
         for (size_t i = 0; i < inputNode.children.size(); i++)
         {
-            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node);
+            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node, shader);
         }
     }
 
@@ -206,7 +265,16 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
                 }
             }
 
-            node->meshes.push_back(Mesh::New(vertices, texcoords, indices));
+            Material::Ptr mat = Material::New(shader);
+            glTFRenderer::glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
+
+            if (glTFMatData->baseColorTexture)
+                mat->addTextureProperty("albedoMap", glTFMatData->baseColorTexture);
+
+            mat->addFloatProperty("albedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+            mat->addVectorProperty("baseColor", glTFMatData->baseColorFactor);
+
+            node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, indices), mat));
         }
     }
 

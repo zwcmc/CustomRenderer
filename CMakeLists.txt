@@ -14,10 +14,11 @@ set(SOURCES
     src/base/Shader.cpp
     src/base/Texture.cpp
     src/base/Material.cpp
-    src/renderer/Renderer.cpp
+    src/renderer/SceneRenderer.cpp
     src/renderer/Camera.cpp
-    src/renderer/MeshRenderer.cpp
+    src/renderer/MeshRender.cpp
     src/renderer/glTFRenderer.cpp
+    src/renderer/ShapeRenderer.cpp
     src/model/Mesh.cpp
     src/model/Quad.cpp
     src/model/Cube.cpp
@@ -29,10 +30,12 @@ set(HEADERS
     src/base/Shader.h
     src/base/Texture.h
     src/base/Material.h
-    src/renderer/Renderer.h
+    src/renderer/SceneRenderer.h
     src/renderer/Camera.h
-    src/renderer/MeshRenderer.h
+    src/renderer/ModelRenderer.h
+    src/renderer/MeshRender.h
     src/renderer/glTFRenderer.h
+    src/renderer/ShapeRenderer.h
     src/model/Mesh.h
     src/model/Quad.h
     src/model/Cube.h

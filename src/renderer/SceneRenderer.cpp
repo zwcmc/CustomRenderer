@@ -1,19 +1,19 @@
-#include "renderer/Renderer.h"
+#include "renderer/SceneRenderer.h"
 
-Renderer::Renderer()
+SceneRenderer::SceneRenderer()
     : m_Camera(nullptr)
 { }
 
-void Renderer::setCamera(Camera::Ptr camera)
+void SceneRenderer::setCamera(Camera::Ptr camera)
 {
     this->m_Camera = camera;
 }
 
-void Renderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta)
+void SceneRenderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta)
 {
     if (!this->m_Camera)
     {
-        std::cerr << "Renderer: camera is nullptr" << std::endl;
+        std::cerr << "SceneRenderer: camera is nullptr" << std::endl;
         return;
     }
     switch (moveType)
@@ -39,15 +39,15 @@ void Renderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &d
     }
 }
 
-void Renderer::addMeshRenderer(MeshRenderer::Ptr meshRender)
+void SceneRenderer::addModelRenderer(ModelRenderer::Ptr renderer)
 {
-    m_MeshRenders.push_back(meshRender);
+    m_ModelRenders.push_back(renderer);
 }
 
-void Renderer::render()
+void SceneRenderer::render()
 {
-    for (auto &meshRender : m_MeshRenders)
+    for (auto &renderer : m_ModelRenders)
     {
-        meshRender->draw(m_Camera);
+        renderer->draw(m_Camera);
     }
 }
