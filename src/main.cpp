@@ -83,20 +83,9 @@ int main()
     m_SceneRenderer = SceneRenderer::New();
 
     Shader::Ptr shader = AssetsLoader::loadShaderFromFile("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
-    
-    Material::Ptr shapeMat = Material::New(shader);
-    Texture::Ptr albedo = AssetsLoader::loadTextureFromFile("albedoMap", "textures/screenshot.png");
-    shapeMat->addTextureProperty(albedo);
-    shapeMat->addFloatProperty("albedoMapSet", 1.0f);
-    shapeMat->addVectorProperty("baseColor", glm::vec4(1.0f));
-    ShapeRenderer::Ptr quad = ShapeRenderer::New(Quad::New(), shapeMat);
-    quad->translate(glm::vec3(1.0f, 0.0f, 0.0f));
-    m_SceneRenderer->addModelRenderer(quad);
 
     // glTF models
-    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf", shader);
-    glTFModelRenderer->scale(glm::vec3(0.5f, 0.5f, 0.5f));
-    glTFModelRenderer->translate(glm::vec3(-2.0f, 0.0f, 0.0f));
+    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf", shader);
     m_SceneRenderer->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
