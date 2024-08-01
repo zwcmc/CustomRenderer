@@ -4,18 +4,27 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 
 ## Feature
 
-<!-- - [x] Loading arbitrary glTF 2.0 models
-- [x] Skybox(Cubemap)
-- [ ] Animations
-- [x] Image-Based Lighting
-- [ ] Physically-based shading
-- [ ] Shadow mapping
-  - [ ] PCF
-  - [ ] PCSS
+- [x] Loading glTF 2.0 models
+  - [x] With POSITION, TEXCOORD_0 and NORMAL attributes
+  - [ ] Textures and Factors
+    - [x] baseColorTexture and baseColorFactor
+    - [ ] normalTexture
+    - [ ] emissiveTexture and emissiveFactor
+    - [ ] metallicRoughnessTexture, metallicFactor and roughnessFactor
+    - [ ] occlusionTexture
+  - [ ] Alpha Blend
+  - [ ] Alpha Cutoff
+  - [ ] Face Culling
+- [ ] Physically Based Rendering
+- [ ] Image Based Lighting
+- [ ] Shadow Mapping
+  - [ ] Cascaded Shadow Mapping
+- [ ] HDR
 - [ ] Bloom
-- [ ] TAA
 - [ ] MSAA
-- [ ] SSAO -->
+- [ ] FXAA
+- [ ] SSAO
+- [ ] TAA
 
 ## References
 
