@@ -10,7 +10,7 @@
 
 class ShapeRenderer : public ModelRenderer
 {
-    SHARED_PTR(ShapeRenderer)
+SHARED_PTR(ShapeRenderer)
 public:
 
     ShapeRenderer();

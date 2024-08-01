@@ -11,7 +11,7 @@
 
 class MeshRender
 {
-    SHARED_PTR(MeshRender)
+SHARED_PTR(MeshRender)
 public:
     MeshRender(Mesh::Ptr mesh, Material::Ptr mat);
     ~MeshRender() = default;

@@ -7,7 +7,7 @@
 
 class Camera
 {
-    SHARED_PTR(Camera)
+SHARED_PTR(Camera)
 public:
     Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix);
     Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::vec3 &position, glm::vec3 &rotation);

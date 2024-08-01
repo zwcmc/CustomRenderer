@@ -5,7 +5,7 @@
 
 class ModelRenderer
 {
-    SHARED_PTR(ModelRenderer)
+SHARED_PTR(ModelRenderer)
 public:
     ModelRenderer() = default;
     ~ModelRenderer() = default;

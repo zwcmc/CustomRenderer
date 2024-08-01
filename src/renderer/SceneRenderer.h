@@ -10,7 +10,7 @@
 
 class SceneRenderer
 {
-    SHARED_PTR(SceneRenderer)
+SHARED_PTR(SceneRenderer)
 public:
     enum class CameraUpdateType
     {

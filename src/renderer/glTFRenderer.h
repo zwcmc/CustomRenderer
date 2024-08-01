@@ -11,7 +11,7 @@
 
 class glTFRenderer : public ModelRenderer
 {
-    SHARED_PTR(glTFRenderer)
+SHARED_PTR(glTFRenderer)
 public:
     struct glTFNode
     {
