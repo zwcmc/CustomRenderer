@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "renderer/SceneRenderer.h"
+#include "lights/BaseLight.h"
 
 #include "base/Shader.h"
 #include "renderer/MeshRender.h"
@@ -14,6 +14,10 @@
 
 #include "renderer/glTFRenderer.h"
 #include "renderer/ShapeRenderer.h"
+
+#include "renderer/SceneRenderer.h"
+
+#include "lights/DirectionalLight.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -77,20 +81,24 @@ int main()
         return -1;
     }
 
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     // SceneRenderer
     m_SceneRenderer = SceneRenderer::New();
 
     Shader::Ptr shader = AssetsLoader::loadShaderFromFile("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
-
     // glTF models
     glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf", shader);
+    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf", shader);
     m_SceneRenderer->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     Camera::Ptr camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
     m_SceneRenderer->setCamera(camera);
+
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+    m_SceneRenderer->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))
     {
@@ -163,7 +171,7 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
     m_LastY = ypos;
 
     if (m_LeftMouseButtonPressed)
-        m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::ROTATION, glm::vec3(dy, dx, 0.0f));
+        m_SceneRenderer->rotateModelRenderers(glm::vec3(dy, dx, 0.0f));
     
     if (m_MiddleMouseButtonPressed)
         m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::POSITION, glm::vec3(dx * 0.005f, -dy * 0.005f, 0.0f));

@@ -18,9 +18,10 @@ public:
     ~ShapeRenderer();
 
     void addMeshRender(MeshRender::Ptr meshRender);
-    void translate(const glm::vec3 &p);
-    void scale(const glm::vec3 &s);
-    void rotate(const float &radians, const glm::vec3 &axis);
+
+    void translate(const glm::vec3 &p) override;
+    void scale(const glm::vec3 &s) override;
+    void rotate(const float &radians, const glm::vec3 &axis) override;
 
     void draw(Camera::Ptr camera) override;
 

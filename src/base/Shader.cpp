@@ -71,13 +71,13 @@ void Shader::createShadersAndCompile(const std::string &vsSource, const std::str
     {
         glGetShaderiv(vsID, GL_INFO_LOG_LENGTH, &logLength);
         infoLog.resize(logLength);
-        glGetShaderInfoLog(m_ShaderID, logLength, nullptr, infoLog.data());
+        glGetShaderInfoLog(vsID, logLength, nullptr, infoLog.data());
         std::cerr << "Failed to compile VERTEX SHADER at: " << m_ShaderName << "! \n Error log: " << infoLog.data() << std::endl;
     }
     glGetShaderiv(fsID, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE)
     {
-        glGetShaderiv(vsID, GL_INFO_LOG_LENGTH, &logLength);
+        glGetShaderiv(fsID, GL_INFO_LOG_LENGTH, &logLength);
         infoLog.resize(logLength);
         glGetShaderInfoLog(fsID, logLength, nullptr, infoLog.data());
         std::cerr << "Failed to compile FRAGMENT SHADER at: " << m_ShaderName << "! \n Error log: " << infoLog.data() << std::endl;

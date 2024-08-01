@@ -4,6 +4,12 @@ SceneRenderer::SceneRenderer()
     : m_Camera(nullptr)
 { }
 
+SceneRenderer::~SceneRenderer()
+{
+    m_ModelRenderers.clear();
+    m_Lights.clear();
+}
+
 void SceneRenderer::setCamera(Camera::Ptr camera)
 {
     this->m_Camera = camera;
@@ -23,11 +29,6 @@ void SceneRenderer::updateCamera(const CameraUpdateType &moveType, const glm::ve
             this->m_Camera->translate(delta);
             break;
         }
-        case CameraUpdateType::ROTATION:
-        {
-            this->m_Camera->rotate(delta);
-            break;
-        }
         case CameraUpdateType::ASPECT_RATIO:
         {
             float aspect = delta.x / delta.y;
@@ -39,15 +40,41 @@ void SceneRenderer::updateCamera(const CameraUpdateType &moveType, const glm::ve
     }
 }
 
+void SceneRenderer::rotateModelRenderers(const glm::vec3 &delta)
+{
+    for (auto &model : m_ModelRenderers)
+    {
+        model->rotate(glm::radians(delta.y) * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+}
+
 void SceneRenderer::addModelRenderer(ModelRenderer::Ptr renderer)
 {
-    m_ModelRenders.push_back(renderer);
+    m_ModelRenderers.push_back(renderer);
+}
+
+void SceneRenderer::addLight(BaseLight::Ptr light)
+{
+    m_Lights.push_back(light);
 }
 
 void SceneRenderer::render()
 {
-    for (auto &renderer : m_ModelRenders)
+    if (m_Lights.size() > 0)
     {
-        renderer->draw(m_Camera);
+        for (auto &light : m_Lights)
+        {
+            for (auto &renderer : m_ModelRenderers)
+            {
+                renderer->draw(m_Camera, light);
+            }
+        }
+    }
+    else
+    {
+        for (auto &renderer : m_ModelRenderers)
+        {
+            renderer->draw(m_Camera);
+        }
     }
 }

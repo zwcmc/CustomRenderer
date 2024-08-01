@@ -22,6 +22,8 @@ set(SOURCES
     src/model/Mesh.cpp
     src/model/Quad.cpp
     src/model/Cube.cpp
+    src/lights/BaseLight.cpp
+    src/lights/DirectionalLight.cpp
 )
 
 set(HEADERS
@@ -40,6 +42,8 @@ set(HEADERS
     src/model/Quad.h
     src/model/Cube.h
     src/model/Models.h
+    src/lights/BaseLight.h
+    src/lights/DirectionalLight.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
@@ -80,4 +84,4 @@ target_link_libraries(${PROJECT_NAME} tinygltf)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+# target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
