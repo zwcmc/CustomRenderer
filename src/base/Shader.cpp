@@ -104,4 +104,11 @@ void Shader::createShadersAndCompile(const std::string &vsSource, const std::str
 
     glDeleteShader(vsID);
     glDeleteShader(fsID);
+
+    // Set global uniform to binding point 0 for each shader
+    GLuint uniformBlockIndex = glGetUniformBlockIndex(m_ShaderID, "GlobalUniforms");
+    if (uniformBlockIndex != GL_INVALID_INDEX)
+    {
+        glUniformBlockBinding(m_ShaderID, uniformBlockIndex, 0);
+    }
 }

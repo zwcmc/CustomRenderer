@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include <glad/glad.h>
+
 #include "ptr.h"
 
 #include "cameras/ArcballCamera.h"
@@ -27,9 +29,13 @@ public:
     void render();
 
 private:
+    void init();
+
     ArcballCamera::Ptr m_Camera;
     std::vector<ModelRenderer::Ptr> m_ModelRenderers;
     std::vector<BaseLight::Ptr> m_Lights;
+
+    GLuint m_GlobalUniformBufferID;
 
     static constexpr float ROTATION_SPEED = 0.05f;
 };

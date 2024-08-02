@@ -8,13 +8,9 @@ MeshRender::MeshRender(Mesh::Ptr mesh, Material::Ptr mat)
 
 void MeshRender::draw(ArcballCamera::Ptr camera, glm::mat4 modelMatrix)
 {
-    glm::mat4 p = camera->getProjectionMatrix();
-    glm::mat4 v = camera->getViewMatrix();
-
     m_Material->use();
     m_Material->setMatrix("uModelMatrix", modelMatrix);
-    m_Material->setMatrix("uViewMatrix", v);
-    m_Material->setMatrix("uProjectionMatrix", p);
+    m_Material->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(modelMatrix)));
 
     glBindVertexArray(m_Mesh->getVertexArrayID());
 
@@ -33,17 +29,12 @@ void MeshRender::draw(ArcballCamera::Ptr camera, glm::mat4 modelMatrix)
 
 void MeshRender::draw(ArcballCamera::Ptr camera, BaseLight::Ptr light, glm::mat4 modelMatrix)
 {
-    glm::mat4 p = camera->getProjectionMatrix();
-    glm::mat4 v = camera->getViewMatrix();
-
     m_Material->addVectorProperty("uLightPos", light->getLightPosition());
     m_Material->addVectorProperty("uLightColorIntensity", light->getLightColorAndIntensity());
     m_Material->addVectorProperty("uCameraPos", glm::vec4(camera->getPosition(), 1.0f));
 
     m_Material->use();
     m_Material->setMatrix("uModelMatrix", modelMatrix);
-    m_Material->setMatrix("uViewMatrix", v);
-    m_Material->setMatrix("uProjectionMatrix", p);
     m_Material->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(modelMatrix)));
 
     glBindVertexArray(m_Mesh->getVertexArrayID());
