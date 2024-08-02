@@ -1,4 +1,4 @@
-#include "model/Mesh.h"
+#include "meshes/Mesh.h"
 
 Mesh::Mesh(const std::vector<vec3> &vertices)
     : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)

@@ -7,7 +7,7 @@
 
 #include "ptr.h"
 #include "base/Material.h"
-#include "model/Mesh.h"
+#include "meshes/Mesh.h"
 #include "cameras/ArcballCamera.h"
 
 class BaseLight;

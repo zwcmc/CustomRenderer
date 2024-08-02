@@ -1,4 +1,4 @@
-#include "model/Cube.h"
+#include "meshes/Cube.h"
 
 std::vector<vec3> cubeVertices = {
     vec3(-0.5f, -0.5f, -0.5f),

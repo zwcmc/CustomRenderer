@@ -19,9 +19,9 @@ set(SOURCES
     src/renderer/MeshRender.cpp
     src/renderer/glTFRenderer.cpp
     src/renderer/ShapeRenderer.cpp
-    src/model/Mesh.cpp
-    src/model/Cube.cpp
-    src/model/Sphere.cpp
+    src/meshes/Mesh.cpp
+    src/meshes/Cube.cpp
+    src/meshes/Sphere.cpp
     src/lights/BaseLight.cpp
     src/lights/DirectionalLight.cpp
 )
@@ -38,10 +38,10 @@ set(HEADERS
     src/renderer/MeshRender.h
     src/renderer/glTFRenderer.h
     src/renderer/ShapeRenderer.h
-    src/model/Mesh.h
-    src/model/Cube.h
-    src/model/Sphere.h
-    src/model/Models.h
+    src/meshes/Mesh.h
+    src/meshes/Cube.h
+    src/meshes/Sphere.h
+    src/meshes/Models.h
     src/lights/BaseLight.h
     src/lights/DirectionalLight.h
 )

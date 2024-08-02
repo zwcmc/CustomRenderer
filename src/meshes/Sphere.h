@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ptr.h"
-#include "model/Mesh.h"
+#include "meshes/Mesh.h"
 
 class Sphere : public Mesh
 {

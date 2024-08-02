@@ -15,7 +15,8 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [ ] Alpha Blend
   - [ ] Alpha Cutoff
   - [ ] Face Culling
-- [ ] Blinn-Phong Lighting
+- [x] Arcball Camera
+- [x] Blinn-Phong Lighting
 - [ ] Physically Based Rendering
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping

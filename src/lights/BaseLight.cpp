@@ -1,6 +1,6 @@
 #include "lights/BaseLight.h"
 
-#include "model/Sphere.h"
+#include "meshes/Sphere.h"
 #include "loader/AssetsLoader.h"
 #include "base/Shader.h"
 #include "renderer/ShapeRenderer.h"
@@ -33,5 +33,5 @@ void BaseLight::initMeshRender()
     Sphere::Ptr sphere = Sphere::New(32, 32);
     m_ShapeRenderer = ShapeRenderer::New(sphere, mat);
     m_ShapeRenderer->translate(m_Position);
-    m_ShapeRenderer->scale(glm::vec3(0.02f));
+    m_ShapeRenderer->scale(glm::vec3(0.01f));
 }

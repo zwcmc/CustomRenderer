@@ -1,4 +1,4 @@
-#include "model/Sphere.h"
+#include "meshes/Sphere.h"
 
 #include <glm/glm.hpp>
 

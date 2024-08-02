@@ -12,8 +12,6 @@
 
 #include "loader/AssetsLoader.h"
 
-#include "model/Models.h"
-
 #include "renderer/glTFRenderer.h"
 #include "renderer/ShapeRenderer.h"
 #include "SceneGraph.h"
