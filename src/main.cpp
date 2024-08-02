@@ -19,6 +19,8 @@
 
 #include "lights/DirectionalLight.h"
 
+#include "cameras/ArcballCamera.h"
+
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
@@ -26,6 +28,7 @@ float m_LastX = WIDTH / 2.0f;
 float m_LastY = HEIGHT / 2.0f;
 bool m_LeftMouseButtonPressed = false;
 bool m_MiddleMouseButtonPressed = false;
+bool m_RightMouseButtonPressed = false;
 
 GLFWwindow* m_Window;
 SceneRenderer::Ptr m_SceneRenderer;
@@ -98,7 +101,8 @@ int main()
     m_SceneRenderer->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
-    Camera::Ptr camera = Camera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+    camera->setScreenSize(WIDTH, HEIGHT);
     m_SceneRenderer->setCamera(camera);
 
     DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
@@ -129,7 +133,10 @@ void errorCallback(int error, const char* description)
 void resizeCallback(GLFWwindow* window, int width, int height)
 {
     if (width > 0.0f && height > 0.0f)
-        m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::ASPECT_RATIO, glm::vec3(static_cast<float>(width), static_cast<float>(height), 0.0f));
+    {
+        float aspect = static_cast<float>(width) / height;
+        m_SceneRenderer->getActiveCamera()->setAspectRatio(aspect);
+    }
 
     glViewport(0, 0, width, height);
 }
@@ -140,9 +147,9 @@ void processWindowInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 }
 
-void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::POSITION, glm::vec3(0.0f, 0.0f, static_cast<float>(yOffset)));
+    m_SceneRenderer->getActiveCamera()->zooming(static_cast<float>(yoffset));
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -161,6 +168,13 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         else if (action == GLFW_RELEASE)
             m_MiddleMouseButtonPressed = false;
     }
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        if (action == GLFW_PRESS)
+            m_RightMouseButtonPressed = true;
+        else if (action == GLFW_RELEASE)
+            m_RightMouseButtonPressed = false;
+    }
 }
 
 void cursorPositionCallback(GLFWwindow* window, double x, double y)
@@ -168,15 +182,24 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
     float xpos = static_cast<float>(x);
     float ypos = static_cast<float>(y);
 
-    float dx = xpos - m_LastX;
-    float dy = ypos - m_LastY;
+    float dx = m_LastX - xpos;
+    float dy = m_LastY - ypos;
 
     m_LastX = xpos;
     m_LastY = ypos;
 
     if (m_LeftMouseButtonPressed)
-        m_SceneRenderer->rotateModelRenderers(glm::vec3(dy, dx, 0.0f));
+    {
+        m_SceneRenderer->rotateModelRenderers(glm::vec3(dy, -dx, 0.0f));
+    }
     
     if (m_MiddleMouseButtonPressed)
-        m_SceneRenderer->updateCamera(SceneRenderer::CameraUpdateType::POSITION, glm::vec3(dx * 0.005f, -dy * 0.005f, 0.0f));
+    {
+        m_SceneRenderer->getActiveCamera()->panning(dx, -dy);
+    }
+
+    if (m_RightMouseButtonPressed)
+    {
+        m_SceneRenderer->getActiveCamera()->arcballing(dx, dy);
+    }
 }

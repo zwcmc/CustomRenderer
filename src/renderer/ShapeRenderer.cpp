@@ -35,7 +35,7 @@ void ShapeRenderer::rotate(const float &radians, const glm::vec3 &axis)
     m_ModelMatrix = glm::rotate(m_ModelMatrix, radians, axis);
 }
 
-void ShapeRenderer::draw(Camera::Ptr camera)
+void ShapeRenderer::draw(ArcballCamera::Ptr camera)
 {
     if (m_MeshRenders.size() > 0)
     {

@@ -4,7 +4,7 @@ MeshRender::MeshRender(Mesh::Ptr mesh, Material::Ptr mat)
     : m_Mesh(mesh), m_Material(mat)
 { }
 
-void MeshRender::draw(Camera::Ptr camera, glm::mat4 modelMatrix)
+void MeshRender::draw(ArcballCamera::Ptr camera, glm::mat4 modelMatrix)
 {
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();
@@ -29,13 +29,14 @@ void MeshRender::draw(Camera::Ptr camera, glm::mat4 modelMatrix)
     glBindVertexArray(0);
 }
 
-void MeshRender::draw(Camera::Ptr camera, BaseLight::Ptr light, glm::mat4 modelMatrix)
+void MeshRender::draw(ArcballCamera::Ptr camera, BaseLight::Ptr light, glm::mat4 modelMatrix)
 {
     glm::mat4 p = camera->getProjectionMatrix();
     glm::mat4 v = camera->getViewMatrix();
 
     m_Material->addVectorProperty("uLightPos", light->getLightPosition());
     m_Material->addVectorProperty("uLightColorIntensity", light->getLightColorAndIntensity());
+    m_Material->addVectorProperty("uCameraPos", glm::vec4(camera->getPosition(), 1.0f));
 
     m_Material->use();
     m_Material->setMatrix("uModelMatrix", modelMatrix);

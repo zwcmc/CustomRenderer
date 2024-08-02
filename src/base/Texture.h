@@ -8,7 +8,7 @@
 
 class Texture
 {
-SHARED_PTR(Texture)
+    SHARED_PTR(Texture)
 public:
     Texture();
     virtual ~Texture();

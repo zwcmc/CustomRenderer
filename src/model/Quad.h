@@ -5,7 +5,7 @@
 
 class Quad : public Mesh
 {
-SHARED_PTR(Quad)
+    SHARED_PTR(Quad)
 public:
     Quad();
     virtual ~Quad() = default;

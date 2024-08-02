@@ -15,7 +15,7 @@ set(SOURCES
     src/base/Texture.cpp
     src/base/Material.cpp
     src/renderer/SceneRenderer.cpp
-    src/renderer/Camera.cpp
+    src/cameras/ArcballCamera.cpp
     src/renderer/MeshRender.cpp
     src/renderer/glTFRenderer.cpp
     src/renderer/ShapeRenderer.cpp
@@ -33,7 +33,7 @@ set(HEADERS
     src/base/Texture.h
     src/base/Material.h
     src/renderer/SceneRenderer.h
-    src/renderer/Camera.h
+    src/cameras/ArcballCamera.h
     src/renderer/ModelRenderer.h
     src/renderer/MeshRender.h
     src/renderer/glTFRenderer.h

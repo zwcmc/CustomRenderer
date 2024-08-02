@@ -10,41 +10,17 @@ SceneRenderer::~SceneRenderer()
     m_Lights.clear();
 }
 
-void SceneRenderer::setCamera(Camera::Ptr camera)
+void SceneRenderer::setCamera(ArcballCamera::Ptr camera)
 {
-    this->m_Camera = camera;
-}
-
-void SceneRenderer::updateCamera(const CameraUpdateType &moveType, const glm::vec3 &delta)
-{
-    if (!this->m_Camera)
-    {
-        std::cerr << "SceneRenderer: camera is nullptr" << std::endl;
-        return;
-    }
-    switch (moveType)
-    {
-        case CameraUpdateType::POSITION:
-        {
-            this->m_Camera->translate(delta);
-            break;
-        }
-        case CameraUpdateType::ASPECT_RATIO:
-        {
-            float aspect = delta.x / delta.y;
-            this->m_Camera->setAspectRatio(aspect);
-            break;
-        }
-        default:
-            break;
-    }
+    m_Camera = camera;
 }
 
 void SceneRenderer::rotateModelRenderers(const glm::vec3 &delta)
 {
     for (auto &model : m_ModelRenderers)
     {
-        model->rotate(glm::radians(delta.y) * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+        model->rotate(glm::radians(delta.x) * ROTATION_SPEED, glm::vec3(1.0f, 0.0f, 0.0f));
+        model->rotate(glm::radians(delta.y) * ROTATION_SPEED, glm::vec3(0.0f, 1.0f, 0.0f));
     }
 }
 

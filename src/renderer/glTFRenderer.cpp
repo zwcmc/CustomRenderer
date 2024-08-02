@@ -9,7 +9,7 @@ void glTFRenderer::addNode(glTFNode::Ptr node)
     m_glTFNodes.push_back(node);
 }
 
-void glTFRenderer::draw(Camera::Ptr camera)
+void glTFRenderer::draw(ArcballCamera::Ptr camera)
 {
     if (m_glTFNodes.size() > 0)
     {
@@ -20,7 +20,7 @@ void glTFRenderer::draw(Camera::Ptr camera)
     }
 }
 
-void glTFRenderer::draw(Camera::Ptr camera, BaseLight::Ptr light)
+void glTFRenderer::draw(ArcballCamera::Ptr camera, BaseLight::Ptr light)
 {
     if (m_glTFNodes.size() > 0)
     {
@@ -46,7 +46,7 @@ void glTFRenderer::rotate(const float& radians, const glm::vec3& axis)
     m_ModelMatrix = glm::rotate(m_ModelMatrix, radians, axis);
 }
 
-void glTFRenderer::drawNode(Camera::Ptr camera, glTFNode::Ptr node)
+void glTFRenderer::drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node)
 {
     if (node->meshRenders.size() > 0)
     {
@@ -72,7 +72,7 @@ void glTFRenderer::drawNode(Camera::Ptr camera, glTFNode::Ptr node)
     }
 }
 
-void glTFRenderer::drawNode(Camera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node)
+void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node)
 {
     if (node->meshRenders.size() > 0)
     {

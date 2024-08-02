@@ -5,12 +5,11 @@
 
 #include "ptr.h"
 #include "renderer/ModelRenderer.h"
-#include "renderer/Camera.h"
 #include "renderer/MeshRender.h"
 
 class ShapeRenderer : public ModelRenderer
 {
-SHARED_PTR(ShapeRenderer)
+    SHARED_PTR(ShapeRenderer)
 public:
 
     ShapeRenderer();
@@ -23,7 +22,7 @@ public:
     void scale(const glm::vec3 &s) override;
     void rotate(const float &radians, const glm::vec3 &axis) override;
 
-    void draw(Camera::Ptr camera) override;
+    void draw(ArcballCamera::Ptr camera) override;
 
 private:
     glm::mat4 m_ModelMatrix;

@@ -2,11 +2,10 @@
 
 #include "ptr.h"
 #include <glm/glm.hpp>
-#include "renderer/Camera.h"
 
 class BaseLight
 {
-SHARED_PTR(BaseLight)
+    SHARED_PTR(BaseLight)
 public:
     BaseLight();
     BaseLight(const glm::vec3 &position, const glm::vec3 &color, const float &intensity);

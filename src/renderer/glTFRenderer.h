@@ -6,13 +6,12 @@
 #include "ptr.h"
 #include "renderer/ModelRenderer.h"
 #include "renderer/MeshRender.h"
-#include "renderer/Camera.h"
 #include "base/Material.h"
 #include "lights/BaseLight.h"
 
 class glTFRenderer : public ModelRenderer
 {
-SHARED_PTR(glTFRenderer)
+    SHARED_PTR(glTFRenderer)
 public:
     struct glTFNode
     {
@@ -56,16 +55,16 @@ public:
     ~glTFRenderer() = default;
 
     void addNode(glTFNode::Ptr node);
-    void draw(Camera::Ptr camera) override;
-    void draw(Camera::Ptr camera, BaseLight::Ptr light) override;
+    void draw(ArcballCamera::Ptr camera) override;
+    void draw(ArcballCamera::Ptr camera, BaseLight::Ptr light) override;
 
     void translate(const glm::vec3 &p) override;
     void scale(const glm::vec3 &s) override;
     void rotate(const float &radians, const glm::vec3 &axis) override;
 
 private:
-    void drawNode(Camera::Ptr camera, glTFNode::Ptr node);
-    void drawNode(Camera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node);
+    void drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node);
+    void drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node);
 
     std::vector<glTFNode::Ptr> m_glTFNodes;
 

@@ -10,7 +10,7 @@ using namespace glm;
 
 class Mesh
 {
-SHARED_PTR(Mesh)
+    SHARED_PTR(Mesh)
 public:
     Mesh() = default;
     Mesh(const std::vector<vec3> &vertices);

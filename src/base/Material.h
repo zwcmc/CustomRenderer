@@ -9,7 +9,7 @@
 
 class Material
 {
-SHARED_PTR(Material)
+    SHARED_PTR(Material)
 public:
     Material(Shader::Ptr shader);
     ~Material();
