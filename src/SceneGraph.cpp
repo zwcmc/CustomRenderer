@@ -1,21 +1,21 @@
-#include "renderer/SceneRenderer.h"
+#include "SceneGraph.h"
 
-SceneRenderer::SceneRenderer()
+SceneGraph::SceneGraph()
     : m_Camera(nullptr)
 { }
 
-SceneRenderer::~SceneRenderer()
+SceneGraph::~SceneGraph()
 {
     m_ModelRenderers.clear();
     m_Lights.clear();
 }
 
-void SceneRenderer::setCamera(ArcballCamera::Ptr camera)
+void SceneGraph::setCamera(ArcballCamera::Ptr camera)
 {
     m_Camera = camera;
 }
 
-void SceneRenderer::rotateModelRenderers(const glm::vec3 &delta)
+void SceneGraph::rotateModelRenderers(const glm::vec3 &delta)
 {
     for (auto &model : m_ModelRenderers)
     {
@@ -24,17 +24,17 @@ void SceneRenderer::rotateModelRenderers(const glm::vec3 &delta)
     }
 }
 
-void SceneRenderer::addModelRenderer(ModelRenderer::Ptr renderer)
+void SceneGraph::addModelRenderer(ModelRenderer::Ptr renderer)
 {
     m_ModelRenderers.push_back(renderer);
 }
 
-void SceneRenderer::addLight(BaseLight::Ptr light)
+void SceneGraph::addLight(BaseLight::Ptr light)
 {
     m_Lights.push_back(light);
 }
 
-void SceneRenderer::render()
+void SceneGraph::render()
 {
     if (m_Lights.size() > 0)
     {

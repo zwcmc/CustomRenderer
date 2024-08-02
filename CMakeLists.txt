@@ -9,12 +9,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     src/main.cpp
+    src/SceneGraph.cpp
     src/loader/AssetsLoader.cpp
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
     src/base/Shader.cpp
     src/base/Texture.cpp
     src/base/Material.cpp
-    src/renderer/SceneRenderer.cpp
     src/cameras/ArcballCamera.cpp
     src/renderer/MeshRender.cpp
     src/renderer/glTFRenderer.cpp
@@ -28,11 +28,11 @@ set(SOURCES
 
 set(HEADERS
     src/ptr.h
+    src/SceneGraph.h
     src/loader/AssetsLoader.h
     src/base/Shader.h
     src/base/Texture.h
     src/base/Material.h
-    src/renderer/SceneRenderer.h
     src/cameras/ArcballCamera.h
     src/renderer/ModelRenderer.h
     src/renderer/MeshRender.h

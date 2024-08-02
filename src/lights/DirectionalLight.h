@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ptr.h"
 #include <glm/glm.hpp>
+
+#include "ptr.h"
 #include "lights/BaseLight.h"
 
 class DirectionalLight : public BaseLight

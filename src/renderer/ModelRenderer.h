@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ptr.h"
-#include "cameras/ArcballCamera.h"
 #include "lights/BaseLight.h"
+#include "cameras/ArcballCamera.h"
 
 class ModelRenderer
 {

@@ -4,11 +4,10 @@
 #include <vector>
 
 #include "ptr.h"
-
-#include "cameras/ArcballCamera.h"
-#include "model/Mesh.h"
 #include "base/Material.h"
 #include "lights/BaseLight.h"
+#include "model/Mesh.h"
+#include "cameras/ArcballCamera.h"
 
 class MeshRender
 {

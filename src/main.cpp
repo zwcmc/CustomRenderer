@@ -3,23 +3,20 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "lights/BaseLight.h"
-
 #include "base/Shader.h"
-#include "renderer/MeshRender.h"
-#include "loader/AssetsLoader.h"
 #include "base/Material.h"
+
+#include "cameras/ArcballCamera.h"
+
+#include "lights/DirectionalLight.h"
+
+#include "loader/AssetsLoader.h"
 
 #include "model/Models.h"
 
 #include "renderer/glTFRenderer.h"
 #include "renderer/ShapeRenderer.h"
-
-#include "renderer/SceneRenderer.h"
-
-#include "lights/DirectionalLight.h"
-
-#include "cameras/ArcballCamera.h"
+#include "SceneGraph.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -31,7 +28,7 @@ bool m_MiddleMouseButtonPressed = false;
 bool m_RightMouseButtonPressed = false;
 
 GLFWwindow* m_Window;
-SceneRenderer::Ptr m_SceneRenderer;
+SceneGraph::Ptr m_SceneRenderGraph;
 
 // Window callbacks
 void errorCallback(int error, const char* description);
@@ -91,22 +88,22 @@ int main()
     // Depth test
     glEnable(GL_DEPTH_TEST);
 
-    // SceneRenderer
-    m_SceneRenderer = SceneRenderer::New();
+    // SceneGraph
+    m_SceneRenderGraph = SceneGraph::New();
 
     Shader::Ptr shader = AssetsLoader::loadShaderFromFile("Default", "glsl_shaders/Default.vert", "glsl_shaders/Default.frag");
     // glTF models
     glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf", shader);
     // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf", shader);
-    m_SceneRenderer->addModelRenderer(glTFModelRenderer);
+    m_SceneRenderGraph->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
     camera->setScreenSize(WIDTH, HEIGHT);
-    m_SceneRenderer->setCamera(camera);
+    m_SceneRenderGraph->setCamera(camera);
 
     DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
-    m_SceneRenderer->addLight(light);
+    m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))
     {
@@ -115,7 +112,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_SceneRenderer->render();
+        m_SceneRenderGraph->render();
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();
@@ -135,7 +132,7 @@ void resizeCallback(GLFWwindow* window, int width, int height)
     if (width > 0.0f && height > 0.0f)
     {
         float aspect = static_cast<float>(width) / height;
-        m_SceneRenderer->getActiveCamera()->setAspectRatio(aspect);
+        m_SceneRenderGraph->getActiveCamera()->setAspectRatio(aspect);
     }
 
     glViewport(0, 0, width, height);
@@ -149,7 +146,7 @@ void processWindowInput(GLFWwindow* window)
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    m_SceneRenderer->getActiveCamera()->zooming(static_cast<float>(yoffset));
+    m_SceneRenderGraph->getActiveCamera()->zooming(static_cast<float>(yoffset));
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -190,16 +187,16 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
 
     if (m_LeftMouseButtonPressed)
     {
-        m_SceneRenderer->rotateModelRenderers(glm::vec3(dy, -dx, 0.0f));
+        m_SceneRenderGraph->rotateModelRenderers(glm::vec3(dy, -dx, 0.0f));
     }
     
     if (m_MiddleMouseButtonPressed)
     {
-        m_SceneRenderer->getActiveCamera()->panning(dx, -dy);
+        m_SceneRenderGraph->getActiveCamera()->panning(dx, -dy);
     }
 
     if (m_RightMouseButtonPressed)
     {
-        m_SceneRenderer->getActiveCamera()->arcballing(dx, dy);
+        m_SceneRenderGraph->getActiveCamera()->arcballing(dx, dy);
     }
 }

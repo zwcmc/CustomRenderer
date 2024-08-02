@@ -6,8 +6,6 @@
 #include "ptr.h"
 #include "renderer/ModelRenderer.h"
 #include "renderer/MeshRender.h"
-#include "base/Material.h"
-#include "lights/BaseLight.h"
 
 class glTFRenderer : public ModelRenderer
 {

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ptr.h"
 #include <glm/glm.hpp>
+
+#include "ptr.h"
 
 class BaseLight
 {

@@ -3,18 +3,18 @@
 #include <iostream>
 #include <vector>
 
-#include "cameras/ArcballCamera.h"
-#include "renderer/ModelRenderer.h"
-#include "lights/BaseLight.h"
-
 #include "ptr.h"
 
-class SceneRenderer
+#include "cameras/ArcballCamera.h"
+#include "lights/BaseLight.h"
+#include "renderer/ModelRenderer.h"
+
+class SceneGraph
 {
-    SHARED_PTR(SceneRenderer)
+    SHARED_PTR(SceneGraph)
 public:
-    SceneRenderer();
-    ~SceneRenderer();
+    SceneGraph();
+    ~SceneGraph();
 
     void setCamera(ArcballCamera::Ptr camera);
     ArcballCamera::Ptr getActiveCamera() { return m_Camera; }
@@ -25,6 +25,7 @@ public:
     void addLight(BaseLight::Ptr light);
 
     void render();
+
 private:
     ArcballCamera::Ptr m_Camera;
     std::vector<ModelRenderer::Ptr> m_ModelRenderers;
