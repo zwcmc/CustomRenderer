@@ -20,8 +20,8 @@ set(SOURCES
     src/renderer/glTFRenderer.cpp
     src/renderer/ShapeRenderer.cpp
     src/model/Mesh.cpp
-    src/model/Quad.cpp
     src/model/Cube.cpp
+    src/model/Sphere.cpp
     src/lights/BaseLight.cpp
     src/lights/DirectionalLight.cpp
 )
@@ -39,8 +39,8 @@ set(HEADERS
     src/renderer/glTFRenderer.h
     src/renderer/ShapeRenderer.h
     src/model/Mesh.h
-    src/model/Quad.h
     src/model/Cube.h
+    src/model/Sphere.h
     src/model/Models.h
     src/lights/BaseLight.h
     src/lights/DirectionalLight.h

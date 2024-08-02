@@ -40,6 +40,8 @@ void SceneGraph::render()
     {
         for (auto &light : m_Lights)
         {
+            light->draw(m_Camera);
+
             for (auto &renderer : m_ModelRenderers)
             {
                 renderer->draw(m_Camera, light);

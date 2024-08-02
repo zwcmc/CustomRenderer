@@ -42,6 +42,18 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     initBuffers();
 }
 
+void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
+{
+    m_VertexArrayID = 0;
+    m_VertexBufferID = 0;
+    m_ElementBufferID = 0;
+
+    m_Vertices = vertices;
+    m_Indices = indices;
+
+    initBuffers();
+}
+
 void Mesh::initBuffers()
 {
     if (!m_VertexArrayID)

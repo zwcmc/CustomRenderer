@@ -102,7 +102,7 @@ int main()
     camera->setScreenSize(WIDTH, HEIGHT);
     m_SceneRenderGraph->setCamera(camera);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(1.0f, 0.5f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))
