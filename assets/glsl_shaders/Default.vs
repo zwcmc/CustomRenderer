@@ -9,18 +9,21 @@ layout (location = 2) in vec3 vNormal;
 uniform mat4 uModelMatrix;
 uniform mat3 uModelMatrixInverse;
 
-out vec2 UV0;
-out vec3 Normal;
-out vec3 FragPos;
+out VertexData
+{
+    vec2 UV0;
+    vec3 Normal;
+    vec3 FragPos;
+} vs_out;
 
 void main()
 {
-    UV0 = vTexcoord0;
+    vs_out.UV0 = vTexcoord0;
 
     // transpose(uModelMatrixInverse) * vNormal = vNormal * uModelMatrixInverse
-    Normal = vNormal * uModelMatrixInverse;
+    vs_out.Normal = vNormal * uModelMatrixInverse;
 
-    FragPos = vec3(uModelMatrix * vec4(vPosition, 1.0));
+    vs_out.FragPos = vec3(uModelMatrix * vec4(vPosition, 1.0));
 
-    gl_Position = projectionMatrix * viewMatrix * vec4(FragPos, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * vec4(vs_out.FragPos, 1.0);
 }
