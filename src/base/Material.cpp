@@ -38,9 +38,9 @@ void Material::addFloatProperty(const std::string &propertyName, const float &va
     m_UniformFloats.insert(std::make_pair(propertyName, value));
 }
 
-void Material::setInt(const std::string &propertyName, const int value)
+void Material::setMatrix(const std::string &propertyName, const glm::mat3x3 &value)
 {
-    m_Shader->setUniformInt(propertyName, value);
+    m_Shader->setUniformMatrix(propertyName, value);
 }
 
 void Material::setMatrix(const std::string &propertyName, const glm::mat4x4 &value)

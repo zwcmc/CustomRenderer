@@ -41,6 +41,7 @@ void MeshRender::draw(Camera::Ptr camera, BaseLight::Ptr light, glm::mat4 modelM
     m_Material->setMatrix("uModelMatrix", modelMatrix);
     m_Material->setMatrix("uViewMatrix", v);
     m_Material->setMatrix("uProjectionMatrix", p);
+    m_Material->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(modelMatrix)));
 
     glBindVertexArray(m_Mesh->getVertexArrayID());
 

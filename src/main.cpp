@@ -81,7 +81,11 @@ int main()
         return -1;
     }
 
+    // Cull face
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    // Depth test
     glEnable(GL_DEPTH_TEST);
 
     // SceneRenderer

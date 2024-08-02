@@ -8,6 +8,8 @@ uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
+uniform mat3 uModelMatrixInverse;
+
 out vec2 UV0;
 out vec3 Normal;
 out vec3 FragPos;
@@ -15,7 +17,9 @@ out vec3 FragPos;
 void main()
 {
     UV0 = vTexcoord0;
-    Normal = mat3(transpose(inverse(uModelMatrix))) * vNormal;
+
+    // transpose(uModelMatrixInverse) * vNormal = vNormal * uModelMatrixInverse
+    Normal = vNormal * uModelMatrixInverse;
 
     FragPos = vec3(uModelMatrix * vec4(vPosition, 1.0));
 
