@@ -1,5 +1,7 @@
 #include "renderer/MeshRender.h"
 
+#include "lights/BaseLight.h"
+
 MeshRender::MeshRender(Mesh::Ptr mesh, Material::Ptr mat)
     : m_Mesh(mesh), m_Material(mat)
 { }
