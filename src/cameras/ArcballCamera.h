@@ -21,13 +21,13 @@ public:
     void panning(float xoffset, float yoffset);
     void arcballing(float xoffset, float yoffset);
 
-    glm::mat4 &getViewMatrix() { return m_ViewMatrix; }
-    glm::mat4 &getProjectionMatrix() { return m_ProjectionMatrix; }
-    glm::vec3 &getPosition() { return m_Position; }
+    glm::mat4& getViewMatrix() { return m_ViewMatrix; }
+    glm::mat4& getProjectionMatrix() { return m_ProjectionMatrix; }
+    glm::vec3& getPosition() { return m_Position; }
 
 private:
-    glm::vec3 getRightVector() const { return glm::transpose(m_ViewMatrix)[0]; }
-    glm::vec3 getViewDir() const { return -glm::transpose(m_ViewMatrix)[2]; };
+    glm::vec3 getRightVector() const;
+    glm::vec3 getViewDir() const;
 
     void updateViewMatrix();
     void updateProjectionMatrix();

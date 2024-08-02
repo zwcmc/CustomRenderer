@@ -81,6 +81,16 @@ void ArcballCamera::arcballing(float xoffset, float yoffset)
     updateViewMatrix();
 }
 
+glm::vec3 ArcballCamera::getRightVector() const
+{
+    return glm::transpose(m_ViewMatrix)[0];
+}
+
+glm::vec3 ArcballCamera::getViewDir() const
+{
+    return -glm::transpose(m_ViewMatrix)[2];
+};
+
 void ArcballCamera::updateViewMatrix()
 {
     m_ViewMatrix = glm::lookAt(m_Position, m_LookAt, m_UpVector);
