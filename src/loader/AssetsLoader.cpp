@@ -3,6 +3,8 @@
 #include <fstream>
 #include <stb_image.h>
 
+#include "base/Material.h"
+
 std::vector<glTFRenderer::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
 
 Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
@@ -72,7 +74,7 @@ Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureNam
     return texture;
 }
 
-glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath, Material::Ptr mat)
+glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -92,7 +94,7 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath, Materi
         for (size_t i = 0; i < scene.nodes.size(); ++i)
         {
             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            loadglTFNode(node, glTFInput, renderer, nullptr, mat);
+            loadglTFNode(node, glTFInput, renderer, nullptr);
         }
     }
     else
@@ -134,22 +136,30 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
         {
             AssetsLoader::glTFMatDatas[index] = glTFRenderer::glTFMaterialData::New();
 
-            tinygltf::Material glTFMaterial = input.materials[index];
-            if (glTFMaterial.values.find("baseColorTexture") != glTFMaterial.values.end())
+            tinygltf::Material mat = input.materials[index];
+            
+            // Base map
+            if (mat.values.find("baseColorTexture") != mat.values.end())
             {
-                int textureIndex = glTFMaterial.values["baseColorTexture"].TextureIndex();
+                int textureIndex = mat.values["baseColorTexture"].TextureIndex();
                 AssetsLoader::glTFMatDatas[index]->baseColorTexture = textures[textureIndices[textureIndex]];
             }
-
-            if (glTFMaterial.values.find("baseColorFactor") != glTFMaterial.values.end())
+            // Base color
+            if (mat.values.find("baseColorFactor") != mat.values.end())
             {
-                AssetsLoader::glTFMatDatas[index]->baseColorFactor = glm::make_vec4(glTFMaterial.values["baseColorFactor"].ColorFactor().data());
+                AssetsLoader::glTFMatDatas[index]->baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
+            }
+            // Nomral map
+            if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
+            {
+                int normalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
+                AssetsLoader::glTFMatDatas[index]->normalTexture = textures[textureIndices[normalTextureIndex]];
             }
         }
     }
 }
 
-void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent, Material::Ptr mat)
+void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent)
 {
     glTFRenderer::glTFNode::Ptr node = glTFRenderer::glTFNode::New();
     node->parent = parent;
@@ -182,7 +192,7 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
     {
         for (size_t i = 0; i < inputNode.children.size(); i++)
         {
-            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node, mat);
+            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node);
         }
     }
 
@@ -277,13 +287,17 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
 
             glTFRenderer::glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
 
+            Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
             if (glTFMatData->baseColorTexture)
-                mat->addTextureProperty("uAlbedoMap", glTFMatData->baseColorTexture);
+                newMat->addTextureProperty("uAlbedoMap", glTFMatData->baseColorTexture);
+            newMat->addFloatProperty("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+            newMat->addVectorProperty("uBaseColor", glTFMatData->baseColorFactor);
 
-            mat->addFloatProperty("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
-            mat->addVectorProperty("uBaseColor", glTFMatData->baseColorFactor);
+            if (glTFMatData->normalTexture)
+                newMat->addTextureProperty("uNormalMap", glTFMatData->normalTexture);
+            newMat->addFloatProperty("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
 
-            node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), mat));
+            node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
         }
     }
 

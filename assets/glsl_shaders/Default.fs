@@ -4,18 +4,39 @@ in VertexData
 {
     vec2 UV0;
     vec3 Normal;
-    vec3 FragPos;
+    vec3 WorldPos;
 } fs_in;
 
 uniform sampler2D uAlbedoMap;
 uniform float uAlbedoMapSet;
 uniform vec4 uBaseColor;
 
+uniform sampler2D uNormalMap;
+uniform float uNormalMapSet;
+
 uniform vec3 uLightPos;
 uniform vec4 uLightColorIntensity; // { xyz: color, w: intensity }
 uniform vec3 uCameraPos;
 
 out vec4 FragColor;
+
+vec3 getNormal()
+{
+    vec3 tangentNormal = texture(uNormalMap, fs_in.UV0).xyz * 2.0 - 1.0;
+
+    vec3 ddxPos = dFdx(fs_in.WorldPos);
+    vec3 ddyPos = dFdy(fs_in.WorldPos);
+    vec2 ddxUV = dFdx(fs_in.UV0);
+    vec2 ddyUV = dFdy(fs_in.UV0);
+
+    vec3 N = normalize(fs_in.Normal);
+    vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
+    vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
+
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
 
 void main()
 {
@@ -26,8 +47,8 @@ void main()
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * color.rgb;
 
-    vec3 normal = normalize(fs_in.Normal);
-    vec3 positionWS = fs_in.FragPos;
+    vec3 normal = uNormalMapSet > 0.0 ? getNormal() : normalize(fs_in.Normal);
+    vec3 positionWS = fs_in.WorldPos;
 
     vec3 lightDir = normalize(uLightPos.xyz - positionWS);
     float diff = max(dot(normal, lightDir), 0.0);

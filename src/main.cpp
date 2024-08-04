@@ -3,8 +3,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "base/Material.h"
-
 #include "cameras/ArcballCamera.h"
 
 #include "lights/DirectionalLight.h"
@@ -88,10 +86,9 @@ int main()
     // SceneGraph
     m_SceneRenderGraph = SceneGraph::New();
 
-    Material::Ptr mat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
     // glTF models
-    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf", mat);
-    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf", mat);
+    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
     m_SceneRenderGraph->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;

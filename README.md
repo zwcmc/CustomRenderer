@@ -8,7 +8,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] With POSITION, TEXCOORD_0 and NORMAL attributes
   - [ ] Textures and Factors
     - [x] baseColorTexture and baseColorFactor
-    - [ ] normalTexture
+    - [x] normalTexture
     - [ ] emissiveTexture and emissiveFactor
     - [ ] metallicRoughnessTexture, metallicFactor and roughnessFactor
     - [ ] occlusionTexture

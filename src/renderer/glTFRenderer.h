@@ -30,6 +30,7 @@ public:
 
         Texture::Ptr baseColorTexture;
         glm::vec4 baseColorFactor;
+        Texture::Ptr normalTexture;
         /*float metallicFactor;
         float roughnessFactor;
         int alphaMode;
