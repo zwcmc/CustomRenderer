@@ -3,8 +3,6 @@
 #include <vector>
 #include <map>
 
-#include <memory>
-
 #include "ptr.h"
 #include "base/Shader.h"
 #include "base/Texture.h"
@@ -13,23 +11,6 @@ class Material
 {
     SHARED_PTR(Material)
 public:
-
-    struct MaterialData
-    {
-        using Ptr = std::shared_ptr<MaterialData>;
-        inline static Ptr New()
-        {
-            return std::make_shared<MaterialData>();
-        }
-
-        float albedoMapSet;
-        Texture::Ptr albedoMap;
-        glm::vec4 baseColor;
-
-        MaterialData() : albedoMapSet(-1.0f), baseColor(glm::vec4(1.0f)) { }
-    };
-    
-
     Material(Shader::Ptr shader);
     ~Material();
 
