@@ -11,9 +11,9 @@ uniform sampler2D uAlbedoMap;
 uniform float uAlbedoMapSet;
 uniform vec4 uBaseColor;
 
-uniform vec4 uLightPos;
+uniform vec3 uLightPos;
 uniform vec4 uLightColorIntensity; // { xyz: color, w: intensity }
-uniform vec4 uCameraPos;
+uniform vec3 uCameraPos;
 
 out vec4 FragColor;
 

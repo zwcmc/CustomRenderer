@@ -9,4 +9,10 @@
                                 inline static Ptr New(Args... args) \
                                 { \
                                     return std::make_shared<cls>(std::forward<Args>(args)...); \
-                                }
+                                } \
+
+#define SHARED_PTR_STRUCT(st) using Ptr = std::shared_ptr<st>; \
+                              inline static Ptr New() \
+                              { \
+                                    return std::make_shared<st>(); \
+                              }

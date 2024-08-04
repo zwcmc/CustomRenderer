@@ -13,11 +13,7 @@ class glTFRenderer : public ModelRenderer
 public:
     struct glTFNode
     {
-        using Ptr = std::shared_ptr<glTFNode>;
-        inline static Ptr New()
-        {
-            return std::make_shared<glTFNode>();
-        }
+        SHARED_PTR_STRUCT(glTFNode)
 
         // Pointer to the parent node, using weak_ptr to avoid circular references
         std::weak_ptr<glTFNode> parent;
@@ -30,11 +26,7 @@ public:
 
     struct glTFMaterialData
     {
-        using Ptr = std::shared_ptr<glTFMaterialData>;
-        inline static Ptr New()
-        {
-            return std::make_shared<glTFMaterialData>();
-        }
+        SHARED_PTR_STRUCT(glTFMaterialData)
 
         Texture::Ptr baseColorTexture;
         glm::vec4 baseColorFactor;

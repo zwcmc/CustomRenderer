@@ -30,12 +30,12 @@ public:
 
 private:
 
-    // std140 layout
-    struct UniformData
-    {
-        glm::mat4 view;        // 64 bytes;  byte offset = 0;
-        glm::mat4 projection;  // 64 bytes;  byte offset = 64;
-    };
+    // // std140 layout
+    // struct UniformData
+    // {
+    //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
+    //     glm::mat4 projection;  // 64 bytes;  byte offset = 64;
+    // };
 
     void init();
 

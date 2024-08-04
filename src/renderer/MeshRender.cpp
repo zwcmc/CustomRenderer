@@ -31,7 +31,7 @@ void MeshRender::draw(ArcballCamera::Ptr camera, BaseLight::Ptr light, glm::mat4
 {
     m_Material->addVectorProperty("uLightPos", light->getLightPosition());
     m_Material->addVectorProperty("uLightColorIntensity", light->getLightColorAndIntensity());
-    m_Material->addVectorProperty("uCameraPos", glm::vec4(camera->getPosition(), 1.0f));
+    m_Material->addVectorProperty("uCameraPos", camera->getPosition());
 
     m_Material->use();
     m_Material->setMatrix("uModelMatrix", modelMatrix);

@@ -18,6 +18,7 @@ public:
 
     void addTextureProperty(Texture::Ptr texture);
     void addTextureProperty(const std::string &propertyName, Texture::Ptr texture);
+    void addVectorProperty(const std::string &propertyName, const glm::vec3 &value);
     void addVectorProperty(const std::string &propertyName, const glm::vec4 &value);
     void addFloatProperty(const std::string &propertyName, const float &value);
     void setMatrix(const std::string &propertyName, const glm::mat3x3 &value);
@@ -28,6 +29,7 @@ private:
     Shader::Ptr m_Shader;
 
     std::vector<Texture::Ptr> m_Textures;
-    std::map<std::string, glm::vec4> m_UniformVectors;
+    std::map<std::string, glm::vec3> m_UniformVec3;
+    std::map<std::string, glm::vec4> m_UniformVec4;
     std::map<std::string, float> m_UniformFloats;
 };

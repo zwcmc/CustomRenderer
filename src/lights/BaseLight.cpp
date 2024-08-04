@@ -27,9 +27,9 @@ void BaseLight::draw(ArcballCamera::Ptr camera)
 
 void BaseLight::initMeshRender()
 {
-    Shader::Ptr shader = AssetsLoader::loadShaderFromFile("RenderLight", "glsl_shaders/RenderLight.vs", "glsl_shaders/RenderLight.fs");
+    Shader::Ptr shader = AssetsLoader::loadShaderFromFile("LightSphere", "glsl_shaders/LightSphere.vs", "glsl_shaders/LightSphere.fs");
     Material::Ptr mat = Material::New(shader);
-    mat->addVectorProperty("uLightColor", glm::vec4(m_Color, 1.0f));
+    mat->addVectorProperty("uLightColor", m_Color);
     Sphere::Ptr sphere = Sphere::New(32, 32);
     m_ShapeRenderer = ShapeRenderer::New(sphere, mat);
     m_ShapeRenderer->translate(m_Position);

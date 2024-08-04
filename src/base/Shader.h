@@ -20,8 +20,9 @@ public:
     void use();
 
     void setUniformInt(const std::string &uniformName, const int value);
-    void setUniformFloat(const std::string& uniformName, const float &value);
-    void setUniformVector(const std::string & uniformName, const glm::vec4 &value);
+    void setUniformFloat(const std::string &uniformName, const float &value);
+    void setUniformVector(const std::string &uniformName, const glm::vec3 &value);
+    void setUniformVector(const std::string &uniformName, const glm::vec4 &value);
     void setUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value);
     void setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value);
 
