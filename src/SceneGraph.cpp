@@ -19,7 +19,7 @@ void SceneGraph::init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 128, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -55,7 +55,7 @@ void SceneGraph::render()
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(v));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(p));
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(glm::mat4), glm::value_ptr(p));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     if (m_Lights.size() > 0)
