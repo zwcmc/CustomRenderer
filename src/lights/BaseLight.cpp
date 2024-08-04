@@ -2,7 +2,6 @@
 
 #include "meshes/Sphere.h"
 #include "loader/AssetsLoader.h"
-#include "base/Shader.h"
 #include "renderer/ShapeRenderer.h"
 
 BaseLight::BaseLight()
@@ -27,8 +26,7 @@ void BaseLight::draw(ArcballCamera::Ptr camera)
 
 void BaseLight::initMeshRender()
 {
-    Shader::Ptr shader = AssetsLoader::loadShaderFromFile("LightSphere", "glsl_shaders/LightSphere.vs", "glsl_shaders/LightSphere.fs");
-    Material::Ptr mat = Material::New(shader);
+    Material::Ptr mat = Material::New("LightSphere", "glsl_shaders/LightSphere.vs", "glsl_shaders/LightSphere.fs");
     mat->addVectorProperty("uLightColor", m_Color);
     Sphere::Ptr sphere = Sphere::New(32, 32);
     m_ShapeRenderer = ShapeRenderer::New(sphere, mat);

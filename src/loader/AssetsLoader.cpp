@@ -72,7 +72,7 @@ Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureNam
     return texture;
 }
 
-glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath, Shader::Ptr shader)
+glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath, Material::Ptr mat)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -92,7 +92,7 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath, Shader
         for (size_t i = 0; i < scene.nodes.size(); ++i)
         {
             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            loadglTFNode(node, glTFInput, renderer, nullptr, shader);
+            loadglTFNode(node, glTFInput, renderer, nullptr, mat);
         }
     }
     else
@@ -149,7 +149,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
     }
 }
 
-void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent, Shader::Ptr shader)
+void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent, Material::Ptr mat)
 {
     glTFRenderer::glTFNode::Ptr node = glTFRenderer::glTFNode::New();
     node->parent = parent;
@@ -182,7 +182,7 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
     {
         for (size_t i = 0; i < inputNode.children.size(); i++)
         {
-            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node, shader);
+            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node, mat);
         }
     }
 
@@ -275,7 +275,6 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
                 }
             }
 
-            Material::Ptr mat = Material::New(shader);
             glTFRenderer::glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
 
             if (glTFMatData->baseColorTexture)

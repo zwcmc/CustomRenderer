@@ -1,8 +1,10 @@
 #include "base/Material.h"
 
-Material::Material(Shader::Ptr shader)
+#include "loader/AssetsLoader.h"
+
+Material::Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath)
 {
-    m_Shader = shader;
+    m_Shader = AssetsLoader::loadShaderFromFile(shaderName, vsPath, fsPath);
 }
 
 Material::~Material()
@@ -11,11 +13,6 @@ Material::~Material()
     m_UniformVec3.clear();
     m_UniformVec4.clear();
     m_UniformFloats.clear();
-}
-
-void Material::setShader(Shader::Ptr shader)
-{
-    m_Shader = shader;
 }
 
 void Material::addTextureProperty(Texture::Ptr texture)

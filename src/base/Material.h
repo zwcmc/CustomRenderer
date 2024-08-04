@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <glm/glm.hpp>
 
 #include "ptr.h"
 #include "base/Shader.h"
@@ -11,10 +12,8 @@ class Material
 {
     SHARED_PTR(Material)
 public:
-    Material(Shader::Ptr shader);
+    Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath);
     ~Material();
-
-    void setShader(Shader::Ptr shader);
 
     void addTextureProperty(Texture::Ptr texture);
     void addTextureProperty(const std::string &propertyName, Texture::Ptr texture);

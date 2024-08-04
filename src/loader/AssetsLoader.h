@@ -4,6 +4,7 @@
 #include <string>
 
 #include "base/Shader.h"
+#include "base/Material.h"
 #include "base/Texture.h"
 
 #include "tiny_gltf.h"
@@ -16,14 +17,14 @@ public:
     static Shader::Ptr loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
     static Texture::Ptr loadTextureFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
     static Texture::Ptr createTextureFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap = false);
-    static glTFRenderer::Ptr loadglTFFile(const std::string &filePath, Shader::Ptr shader);
+    static glTFRenderer::Ptr loadglTFFile(const std::string &filePath, Material::Ptr mat);
 
 private:
     AssetsLoader() = default;
 
     static std::string readShader(std::ifstream& file, const std::string& name);
     static void loadglTFMaterials(const tinygltf::Model &input);
-    static void loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent, Shader::Ptr shader);
+    static void loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent, Material::Ptr mat);
 
     inline static std::string getAssetsPath() { return "./../assets/"; }
     inline static std::string getShaderPath() { return "./../assets/glsl_shaders/"; }
