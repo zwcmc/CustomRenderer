@@ -3,7 +3,7 @@
 #include "loader/AssetsLoader.h"
 
 Material::Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath)
-    : m_DoubleSided(false)
+    : m_DoubleSided(false), m_AlphaMode(AlphaMode::OPAQUE)
 {
     m_Shader = AssetsLoader::loadShaderFromFile(shaderName, vsPath, fsPath);
 }
@@ -55,6 +55,11 @@ void Material::setMatrix(const std::string &propertyName, const glm::mat4x4 &val
 void Material::setDoubleSided(bool bDoubleSided)
 {
     m_DoubleSided = bDoubleSided;
+}
+
+void Material::setAlphaMode(AlphaMode mode)
+{
+    m_AlphaMode = mode;
 }
 
 void Material::use()

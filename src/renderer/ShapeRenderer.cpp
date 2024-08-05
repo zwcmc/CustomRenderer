@@ -35,13 +35,16 @@ void ShapeRenderer::rotate(const float &radians, const glm::vec3 &axis)
     m_ModelMatrix = glm::rotate(m_ModelMatrix, radians, axis);
 }
 
-void ShapeRenderer::draw(ArcballCamera::Ptr camera)
+void ShapeRenderer::draw(ArcballCamera::Ptr camera, Material::AlphaMode mode)
 {
     if (m_MeshRenders.size() > 0)
     {
         for (auto meshRender : m_MeshRenders)
         {
-            meshRender->draw(camera, m_ModelMatrix);
+            if (meshRender->getMaterial()->getAlphaMode() == mode)
+            {
+                meshRender->draw(camera, m_ModelMatrix);
+            }
         }
     }
 }

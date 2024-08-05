@@ -2,6 +2,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "base/Material.h"
+
 SceneGraph::SceneGraph()
     : m_GlobalUniformBufferID(0)
 { }
@@ -14,9 +16,14 @@ SceneGraph::~SceneGraph()
 
 void SceneGraph::init()
 {
+    // Depth test
+    glEnable(GL_DEPTH_TEST);
+
     // Default cull face state
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
+    glDisable(GL_BLEND);
 
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
@@ -68,7 +75,15 @@ void SceneGraph::render()
 
             for (auto &renderer : m_ModelRenderers)
             {
-                renderer->draw(m_Camera, light);
+                renderer->draw(m_Camera, light, Material::AlphaMode::OPAQUE);
+            }
+            for (auto &renderer : m_ModelRenderers)
+            {
+                renderer->draw(m_Camera, light, Material::AlphaMode::MASK);
+            }
+            for (auto &renderer : m_ModelRenderers)
+            {
+                renderer->draw(m_Camera, light, Material::AlphaMode::BLEND);
             }
         }
     }
@@ -76,7 +91,15 @@ void SceneGraph::render()
     {
         for (auto &renderer : m_ModelRenderers)
         {
-            renderer->draw(m_Camera);
+            renderer->draw(m_Camera, Material::AlphaMode::OPAQUE);
+        }
+        for (auto &renderer : m_ModelRenderers)
+        {
+            renderer->draw(m_Camera, Material::AlphaMode::MASK);
+        }
+        for (auto &renderer : m_ModelRenderers)
+        {
+            renderer->draw(m_Camera, Material::AlphaMode::BLEND);
         }
     }
 }

@@ -22,7 +22,7 @@ public:
     void scale(const glm::vec3 &s) override;
     void rotate(const float &radians, const glm::vec3 &axis) override;
 
-    void draw(ArcballCamera::Ptr camera) override;
+    void draw(ArcballCamera::Ptr camera, Material::AlphaMode mode) override;
 
 private:
     glm::mat4 m_ModelMatrix;

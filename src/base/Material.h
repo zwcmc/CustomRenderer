@@ -12,6 +12,13 @@ class Material
 {
     SHARED_PTR(Material)
 public:
+    enum AlphaMode
+    {
+        OPAQUE,
+        MASK,
+        BLEND
+    };
+
     Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath);
     ~Material();
 
@@ -26,6 +33,9 @@ public:
     void setDoubleSided(bool bDoubleSided);
     bool getDoubleSided() { return m_DoubleSided; }
 
+    void setAlphaMode(AlphaMode mode);
+    AlphaMode getAlphaMode() { return m_AlphaMode; }
+
     void use();
 private:
     Shader::Ptr m_Shader;
@@ -36,4 +46,5 @@ private:
     std::map<std::string, float> m_UniformFloats;
 
     bool m_DoubleSided;
+    AlphaMode m_AlphaMode;
 };

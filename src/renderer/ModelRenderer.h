@@ -3,6 +3,7 @@
 #include "ptr.h"
 #include "lights/BaseLight.h"
 #include "cameras/ArcballCamera.h"
+#include "base/Material.h"
 
 class ModelRenderer
 {
@@ -15,6 +16,6 @@ public:
     virtual void scale(const glm::vec3 &s) { }
     virtual void rotate(const float &radians, const glm::vec3 &axis) { }
 
-    virtual void draw(ArcballCamera::Ptr camera) {}
-    virtual void draw(ArcballCamera::Ptr camera, BaseLight::Ptr light) {}
+    virtual void draw(ArcballCamera::Ptr camera, Material::AlphaMode mode) {}
+    virtual void draw(ArcballCamera::Ptr camera, BaseLight::Ptr light, Material::AlphaMode mode) {}
 };

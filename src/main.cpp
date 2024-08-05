@@ -76,16 +76,14 @@ int main()
         return -1;
     }
 
-    // Depth test
-    glEnable(GL_DEPTH_TEST);
-
     // SceneGraph
     m_SceneRenderGraph = SceneGraph::New();
     m_SceneRenderGraph->init();
 
     // glTF models
-    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
     // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
     m_SceneRenderGraph->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;

@@ -28,6 +28,9 @@ uniform float uRoughnessFactor;
 uniform sampler2D uOcclusionMap;
 uniform float uOcclusionMapSet;
 
+uniform float uAlphaTestSet;
+uniform float uAlphaCutoff;
+
 uniform vec3 uLightDirection;
 uniform vec4 uLightColorIntensity; // { xyz: color, w: intensity }
 uniform vec3 uCameraPos;
@@ -63,6 +66,14 @@ void main()
 {
     vec4 albedo = uAlbedoMapSet > 0.0 ? SRGBtoLINEAR(texture(uAlbedoMap, fs_in.UV0)) * uBaseColor : uBaseColor;
 
+    if (uAlphaTestSet > 0.0)
+    {
+        if (albedo.a < uAlphaCutoff)
+        {
+            discard;
+        }
+    }
+
     vec3 worldNormal = uNormalMapSet > 0.0 ? getNormal() : normalize(fs_in.Normal);
 
     float metallic = uMetallicFactor;
@@ -96,5 +107,5 @@ void main()
     // Gamma correction
     color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, albedo.a);
 }

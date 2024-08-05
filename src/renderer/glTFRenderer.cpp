@@ -1,7 +1,7 @@
 #include "renderer/glTFRenderer.h"
 
 glTFRenderer::glTFRenderer()
-    : m_ModelMatrix(glm::mat4(1.0f)), m_GLDoubleSideState(false)
+    : m_ModelMatrix(glm::mat4(1.0f)), m_GLDoubleSideState(false), m_GLAlphaMode(Material::AlphaMode::OPAQUE)
 { }
 
 void glTFRenderer::addNode(glTFNode::Ptr node)
@@ -9,24 +9,24 @@ void glTFRenderer::addNode(glTFNode::Ptr node)
     m_glTFNodes.push_back(node);
 }
 
-void glTFRenderer::draw(ArcballCamera::Ptr camera)
+void glTFRenderer::draw(ArcballCamera::Ptr camera, Material::AlphaMode mode)
 {
     if (m_glTFNodes.size() > 0)
     {
         for (auto node : m_glTFNodes)
         {
-            drawNode(camera, node);
+            drawNode(camera, node, mode);
         }
     }
 }
 
-void glTFRenderer::draw(ArcballCamera::Ptr camera, BaseLight::Ptr light)
+void glTFRenderer::draw(ArcballCamera::Ptr camera, BaseLight::Ptr light, Material::AlphaMode mode)
 {
     if (m_glTFNodes.size() > 0)
     {
         for (auto node : m_glTFNodes)
         {
-            drawNode(camera, light, node);
+            drawNode(camera, light, node, mode);
         }
     }
 }
@@ -46,7 +46,7 @@ void glTFRenderer::rotate(const float& radians, const glm::vec3& axis)
     m_ModelMatrix = glm::rotate(m_ModelMatrix, radians, axis);
 }
 
-void glTFRenderer::drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node)
+void glTFRenderer::drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node, Material::AlphaMode mode)
 {
     if (node->meshRenders.size() > 0)
     {
@@ -62,19 +62,24 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node)
 
         for (auto mr : node->meshRenders)
         {
-            // TODO - Should cache gl state in SceneGraph
-            setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
-            mr->draw(camera, modelMatrix);
+            if (mr->getMaterial()->getAlphaMode() == mode)
+            {
+                // TODO - These should cache gl state in SceneGraph
+                setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
+                setGLAlphaMode(mr->getMaterial()->getAlphaMode());
+
+                mr->draw(camera, modelMatrix);
+            }
         }
     }
 
     for (auto child : node->children)
     {
-        drawNode(camera, child);
+        drawNode(camera, child, mode);
     }
 }
 
-void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node)
+void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node, Material::AlphaMode mode)
 {
     if (node->meshRenders.size() > 0)
     {
@@ -90,15 +95,20 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glT
 
         for (auto mr : node->meshRenders)
         {
-            // TODO - Should cache gl state in SceneGraph
-            setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
-            mr->draw(camera, light, modelMatrix);
+            if (mr->getMaterial()->getAlphaMode() == mode)
+            {
+                // TODO - These should cache gl state in SceneGraph
+                setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
+                setGLAlphaMode(mr->getMaterial()->getAlphaMode());
+
+                mr->draw(camera, light, modelMatrix);
+            }
         }
     }
 
     for (auto child : node->children)
     {
-        drawNode(camera, light, child);
+        drawNode(camera, light, child, mode);
     }
 }
 
@@ -116,6 +126,23 @@ void glTFRenderer::setGLDoubleSidedState(bool bDoubleSided)
         {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
+        }
+    }
+}
+
+void glTFRenderer::setGLAlphaMode(Material::AlphaMode mode)
+{
+    if (m_GLAlphaMode != mode)
+    {
+        m_GLAlphaMode = mode;
+        if (mode == Material::AlphaMode::BLEND)
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+        else
+        {
+            glDisable(GL_BLEND);
         }
     }
 }

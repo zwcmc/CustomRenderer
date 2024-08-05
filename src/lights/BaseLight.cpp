@@ -21,7 +21,7 @@ BaseLight::BaseLight(const glm::vec3 &position, const glm::vec3 &color, const fl
 
 void BaseLight::draw(ArcballCamera::Ptr camera)
 {
-    m_ShapeRenderer->draw(camera);
+    m_ShapeRenderer->draw(camera, Material::AlphaMode::OPAQUE);
 }
 
 void BaseLight::initMeshRender()

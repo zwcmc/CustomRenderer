@@ -44,33 +44,36 @@ public:
 
         bool doubleSided;
 
-        /*int alphaMode;
-        float alphaCutoff;*/
+        Material::AlphaMode alphaMode;
+        float alphaCutoff;
 
         glTFMaterialData()
             : baseColorFactor(glm::vec4(1.0f)), emissiveFactor(glm::vec3(0.0f)), metallicFactor(1.0f), roughnessFactor(1.0f),
-              doubleSided(false) { }
+              doubleSided(false), alphaMode(Material::AlphaMode::OPAQUE), alphaCutoff(1.0f)
+        { }
     };
 
     glTFRenderer();
     ~glTFRenderer() = default;
 
     void addNode(glTFNode::Ptr node);
-    void draw(ArcballCamera::Ptr camera) override;
-    void draw(ArcballCamera::Ptr camera, BaseLight::Ptr light) override;
+    void draw(ArcballCamera::Ptr camera, Material::AlphaMode mode) override;
+    void draw(ArcballCamera::Ptr camera, BaseLight::Ptr light, Material::AlphaMode mode) override;
 
     void translate(const glm::vec3 &p) override;
     void scale(const glm::vec3 &s) override;
     void rotate(const float &radians, const glm::vec3 &axis) override;
 
 private:
-    void drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node);
-    void drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node);
+    void drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node, Material::AlphaMode mode);
+    void drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node, Material::AlphaMode mode);
 
     void setGLDoubleSidedState(bool bDoubleSided);
+    void setGLAlphaMode(Material::AlphaMode mode);
 
     std::vector<glTFNode::Ptr> m_glTFNodes;
     glm::mat4 m_ModelMatrix;
 
     bool m_GLDoubleSideState;
+    Material::AlphaMode m_GLAlphaMode;
 };

@@ -18,6 +18,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
 - [ ] Physically Based Rendering
+- [ ] Skybox
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping
   - [ ] Cascaded Shadow Mapping

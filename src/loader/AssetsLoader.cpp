@@ -193,6 +193,25 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
 
             // Doublesided
             matData->doubleSided = mat.doubleSided;
+
+            // Alpha blend and alpha test
+            if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
+            {
+                tinygltf::Parameter param = mat.additionalValues["alphaMode"];
+                if (param.string_value == "BLEND")
+                {
+                    matData->alphaMode = Material::AlphaMode::BLEND;
+                }
+                if (param.string_value == "MASK")
+                {
+                    matData->alphaMode = Material::AlphaMode::MASK;
+                    matData->alphaCutoff = 0.5f;
+                }
+            }
+            if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
+            {
+                matData->alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
+            }
         }
     }
 }
@@ -358,6 +377,9 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
 
             newMat->setDoubleSided(glTFMatData->doubleSided);
 
+            newMat->setAlphaMode(glTFMatData->alphaMode);
+            newMat->addFloatProperty("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
+            newMat->addFloatProperty("uAlphaCutoff", glTFMatData->alphaCutoff);
 
             node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
         }
