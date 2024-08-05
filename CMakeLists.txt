@@ -28,6 +28,7 @@ set(SOURCES
 
 set(HEADERS
     src/ptr.h
+    src/globals.h
     src/SceneGraph.h
     src/loader/AssetsLoader.h
     src/base/Shader.h
