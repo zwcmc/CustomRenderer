@@ -12,8 +12,8 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
     - [x] emissiveTexture and emissiveFactor
     - [x] metallicRoughnessTexture, metallicFactor and roughnessFactor
     - [x] occlusionTexture
-  - [ ] Alpha Blend
-  - [ ] Alpha Cutoff
+  - [x] Alpha Blend
+  - [x] Alpha Cutoff
   - [x] Double Sided Rendering (Face Culling)
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
