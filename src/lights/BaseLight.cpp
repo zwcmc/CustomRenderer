@@ -26,7 +26,7 @@ void BaseLight::draw(ArcballCamera::Ptr camera)
 
 void BaseLight::initMeshRender()
 {
-    Material::Ptr mat = Material::New("LightSphere", "glsl_shaders/LightSphere.vs", "glsl_shaders/LightSphere.fs");
+    Material::Ptr mat = Material::New("SphereLight", "glsl_shaders/SphereLight.vs", "glsl_shaders/SphereLight.fs");
     mat->addVectorProperty("uLightColor", m_Color);
     Sphere::Ptr sphere = Sphere::New(32, 32);
     m_ShapeRenderer = ShapeRenderer::New(sphere, mat);
