@@ -88,15 +88,15 @@ int main()
 
     // glTF models
     glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+     //glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
     m_SceneRenderGraph->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
-    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 256.0f);
     camera->setScreenSize(WIDTH, HEIGHT);
     m_SceneRenderGraph->setCamera(camera);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(1.0f, 0.5f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))

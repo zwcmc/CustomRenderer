@@ -10,7 +10,7 @@ ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const
 
 ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, float aspect, float zNear, float zFar)
 {
-    ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     camera->setFovAspectZNearFar(fovy, aspect, zNear, zFar);
     return camera;
 }
@@ -58,7 +58,7 @@ void ArcballCamera::arcballing(float xoffset, float yoffset)
     glm::vec4 position = glm::vec4(m_Position, 1.0f);
     glm::vec4 pivot = glm::vec4(m_LookAt, 1.0f);
 
-    float deltaAngleX = (M_2PI / m_ScreenWidth);
+    float deltaAngleX = (M_TAU / m_ScreenWidth);
     float deltaAngleY = (M_PI / m_ScreenHeight);
 
     float xAngle = xoffset * deltaAngleX;

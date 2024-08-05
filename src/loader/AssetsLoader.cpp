@@ -168,6 +168,28 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
             {
                 matData->emissiveFactor = glm::make_vec3(mat.additionalValues["emissiveFactor"].ColorFactor().data());
             }
+
+            // Metallic roughness
+            if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
+            {
+                int metallicRoughnessTextureIndex = mat.values["metallicRoughnessTexture"].TextureIndex();
+                matData->metallicRoughnessTexture = textures[textureIndices[metallicRoughnessTextureIndex]];
+            }
+            if (mat.values.find("metallicFactor") != mat.values.end())
+            {
+                matData->metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
+            }
+            if (mat.values.find("roughnessFactor") != mat.values.end())
+            {
+                matData->roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
+            }
+
+            // Occlusion
+            if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
+            {
+                int occlusionTextureIndex = mat.additionalValues["occlusionTexture"].TextureIndex();
+                matData->occlusionTexture = textures[textureIndices[occlusionTextureIndex]];
+            }
         }
     }
 }
@@ -316,6 +338,21 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
                 newMat->addVectorProperty("uEmissiveColor", glTFMatData->emissiveFactor);
             }
             newMat->addFloatProperty("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
+
+            if (glTFMatData->metallicRoughnessTexture)
+            {
+                newMat->addTextureProperty("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
+            }
+            newMat->addFloatProperty("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
+            newMat->addFloatProperty("uMetallicFactor", glTFMatData->metallicFactor);
+            newMat->addFloatProperty("uRoughnessFactor", glTFMatData->roughnessFactor);
+
+            if (glTFMatData->occlusionTexture)
+            {
+                newMat->addTextureProperty("uOcclusionMap", glTFMatData->occlusionTexture);
+            }
+            newMat->addFloatProperty("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
+
 
             node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
         }

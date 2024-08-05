@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef M_PI
-#define M_PI 3.1415926f
+#define M_PI 3.14159265359f
 #endif
 
-#ifndef M_2PI
-#define M_2PI 6.2831852f
+#ifndef M_TAU
+#define M_TAU 6.2831853071f
 #endif

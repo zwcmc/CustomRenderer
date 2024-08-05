@@ -30,18 +30,24 @@ public:
 
         Texture::Ptr baseColorTexture;
         glm::vec4 baseColorFactor;
+
         Texture::Ptr normalTexture;
+
         Texture::Ptr emissiveTexture;
         glm::vec3 emissiveFactor;
-        /*float metallicFactor;
+
+        Texture::Ptr metallicRoughnessTexture;
+        float metallicFactor;
         float roughnessFactor;
-        int alphaMode;
+
+        Texture::Ptr occlusionTexture;
+        /*int alphaMode;
         float alphaCutoff;
-        int normalTextureIndex;
-        glm::vec3 emissiveFactor;
         bool doubleSided;*/
 
-        glTFMaterialData() : baseColorFactor(glm::vec4(1.0f)) { }
+        glTFMaterialData()
+            : baseColorFactor(glm::vec4(1.0f)), emissiveFactor(glm::vec3(0.0f)), metallicFactor(1.0f), roughnessFactor(1.0f)
+        { }
     };
 
     glTFRenderer();

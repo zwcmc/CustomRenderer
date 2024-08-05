@@ -1,5 +1,7 @@
 #version 410 core
 
+#include "pbr/Lighting.glsl"
+
 in VertexData
 {
     vec2 UV0;
@@ -18,7 +20,15 @@ uniform sampler2D uEmissiveMap;
 uniform float uEmissiveMapSet;
 uniform vec3 uEmissiveColor;
 
-uniform vec3 uLightPos;
+uniform sampler2D uMetallicRoughnessMap;
+uniform float uMetallicRoughnessMapSet;
+uniform float uMetallicFactor;
+uniform float uRoughnessFactor;
+
+uniform sampler2D uOcclusionMap;
+uniform float uOcclusionMapSet;
+
+uniform vec3 uLightDirection;
 uniform vec4 uLightColorIntensity; // { xyz: color, w: intensity }
 uniform vec3 uCameraPos;
 
@@ -35,35 +45,56 @@ vec3 getNormal()
 
     vec3 N = normalize(fs_in.Normal);
     vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
-    vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
+    // vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
+    vec3 B = normalize(cross(N, T));
 
     mat3 TBN = mat3(T, B, N);
 
     return normalize(TBN * tangentNormal);
 }
 
+vec4 SRGBtoLINEAR(vec4 srgbIn)
+{
+    vec3 linOut = pow(srgbIn.xyz, vec3(2.2));
+    return vec4(linOut, srgbIn.w);
+}
+
 void main()
 {
-    vec4 color = uAlbedoMapSet > 0.0 ? texture(uAlbedoMap, fs_in.UV0) * uBaseColor : uBaseColor;
+    vec4 albedo = uAlbedoMapSet > 0.0 ? SRGBtoLINEAR(texture(uAlbedoMap, fs_in.UV0)) * uBaseColor : uBaseColor;
+
+    vec3 worldNormal = uNormalMapSet > 0.0 ? getNormal() : normalize(fs_in.Normal);
+
+    float metallic = uMetallicFactor;
+    float perceptualRoughness = uRoughnessFactor;
+    if (uMetallicRoughnessMapSet > 0.0)
+    {
+        // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
+        vec4 metallicRoughness = texture(uMetallicRoughnessMap, fs_in.UV0);
+        perceptualRoughness = metallicRoughness.g * perceptualRoughness;
+        metallic *= metallicRoughness.b;
+    }
+
+    vec3 worldViewDir = normalize(uCameraPos.xyz - fs_in.WorldPos);
+    vec3 worldLightDir = normalize(uLightDirection);
 
     vec3 lightColor = uLightColorIntensity.rgb * uLightColorIntensity.a;
 
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * color.rgb;
+    float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
-    vec3 normal = uNormalMapSet > 0.0 ? getNormal() : normalize(fs_in.Normal);
-    vec3 positionWS = fs_in.WorldPos;
+    vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, lightColor);
 
-    vec3 lightDir = normalize(uLightPos.xyz - positionWS);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * color.rgb * lightColor;
+    if (uOcclusionMapSet > 0.0)
+    {
+        float ao = texture(uOcclusionMap, fs_in.UV0).r;
+        color *= ao;
+    }
 
-    vec3 viewDir = normalize(uCameraPos.xyz - positionWS);
-    vec3 halfDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfDir), 0.0), 64.0);
-    vec3 specular = spec * lightColor;
+    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0f, 0.0f, 0.0f);
+    color += emission;
 
-    vec3 emission = uEmissiveMapSet > 0.0 ? texture(uEmissiveMap, fs_in.UV0).rgb * uEmissiveColor : vec3(0.0f, 0.0f, 0.0f);
+    // Gamma correction
+    color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(ambient + diffuse + specular + emission, 1.0);
+    FragColor = vec4(color, 1.0);
 }

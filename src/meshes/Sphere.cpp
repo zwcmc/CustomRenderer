@@ -12,9 +12,9 @@ Sphere::Sphere(unsigned int xSegments, unsigned int ySegments)
         {
             float xSegment = (float)x / (float)xSegments;
             float ySegment = (float)y / (float)ySegments;
-            float xPos = std::cos(xSegment * M_2PI) * std::sin(ySegment * M_PI); // TAU is 2PI
+            float xPos = std::cos(xSegment * M_TAU) * std::sin(ySegment * M_PI); // TAU is 2PI
             float yPos = std::cos(ySegment * M_PI);
-            float zPos = std::sin(xSegment * M_2PI) * std::sin(ySegment * M_PI);
+            float zPos = std::sin(xSegment * M_TAU) * std::sin(ySegment * M_PI);
 
             sphereVertices.push_back(glm::vec3(xPos, yPos, zPos));
         }
