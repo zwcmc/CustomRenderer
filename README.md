@@ -14,7 +14,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
     - [x] occlusionTexture
   - [ ] Alpha Blend
   - [ ] Alpha Cutoff
-  - [ ] Face Culling
+  - [x] Double Sided Rendering (Face Culling)
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
 - [ ] Physically Based Rendering
