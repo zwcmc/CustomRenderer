@@ -31,6 +31,8 @@ public:
         Texture::Ptr baseColorTexture;
         glm::vec4 baseColorFactor;
         Texture::Ptr normalTexture;
+        Texture::Ptr emissiveTexture;
+        glm::vec3 emissiveFactor;
         /*float metallicFactor;
         float roughnessFactor;
         int alphaMode;

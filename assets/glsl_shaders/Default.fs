@@ -14,6 +14,10 @@ uniform vec4 uBaseColor;
 uniform sampler2D uNormalMap;
 uniform float uNormalMapSet;
 
+uniform sampler2D uEmissiveMap;
+uniform float uEmissiveMapSet;
+uniform vec3 uEmissiveColor;
+
 uniform vec3 uLightPos;
 uniform vec4 uLightColorIntensity; // { xyz: color, w: intensity }
 uniform vec3 uCameraPos;
@@ -59,5 +63,7 @@ void main()
     float spec = pow(max(dot(normal, halfDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;
 
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    vec3 emission = uEmissiveMapSet > 0.0 ? texture(uEmissiveMap, fs_in.UV0).rgb * uEmissiveColor : vec3(0.0f, 0.0f, 0.0f);
+
+    FragColor = vec4(ambient + diffuse + specular + emission, 1.0);
 }

@@ -9,7 +9,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [ ] Textures and Factors
     - [x] baseColorTexture and baseColorFactor
     - [x] normalTexture
-    - [ ] emissiveTexture and emissiveFactor
+    - [x] emissiveTexture and emissiveFactor
     - [ ] metallicRoughnessTexture, metallicFactor and roughnessFactor
     - [ ] occlusionTexture
   - [ ] Alpha Blend

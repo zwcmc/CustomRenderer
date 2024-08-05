@@ -137,23 +137,36 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
             AssetsLoader::glTFMatDatas[index] = glTFRenderer::glTFMaterialData::New();
 
             tinygltf::Material mat = input.materials[index];
+
+            glTFRenderer::glTFMaterialData::Ptr matData = AssetsLoader::glTFMatDatas[index];
             
             // Base map
             if (mat.values.find("baseColorTexture") != mat.values.end())
             {
                 int textureIndex = mat.values["baseColorTexture"].TextureIndex();
-                AssetsLoader::glTFMatDatas[index]->baseColorTexture = textures[textureIndices[textureIndex]];
+                matData->baseColorTexture = textures[textureIndices[textureIndex]];
             }
             // Base color
             if (mat.values.find("baseColorFactor") != mat.values.end())
             {
-                AssetsLoader::glTFMatDatas[index]->baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
+                matData->baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
             }
             // Nomral map
             if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
             {
                 int normalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
-                AssetsLoader::glTFMatDatas[index]->normalTexture = textures[textureIndices[normalTextureIndex]];
+                matData->normalTexture = textures[textureIndices[normalTextureIndex]];
+            }
+
+            // Emissive
+            if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
+            {
+                int emissiveTextureIndex = mat.additionalValues["emissiveTexture"].TextureIndex();
+                matData->emissiveTexture = textures[textureIndices[emissiveTextureIndex]];
+            }
+            if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end())
+            {
+                matData->emissiveFactor = glm::make_vec3(mat.additionalValues["emissiveFactor"].ColorFactor().data());
             }
         }
     }
@@ -296,6 +309,13 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
             if (glTFMatData->normalTexture)
                 newMat->addTextureProperty("uNormalMap", glTFMatData->normalTexture);
             newMat->addFloatProperty("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
+
+            if (glTFMatData->emissiveTexture)
+            {
+                newMat->addTextureProperty("uEmissiveMap", glTFMatData->emissiveTexture);
+                newMat->addVectorProperty("uEmissiveColor", glTFMatData->emissiveFactor);
+            }
+            newMat->addFloatProperty("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
 
             node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
         }
