@@ -4,9 +4,7 @@
 
 SceneGraph::SceneGraph()
     : m_GlobalUniformBufferID(0)
-{
-    init();
-}
+{ }
 
 SceneGraph::~SceneGraph()
 {
@@ -16,6 +14,10 @@ SceneGraph::~SceneGraph()
 
 void SceneGraph::init()
 {
+    // Default cull face state
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);

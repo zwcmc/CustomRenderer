@@ -41,13 +41,15 @@ public:
         float roughnessFactor;
 
         Texture::Ptr occlusionTexture;
+
+        bool doubleSided;
+
         /*int alphaMode;
-        float alphaCutoff;
-        bool doubleSided;*/
+        float alphaCutoff;*/
 
         glTFMaterialData()
-            : baseColorFactor(glm::vec4(1.0f)), emissiveFactor(glm::vec3(0.0f)), metallicFactor(1.0f), roughnessFactor(1.0f)
-        { }
+            : baseColorFactor(glm::vec4(1.0f)), emissiveFactor(glm::vec3(0.0f)), metallicFactor(1.0f), roughnessFactor(1.0f),
+              doubleSided(false) { }
     };
 
     glTFRenderer();
@@ -65,7 +67,10 @@ private:
     void drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node);
     void drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glTFNode::Ptr node);
 
-    std::vector<glTFNode::Ptr> m_glTFNodes;
+    void setGLDoubleSidedState(bool bDoubleSided);
 
+    std::vector<glTFNode::Ptr> m_glTFNodes;
     glm::mat4 m_ModelMatrix;
+
+    bool m_GLDoubleSideState;
 };

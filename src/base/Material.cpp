@@ -3,6 +3,7 @@
 #include "loader/AssetsLoader.h"
 
 Material::Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath)
+    : m_DoubleSided(false)
 {
     m_Shader = AssetsLoader::loadShaderFromFile(shaderName, vsPath, fsPath);
 }
@@ -49,6 +50,11 @@ void Material::setMatrix(const std::string &propertyName, const glm::mat3x3 &val
 void Material::setMatrix(const std::string &propertyName, const glm::mat4x4 &value)
 {
     m_Shader->setUniformMatrix(propertyName, value);
+}
+
+void Material::setDoubleSided(bool bDoubleSided)
+{
+    m_DoubleSided = bDoubleSided;
 }
 
 void Material::use()

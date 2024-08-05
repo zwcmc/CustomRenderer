@@ -23,6 +23,9 @@ public:
     void setMatrix(const std::string &propertyName, const glm::mat3x3 &value);
     void setMatrix(const std::string &propertyName, const glm::mat4x4& value);
 
+    void setDoubleSided(bool bDoubleSided);
+    bool getDoubleSided() { return m_DoubleSided; }
+
     void use();
 private:
     Shader::Ptr m_Shader;
@@ -31,4 +34,6 @@ private:
     std::map<std::string, glm::vec3> m_UniformVec3;
     std::map<std::string, glm::vec4> m_UniformVec4;
     std::map<std::string, float> m_UniformFloats;
+
+    bool m_DoubleSided;
 };

@@ -190,6 +190,9 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
                 int occlusionTextureIndex = mat.additionalValues["occlusionTexture"].TextureIndex();
                 matData->occlusionTexture = textures[textureIndices[occlusionTextureIndex]];
             }
+
+            // Doublesided
+            matData->doubleSided = mat.doubleSided;
         }
     }
 }
@@ -352,6 +355,8 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
                 newMat->addTextureProperty("uOcclusionMap", glTFMatData->occlusionTexture);
             }
             newMat->addFloatProperty("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
+
+            newMat->setDoubleSided(glTFMatData->doubleSided);
 
 
             node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));

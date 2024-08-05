@@ -1,7 +1,7 @@
 #include "renderer/glTFRenderer.h"
 
 glTFRenderer::glTFRenderer()
-    : m_ModelMatrix(glm::mat4(1.0f))
+    : m_ModelMatrix(glm::mat4(1.0f)), m_GLDoubleSideState(false)
 { }
 
 void glTFRenderer::addNode(glTFNode::Ptr node)
@@ -62,6 +62,8 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node)
 
         for (auto mr : node->meshRenders)
         {
+            // TODO - Should cache gl state in SceneGraph
+            setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
             mr->draw(camera, modelMatrix);
         }
     }
@@ -88,6 +90,8 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glT
 
         for (auto mr : node->meshRenders)
         {
+            // TODO - Should cache gl state in SceneGraph
+            setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
             mr->draw(camera, light, modelMatrix);
         }
     }
@@ -95,5 +99,23 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glT
     for (auto child : node->children)
     {
         drawNode(camera, light, child);
+    }
+}
+
+void glTFRenderer::setGLDoubleSidedState(bool bDoubleSided)
+{
+    if (m_GLDoubleSideState != bDoubleSided)
+    {
+        m_GLDoubleSideState = bDoubleSided;
+
+        if (bDoubleSided)
+        {
+            glDisable(GL_CULL_FACE);
+        }
+        else
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        }
     }
 }

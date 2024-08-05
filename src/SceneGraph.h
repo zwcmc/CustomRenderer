@@ -26,6 +26,7 @@ public:
     void addModelRenderer(ModelRenderer::Ptr renderer);
     void addLight(BaseLight::Ptr light);
 
+    void init();
     void render();
 
 private:
@@ -36,8 +37,6 @@ private:
     //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
     //     glm::mat4 projection;  // 64 bytes;  byte offset = 64;
     // };
-
-    void init();
 
     ArcballCamera::Ptr m_Camera;
     std::vector<ModelRenderer::Ptr> m_ModelRenderers;

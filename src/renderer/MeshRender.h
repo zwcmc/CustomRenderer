@@ -19,6 +19,8 @@ public:
     MeshRender(Mesh::Ptr mesh, Material::Ptr mat);
     ~MeshRender() = default;
 
+    Material::Ptr getMaterial() { return m_Material; }
+
     void draw(ArcballCamera::Ptr camera, glm::mat4 modelMatrix);
     void draw(ArcballCamera::Ptr camera, std::shared_ptr<BaseLight> light, glm::mat4 modelMatrix);
 
