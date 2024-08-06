@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     src/main.cpp
-    src/SceneGraph.cpp
+    src/SceneRenderGraph.cpp
     src/loader/AssetsLoader.cpp
     ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
     src/base/Shader.cpp
@@ -29,7 +29,7 @@ set(SOURCES
 set(HEADERS
     src/ptr.h
     src/globals.h
-    src/SceneGraph.h
+    src/SceneRenderGraph.h
     src/loader/AssetsLoader.h
     src/base/Shader.h
     src/base/Texture.h

@@ -64,7 +64,7 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, glTFNode::Ptr node, Mater
         {
             if (mr->getMaterial()->getAlphaMode() == mode)
             {
-                // TODO - These should cache gl state in SceneGraph
+                // TODO - These should cache gl state in SceneRenderGraph
                 setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
                 setGLAlphaMode(mr->getMaterial()->getAlphaMode());
 
@@ -97,7 +97,7 @@ void glTFRenderer::drawNode(ArcballCamera::Ptr camera, BaseLight::Ptr light, glT
         {
             if (mr->getMaterial()->getAlphaMode() == mode)
             {
-                // TODO - These should cache gl state in SceneGraph
+                // TODO - These should cache gl state in SceneRenderGraph
                 setGLDoubleSidedState(mr->getMaterial()->getDoubleSided());
                 setGLAlphaMode(mr->getMaterial()->getAlphaMode());
 

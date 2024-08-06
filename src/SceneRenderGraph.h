@@ -11,12 +11,12 @@
 #include "lights/BaseLight.h"
 #include "renderer/ModelRenderer.h"
 
-class SceneGraph
+class SceneRenderGraph
 {
-    SHARED_PTR(SceneGraph)
+    SHARED_PTR(SceneRenderGraph)
 public:
-    SceneGraph();
-    ~SceneGraph();
+    SceneRenderGraph();
+    ~SceneRenderGraph();
 
     void setCamera(ArcballCamera::Ptr camera);
     ArcballCamera::Ptr getActiveCamera() { return m_Camera; }

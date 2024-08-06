@@ -11,7 +11,7 @@
 
 #include "renderer/glTFRenderer.h"
 #include "renderer/ShapeRenderer.h"
-#include "SceneGraph.h"
+#include "SceneRenderGraph.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -23,7 +23,7 @@ bool m_MiddleMouseButtonPressed = false;
 bool m_RightMouseButtonPressed = false;
 
 GLFWwindow* m_Window;
-SceneGraph::Ptr m_SceneRenderGraph;
+SceneRenderGraph::Ptr m_SceneRenderGraph;
 
 // Window callbacks
 void errorCallback(int error, const char* description);
@@ -76,14 +76,14 @@ int main()
         return -1;
     }
 
-    // SceneGraph
-    m_SceneRenderGraph = SceneGraph::New();
+    // SceneRenderGraph
+    m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
     // glTF models
-    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
-    glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
+     glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+     //glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+    //glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
     m_SceneRenderGraph->addModelRenderer(glTFModelRenderer);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;

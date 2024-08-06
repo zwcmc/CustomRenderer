@@ -1,20 +1,20 @@
-#include "SceneGraph.h"
+#include "SceneRenderGraph.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include "base/Material.h"
 
-SceneGraph::SceneGraph()
+SceneRenderGraph::SceneRenderGraph()
     : m_GlobalUniformBufferID(0)
 { }
 
-SceneGraph::~SceneGraph()
+SceneRenderGraph::~SceneRenderGraph()
 {
     m_ModelRenderers.clear();
     m_Lights.clear();
 }
 
-void SceneGraph::init()
+void SceneRenderGraph::init()
 {
     // Depth test
     glEnable(GL_DEPTH_TEST);
@@ -33,12 +33,12 @@ void SceneGraph::init()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void SceneGraph::setCamera(ArcballCamera::Ptr camera)
+void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
 {
     m_Camera = camera;
 }
 
-void SceneGraph::rotateModelRenderers(const glm::vec3 &delta)
+void SceneRenderGraph::rotateModelRenderers(const glm::vec3 &delta)
 {
     for (auto &model : m_ModelRenderers)
     {
@@ -47,17 +47,17 @@ void SceneGraph::rotateModelRenderers(const glm::vec3 &delta)
     }
 }
 
-void SceneGraph::addModelRenderer(ModelRenderer::Ptr renderer)
+void SceneRenderGraph::addModelRenderer(ModelRenderer::Ptr renderer)
 {
     m_ModelRenderers.push_back(renderer);
 }
 
-void SceneGraph::addLight(BaseLight::Ptr light)
+void SceneRenderGraph::addLight(BaseLight::Ptr light)
 {
     m_Lights.push_back(light);
 }
 
-void SceneGraph::render()
+void SceneRenderGraph::render()
 {
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
