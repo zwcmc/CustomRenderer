@@ -45,12 +45,12 @@ void Shader::setUniformVector(const std::string &uniformName, const glm::vec4 &v
 
 void Shader::setUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value)
 {
-    glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, value_ptr(value));
+    glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
 }
 
 void Shader::setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value)
 {
-    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, value_ptr(value));
+    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
 }
 
 GLuint Shader::getUniformLocation(const std::string &uniformName)

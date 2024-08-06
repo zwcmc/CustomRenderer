@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <stb_image.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "base/Material.h"
 

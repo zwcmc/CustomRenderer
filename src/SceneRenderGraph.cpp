@@ -83,11 +83,11 @@ void SceneRenderGraph::executeCommandBuffer()
 
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &v[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &p[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &lightDir0[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &lightColor0[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &cameraPos[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(v[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(p[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(lightDir0.x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(lightColor0.x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Opaque
