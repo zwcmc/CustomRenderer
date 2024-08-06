@@ -1,6 +1,7 @@
 #version 410 core
 
 #include "pbr/Lighting.glsl"
+#include "common/Uniforms.glsl"
 
 in VertexData
 {
@@ -30,10 +31,6 @@ uniform float uOcclusionMapSet;
 
 uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
-
-uniform vec3 uLightDirection;
-uniform vec3 uLightColor;
-uniform vec3 uCameraPos;
 
 out vec4 FragColor;
 
@@ -86,12 +83,12 @@ void main()
         metallic *= metallicRoughness.b;
     }
 
-    vec3 worldViewDir = normalize(uCameraPos.xyz - fs_in.WorldPos);
-    vec3 worldLightDir = normalize(uLightDirection);
+    vec3 worldViewDir = normalize(cameraPos - fs_in.WorldPos);
+    vec3 worldLightDir = normalize(lightDirection0);
 
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
-    vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, uLightColor);
+    vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, lightColor0);
 
     if (uOcclusionMapSet > 0.0)
     {

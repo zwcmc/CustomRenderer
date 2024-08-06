@@ -35,12 +35,16 @@ public:
 
 private:
 
+    // Should match GlobalUniforms in Uniforms.glsl
     // // std140 layout
-    // struct UniformData
+    // struct GlobalUniforms
     // {
     //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
     //     glm::mat4 projection;  // 64 bytes;  byte offset = 64;
-    // };
+    //     vec3 lightDirection0;  // 16 bytes;  byte offset = 128;
+    //     vec3 lightColor0;      // 16 bytes;  byte offset = 144;
+    //     vec3 cameraPos;        // 16 bytes;  byte offset = 160;
+    // };                         // total bytes = 176
 
     CommandBuffer::Ptr m_CommandBuffer;
 

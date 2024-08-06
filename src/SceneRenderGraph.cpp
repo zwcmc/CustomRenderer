@@ -27,7 +27,7 @@ void SceneRenderGraph::init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 128, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 176, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -75,10 +75,19 @@ void SceneRenderGraph::executeCommandBuffer()
 
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
+    
+    BaseLight::Ptr light0 = m_Lights[0];
+    glm::vec3 lightDir0 = light0->getLightPosition();
+    glm::vec3 lightColor0 = light0->getLightColor();
+    glm::vec3 cameraPos = m_Camera->getPosition();
 
+    // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &v[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(glm::mat4), &p[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &v[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &p[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &lightDir0[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &lightColor0[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &cameraPos[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Opaque
@@ -121,11 +130,6 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
     {
         glDisable(GL_BLEND);
     }
-
-    BaseLight::Ptr light = m_Lights[0];
-    mat->addVectorProperty("uLightDirection", light->getLightPosition());
-    mat->addVectorProperty("uLightColor", light->getLightColor());
-    mat->addVectorProperty("uCameraPos", m_Camera->getPosition());
 
     mat->use();
     mat->setMatrix("uModelMatrix", command->Transform);
