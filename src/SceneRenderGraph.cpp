@@ -81,7 +81,6 @@ void SceneRenderGraph::executeCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(glm::mat4), &p[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
     // Opaque
     std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueRenderCommands();
     for (size_t i = 0; i < opaqueCommands.size(); ++i)
@@ -125,7 +124,7 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
 
     BaseLight::Ptr light = m_Lights[0];
     mat->addVectorProperty("uLightDirection", light->getLightPosition());
-    mat->addVectorProperty("uLightColorIntensity", light->getLightColorAndIntensity());
+    mat->addVectorProperty("uLightColor", light->getLightColor());
     mat->addVectorProperty("uCameraPos", m_Camera->getPosition());
 
     mat->use();

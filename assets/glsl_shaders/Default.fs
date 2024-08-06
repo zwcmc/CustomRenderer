@@ -32,7 +32,7 @@ uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
 
 uniform vec3 uLightDirection;
-uniform vec4 uLightColorIntensity; // { xyz: color, w: intensity }
+uniform vec3 uLightColor;
 uniform vec3 uCameraPos;
 
 out vec4 FragColor;
@@ -89,11 +89,9 @@ void main()
     vec3 worldViewDir = normalize(uCameraPos.xyz - fs_in.WorldPos);
     vec3 worldLightDir = normalize(uLightDirection);
 
-    vec3 lightColor = uLightColorIntensity.rgb * uLightColorIntensity.a;
-
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
-    vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, lightColor);
+    vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, uLightColor);
 
     if (uOcclusionMapSet > 0.0)
     {
