@@ -4,6 +4,8 @@
 #include <string>
 #include <glad/glad.h>
 
+#include <ktx.h>
+
 #include "ptr.h"
 
 class Texture
@@ -13,8 +15,9 @@ public:
     Texture();
     ~Texture();
 
-    void initTexture(const std::string &textureName, int width, int height, int components, GLenum format, void* data, bool useMipmap = false);
-    
+    void initTexture(const std::string &textureName, int width, int height, int components, GLenum format, void* data, bool useMipmap = true);
+    void initTexture(const std::string &textureName, ktxTexture* kTexture,  bool useMipmap = true);
+
     void setTextureName(const std::string &name) { m_TextureName = name; }
     std::string& getTextureName() { return m_TextureName; }
     GLuint getTextureID() { return m_TextureID; }

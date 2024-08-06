@@ -75,11 +75,33 @@ set(TINYGLTF_BUILD_BUILDER_EXAMPLE OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/tinygltf)
 target_link_libraries(${PROJECT_NAME} tinygltf)
 
+# ktx
+include_directories(third_party/glad/include)
+include_directories(third_party/ktx/include)
+include_directories(third_party/ktx/lib)
+set(KTX_DIR third_party/ktx)
+set(KTX_SOURCES
+    ${KTX_DIR}/lib/texture.c
+    ${KTX_DIR}/lib/hashlist.c
+    ${KTX_DIR}/lib/checkheader.c
+    ${KTX_DIR}/lib/swap.c
+    ${KTX_DIR}/lib/memstream.c
+    ${KTX_DIR}/lib/filestream.c
+    ${KTX_DIR}/lib/etcdec.cxx
+    ${KTX_DIR}/lib/etcunpack.cxx
+    ${KTX_DIR}/lib/glloader.c
+)
+add_library(ktx STATIC ${KTX_SOURCES})
+target_link_libraries(${PROJECT_NAME} ktx)
+
 # # imgui
 # add_subdirectory(third_party/imgui)
 # target_link_libraries(${PROJECT_NAME} imgui)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
+
+# define KTX_OPENGL for ktx in glloader.c
+add_definitions(-DKTX_OPENGL=1)
 
 # target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

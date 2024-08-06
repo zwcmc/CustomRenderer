@@ -45,11 +45,15 @@ public:
     static Texture::Ptr loadTextureFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
     static Texture::Ptr createTextureFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap = true);
     static RenderNode::Ptr loadglTFFile(const std::string &filePath);
+
+    static Texture::Ptr loadTextureFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
+
 private:
     AssetsLoader() = default;
+
+    static void loadglTFMaterials(const tinygltf::Model &input);
     static void loadglTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent);
     static std::string readShader(std::ifstream& file, const std::string& name);
-    static void loadglTFMaterials(const tinygltf::Model &input);
 
     inline static std::string getAssetsPath() { return "./../assets/"; }
     inline static std::string getShaderPath() { return "./../assets/glsl_shaders/"; }

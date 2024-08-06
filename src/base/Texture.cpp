@@ -35,6 +35,30 @@ void Texture::initTexture(const std::string& textureName, int width, int height,
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+void Texture::initTexture(const std::string &textureName, ktxTexture *kTexture, bool useMipmap)
+{
+    m_TextureName = textureName;
+
+    if (!m_TextureID)
+        glGenTextures(1, &m_TextureID);
+
+    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    GLenum target, glerror;
+    KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &target, &glerror);
+
+    if (useMipmap)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }

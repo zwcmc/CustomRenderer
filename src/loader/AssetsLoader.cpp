@@ -4,6 +4,8 @@
 #include <stb_image.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <ktx.h>
+
 #include "base/Material.h"
 
 std::vector<AssetsLoader::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
@@ -75,7 +77,6 @@ Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureNam
     return texture;
 }
 
-// ----------------
 RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
 {
     std::string newPath = getAssetsPath() + filePath;
@@ -106,6 +107,135 @@ RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
 
     return rootNode;
 }
+
+Texture::Ptr AssetsLoader::loadTextureFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap)
+{
+    ktxTexture* kTexture;
+    KTX_error_code result;
+
+    std::string newPath = getAssetsPath() + filePath;
+    result = ktxTexture_CreateFromNamedFile(newPath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
+
+    assert(result == KTX_SUCCESS);
+
+    Texture::Ptr texture = Texture::New();
+    texture->initTexture(textureName, kTexture, useMipmap);
+    ktxTexture_Destroy(kTexture);
+    return texture;
+}
+
+void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
+{
+    // Load texture indices
+    std::vector<int> textureIndices;
+    {
+        textureIndices.resize(input.textures.size());
+        for (size_t index = 0; index < input.textures.size(); ++index)
+        {
+            textureIndices[index] = input.textures[index].source;
+        }
+    }
+
+    // Create textures
+    std::vector<Texture::Ptr> textures;
+    {
+        textures.resize(input.images.size());
+        for (size_t index = 0; index < input.images.size(); ++index)
+        {
+            const tinygltf::Image &glTFImage = input.images[index];
+            unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
+            textures[index] = createTextureFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void *>(buffer));
+        }
+    }
+
+    // load glTF materials
+    AssetsLoader::glTFMatDatas.clear();
+    {
+        AssetsLoader::glTFMatDatas.resize(input.materials.size());
+        for (size_t index = 0; index < input.materials.size(); ++index)
+        {
+            AssetsLoader::glTFMatDatas[index] = glTFMaterialData::New();
+
+            tinygltf::Material mat = input.materials[index];
+
+            glTFMaterialData::Ptr matData = AssetsLoader::glTFMatDatas[index];
+
+            // Base map
+            if (mat.values.find("baseColorTexture") != mat.values.end())
+            {
+                int textureIndex = mat.values["baseColorTexture"].TextureIndex();
+                matData->baseColorTexture = textures[textureIndices[textureIndex]];
+            }
+            // Base color
+            if (mat.values.find("baseColorFactor") != mat.values.end())
+            {
+                matData->baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
+            }
+            // Nomral map
+            if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
+            {
+                int normalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
+                matData->normalTexture = textures[textureIndices[normalTextureIndex]];
+            }
+
+            // Emissive
+            if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
+            {
+                int emissiveTextureIndex = mat.additionalValues["emissiveTexture"].TextureIndex();
+                matData->emissiveTexture = textures[textureIndices[emissiveTextureIndex]];
+            }
+            if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end())
+            {
+                matData->emissiveFactor = glm::make_vec3(mat.additionalValues["emissiveFactor"].ColorFactor().data());
+            }
+
+            // Metallic roughness
+            if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
+            {
+                int metallicRoughnessTextureIndex = mat.values["metallicRoughnessTexture"].TextureIndex();
+                matData->metallicRoughnessTexture = textures[textureIndices[metallicRoughnessTextureIndex]];
+            }
+            if (mat.values.find("metallicFactor") != mat.values.end())
+            {
+                matData->metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
+            }
+            if (mat.values.find("roughnessFactor") != mat.values.end())
+            {
+                matData->roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
+            }
+
+            // Occlusion
+            if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
+            {
+                int occlusionTextureIndex = mat.additionalValues["occlusionTexture"].TextureIndex();
+                matData->occlusionTexture = textures[textureIndices[occlusionTextureIndex]];
+            }
+
+            // Doublesided
+            matData->doubleSided = mat.doubleSided;
+
+            // Alpha blend and alpha test
+            if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
+            {
+                tinygltf::Parameter param = mat.additionalValues["alphaMode"];
+                if (param.string_value == "BLEND")
+                {
+                    matData->alphaMode = Material::AlphaMode::BLEND;
+                }
+                if (param.string_value == "MASK")
+                {
+                    matData->alphaMode = Material::AlphaMode::MASK;
+                    matData->alphaCutoff = 0.5f;
+                }
+            }
+            if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
+            {
+                matData->alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
+            }
+        }
+    }
+}
+
 void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent)
 {
     RenderNode::Ptr node = RenderNode::New();
@@ -242,7 +372,10 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
 
                 Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
                 if (glTFMatData->baseColorTexture)
+                {
+                    std::cout << "11111" << std::endl;
                     newMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
+                }
                 newMat->addOrSetFloat("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
                 newMat->addOrSetVector("uBaseColor", glTFMatData->baseColorFactor);
 
@@ -283,118 +416,6 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
     }
 
     parent->Children.push_back(node);
-}
-// ----------------
-
-void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
-{
-    // Load texture indices
-    std::vector<int> textureIndices;
-    {
-        textureIndices.resize(input.textures.size());
-        for (size_t index = 0; index < input.textures.size(); ++index) {
-            textureIndices[index] = input.textures[index].source;
-        }
-    }
-
-    // Create textures
-    std::vector<Texture::Ptr> textures;
-    {
-        textures.resize(input.images.size());
-        for (size_t index = 0; index < input.images.size(); ++index)
-        {
-            const tinygltf::Image& glTFImage = input.images[index];
-            unsigned char* buffer = const_cast<unsigned char*>(&glTFImage.image[0]);
-            textures[index] = createTextureFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void*>(buffer));
-        }
-    }
-
-    // load glTF materials
-    AssetsLoader::glTFMatDatas.clear();
-    {
-        AssetsLoader::glTFMatDatas.resize(input.materials.size());
-        for (size_t index = 0; index < input.materials.size(); ++index)
-        {
-            AssetsLoader::glTFMatDatas[index] = glTFMaterialData::New();
-
-            tinygltf::Material mat = input.materials[index];
-
-            glTFMaterialData::Ptr matData = AssetsLoader::glTFMatDatas[index];
-            
-            // Base map
-            if (mat.values.find("baseColorTexture") != mat.values.end())
-            {
-                int textureIndex = mat.values["baseColorTexture"].TextureIndex();
-                matData->baseColorTexture = textures[textureIndices[textureIndex]];
-            }
-            // Base color
-            if (mat.values.find("baseColorFactor") != mat.values.end())
-            {
-                matData->baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
-            }
-            // Nomral map
-            if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
-            {
-                int normalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
-                matData->normalTexture = textures[textureIndices[normalTextureIndex]];
-            }
-
-            // Emissive
-            if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
-            {
-                int emissiveTextureIndex = mat.additionalValues["emissiveTexture"].TextureIndex();
-                matData->emissiveTexture = textures[textureIndices[emissiveTextureIndex]];
-            }
-            if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end())
-            {
-                matData->emissiveFactor = glm::make_vec3(mat.additionalValues["emissiveFactor"].ColorFactor().data());
-            }
-
-            // Metallic roughness
-            if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
-            {
-                int metallicRoughnessTextureIndex = mat.values["metallicRoughnessTexture"].TextureIndex();
-                matData->metallicRoughnessTexture = textures[textureIndices[metallicRoughnessTextureIndex]];
-            }
-            if (mat.values.find("metallicFactor") != mat.values.end())
-            {
-                matData->metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
-            }
-            if (mat.values.find("roughnessFactor") != mat.values.end())
-            {
-                matData->roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
-            }
-
-            // Occlusion
-            if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
-            {
-                int occlusionTextureIndex = mat.additionalValues["occlusionTexture"].TextureIndex();
-                matData->occlusionTexture = textures[textureIndices[occlusionTextureIndex]];
-            }
-
-            // Doublesided
-            matData->doubleSided = mat.doubleSided;
-
-            // Alpha blend and alpha test
-            if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
-            {
-                tinygltf::Parameter param = mat.additionalValues["alphaMode"];
-                if (param.string_value == "BLEND")
-                {
-                    matData->alphaMode = Material::AlphaMode::BLEND;
-                }
-                if (param.string_value == "MASK")
-                {
-                    matData->alphaMode = Material::AlphaMode::MASK;
-                    matData->alphaCutoff = 0.5f;
-                }
-            }
-            if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
-            {
-                matData->alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
-            }
-        }
-    }
 }
 
 std::string AssetsLoader::readShader(std::ifstream& file, const std::string& name)

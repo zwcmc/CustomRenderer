@@ -43,7 +43,6 @@ private:
     // std::vector<Texture::Ptr> m_Textures;
 
     std::map<std::string, Texture::Ptr> m_Textures;
-
     std::map<std::string, glm::vec3> m_UniformVec3;
     std::map<std::string, glm::vec4> m_UniformVec4;
     std::map<std::string, float> m_UniformFloats;
