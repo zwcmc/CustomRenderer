@@ -82,6 +82,7 @@ int main()
     RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;

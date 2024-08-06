@@ -11,7 +11,7 @@ class Texture
     SHARED_PTR(Texture)
 public:
     Texture();
-    virtual ~Texture();
+    ~Texture();
 
     void initTexture(const std::string &textureName, int width, int height, int components, GLenum format, void* data, bool useMipmap = false);
     
