@@ -5,7 +5,7 @@
 
 #include "base/Material.h"
 
-std::vector<glTFRenderer::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
+std::vector<AssetsLoader::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
 
 Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
 {
@@ -134,11 +134,11 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
         AssetsLoader::glTFMatDatas.resize(input.materials.size());
         for (size_t index = 0; index < input.materials.size(); ++index)
         {
-            AssetsLoader::glTFMatDatas[index] = glTFRenderer::glTFMaterialData::New();
+            AssetsLoader::glTFMatDatas[index] = glTFMaterialData::New();
 
             tinygltf::Material mat = input.materials[index];
 
-            glTFRenderer::glTFMaterialData::Ptr matData = AssetsLoader::glTFMatDatas[index];
+            glTFMaterialData::Ptr matData = AssetsLoader::glTFMatDatas[index];
             
             // Base map
             if (mat.values.find("baseColorTexture") != mat.values.end())
@@ -342,7 +342,7 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf:
                 }
             }
 
-            glTFRenderer::glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
+            glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
 
             Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
             if (glTFMatData->baseColorTexture)

@@ -24,35 +24,6 @@ public:
         glTFNode() : matrix(1.0f) { }
     };
 
-    struct glTFMaterialData
-    {
-        SHARED_PTR_STRUCT(glTFMaterialData)
-
-        Texture::Ptr baseColorTexture;
-        glm::vec4 baseColorFactor;
-
-        Texture::Ptr normalTexture;
-
-        Texture::Ptr emissiveTexture;
-        glm::vec3 emissiveFactor;
-
-        Texture::Ptr metallicRoughnessTexture;
-        float metallicFactor;
-        float roughnessFactor;
-
-        Texture::Ptr occlusionTexture;
-
-        bool doubleSided;
-
-        Material::AlphaMode alphaMode;
-        float alphaCutoff;
-
-        glTFMaterialData()
-            : baseColorFactor(glm::vec4(1.0f)), emissiveFactor(glm::vec3(0.0f)), metallicFactor(1.0f), roughnessFactor(1.0f),
-              doubleSided(false), alphaMode(Material::AlphaMode::OPAQUE), alphaCutoff(1.0f)
-        { }
-    };
-
     glTFRenderer();
     ~glTFRenderer() = default;
 

@@ -13,6 +13,35 @@
 class AssetsLoader
 {
 public:
+    struct glTFMaterialData
+    {
+        SHARED_PTR_STRUCT(glTFMaterialData)
+
+            Texture::Ptr baseColorTexture;
+        glm::vec4 baseColorFactor;
+
+        Texture::Ptr normalTexture;
+
+        Texture::Ptr emissiveTexture;
+        glm::vec3 emissiveFactor;
+
+        Texture::Ptr metallicRoughnessTexture;
+        float metallicFactor;
+        float roughnessFactor;
+
+        Texture::Ptr occlusionTexture;
+
+        bool doubleSided;
+
+        Material::AlphaMode alphaMode;
+        float alphaCutoff;
+
+        glTFMaterialData()
+            : baseColorFactor(glm::vec4(1.0f)), emissiveFactor(glm::vec3(0.0f)), metallicFactor(1.0f), roughnessFactor(1.0f),
+            doubleSided(false), alphaMode(Material::AlphaMode::OPAQUE), alphaCutoff(1.0f)
+        { }
+    };
+
     static Shader::Ptr loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
     static Texture::Ptr loadTextureFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
     static Texture::Ptr createTextureFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap = true);
@@ -45,5 +74,5 @@ private:
         return format;
     }
 
-    static std::vector<glTFRenderer::glTFMaterialData::Ptr> glTFMatDatas;
+    static std::vector<glTFMaterialData::Ptr> glTFMatDatas;
 };
