@@ -35,8 +35,9 @@ public:
 
 private:
 
+    void renderLight(BaseLight::Ptr light);
+
     // Should match GlobalUniforms in Uniforms.glsl
-    // // std140 layout
     // struct GlobalUniforms
     // {
     //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
@@ -51,4 +52,7 @@ private:
     std::vector<BaseLight::Ptr> m_Lights;
 
     GLuint m_GlobalUniformBufferID;
+
+    Mesh::Ptr m_LightSphere;
+    Material::Ptr m_LightMaterial;
 };

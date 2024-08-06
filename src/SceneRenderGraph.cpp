@@ -2,6 +2,8 @@
 
 #include <stack>
 
+#include "meshes/Sphere.h"
+
 SceneRenderGraph::SceneRenderGraph()
     : m_GlobalUniformBufferID(0)
 { }
@@ -30,6 +32,9 @@ void SceneRenderGraph::init()
     glBufferData(GL_UNIFORM_BUFFER, 176, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    m_LightSphere = Sphere::New(32, 32);
+    m_LightMaterial = Material::New("SphereLight", "glsl_shaders/SphereLight.vs", "glsl_shaders/SphereLight.fs");
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -89,6 +94,12 @@ void SceneRenderGraph::executeCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(lightColor0.x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // Render Lights
+    for (size_t i = 0; i < m_Lights.size(); ++i)
+    {
+        renderLight(m_Lights[i]);
+    }
 
     // Opaque
     std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueRenderCommands();
@@ -153,4 +164,17 @@ void SceneRenderGraph::renderMesh(Mesh::Ptr mesh)
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
+}
+
+void SceneRenderGraph::renderLight(BaseLight::Ptr light)
+{
+    m_LightMaterial->addOrSetVector("uLightColor", light->getLightColor());
+    m_LightMaterial->use();
+
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, light->getLightPosition());
+    transform = glm::scale(transform, glm::vec3(0.01f));
+    m_LightMaterial->setMatrix("uModelMatrix", transform);
+
+    renderMesh(m_LightSphere);
 }
