@@ -35,6 +35,7 @@ public:
 
 private:
 
+    void buildRenderCommands(RenderNode::Ptr renderNode);
     void renderLight(BaseLight::Ptr light);
 
     void setGLCull(bool enable);

@@ -52,27 +52,20 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
 {
-    std::stack<RenderNode::Ptr> nodeStack;
-    nodeStack.push(renderNode);
+    buildRenderCommands(renderNode);
+}
+
+void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
+{
+    glm::mat4 model = renderNode->getModelMatrix();
+    for (size_t i = 0; i < renderNode->MeshRenders.size(); ++i)
+    {
+        m_CommandBuffer->pushCommand(renderNode->MeshRenders[i]->getMesh(), renderNode->MeshRenders[i]->getMaterial(), model);
+    }
+
     for (size_t i = 0; i < renderNode->Children.size(); ++i)
     {
-        nodeStack.push(renderNode->Children[i]);
-    }
-    while (!nodeStack.empty())
-    {
-        RenderNode::Ptr node = nodeStack.top();
-        nodeStack.pop();
-
-        glm::mat4 model = node->getModelMatrix();
-        for (size_t i = 0; i < node->MeshRenders.size(); ++i)
-        {
-            m_CommandBuffer->pushCommand(node->MeshRenders[i]->getMesh(), node->MeshRenders[i]->getMaterial(), model);
-        }
-
-        for (size_t i = 0; i < node->Children.size(); ++i)
-        {
-            nodeStack.push(node->Children[i]);
-        }
+        buildRenderCommands(renderNode->Children[i]);
     }
 }
 
