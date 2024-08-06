@@ -17,7 +17,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Double Sided Rendering (Face Culling)
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
-- [ ] Physically Based Rendering
+- [x] Physically Based Rendering
 - [ ] Skybox
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping
