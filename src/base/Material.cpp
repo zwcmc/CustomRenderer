@@ -16,30 +16,30 @@ Material::~Material()
     m_UniformFloats.clear();
 }
 
-void Material::addTextureProperty(Texture::Ptr texture)
+void Material::addOrSetTexture(Texture::Ptr texture)
 {
-    m_Textures.push_back(texture);
+    m_Textures.insert_or_assign(texture->getTextureName(), texture);
 }
 
-void Material::addTextureProperty(const std::string &propertyName, Texture::Ptr texture)
+void Material::addOrSetTexture(const std::string &propertyName, Texture::Ptr texture)
 {
     texture->setTextureName(propertyName);
-    m_Textures.push_back(texture);
+    m_Textures.insert_or_assign(propertyName, texture);
 }
 
-void Material::addVectorProperty(const std::string &propertyName, const glm::vec3 &value)
+void Material::addOrSetVector(const std::string &propertyName, const glm::vec3 &value)
 {
-    m_UniformVec3.insert(std::make_pair(propertyName, value));
+    m_UniformVec3.insert_or_assign(propertyName, value);
 }
 
-void Material::addVectorProperty(const std::string &propertyName, const glm::vec4 &value)
+void Material::addOrSetVector(const std::string &propertyName, const glm::vec4 &value)
 {
-    m_UniformVec4.insert(std::make_pair(propertyName, value));
+    m_UniformVec4.insert_or_assign(propertyName, value);
 }
 
-void Material::addFloatProperty(const std::string &propertyName, const float &value)
+void Material::addOrSetFloat(const std::string &propertyName, const float &value)
 {
-    m_UniformFloats.insert(std::make_pair(propertyName, value));
+    m_UniformFloats.insert_or_assign(propertyName, value);
 }
 
 void Material::setMatrix(const std::string &propertyName, const glm::mat3x3 &value)
@@ -91,11 +91,11 @@ void Material::use()
     }
 
     int slot = 0;
-    for (auto &texture : m_Textures)
+    for (auto &pair : m_Textures)
     {
-        m_Shader->setUniformInt(texture->getTextureName(), slot);
+        m_Shader->setUniformInt(pair.first, slot);
         glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
+        glBindTexture(GL_TEXTURE_2D, pair.second->getTextureID());
         ++slot;
     }
 }

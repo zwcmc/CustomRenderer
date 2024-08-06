@@ -47,9 +47,7 @@ private:
     // };                         // total bytes = 176
 
     CommandBuffer::Ptr m_CommandBuffer;
-
     ArcballCamera::Ptr m_Camera;
-
     std::vector<BaseLight::Ptr> m_Lights;
 
     GLuint m_GlobalUniformBufferID;

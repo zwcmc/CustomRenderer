@@ -242,40 +242,40 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
 
                 Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
                 if (glTFMatData->baseColorTexture)
-                    newMat->addTextureProperty("uAlbedoMap", glTFMatData->baseColorTexture);
-                newMat->addFloatProperty("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
-                newMat->addVectorProperty("uBaseColor", glTFMatData->baseColorFactor);
+                    newMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
+                newMat->addOrSetFloat("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+                newMat->addOrSetVector("uBaseColor", glTFMatData->baseColorFactor);
 
                 if (glTFMatData->normalTexture)
-                    newMat->addTextureProperty("uNormalMap", glTFMatData->normalTexture);
-                newMat->addFloatProperty("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
+                    newMat->addOrSetTexture("uNormalMap", glTFMatData->normalTexture);
+                newMat->addOrSetFloat("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
 
                 if (glTFMatData->emissiveTexture)
                 {
-                    newMat->addTextureProperty("uEmissiveMap", glTFMatData->emissiveTexture);
-                    newMat->addVectorProperty("uEmissiveColor", glTFMatData->emissiveFactor);
+                    newMat->addOrSetTexture("uEmissiveMap", glTFMatData->emissiveTexture);
+                    newMat->addOrSetVector("uEmissiveColor", glTFMatData->emissiveFactor);
                 }
-                newMat->addFloatProperty("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
+                newMat->addOrSetFloat("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
 
                 if (glTFMatData->metallicRoughnessTexture)
                 {
-                    newMat->addTextureProperty("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
+                    newMat->addOrSetTexture("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
                 }
-                newMat->addFloatProperty("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
-                newMat->addFloatProperty("uMetallicFactor", glTFMatData->metallicFactor);
-                newMat->addFloatProperty("uRoughnessFactor", glTFMatData->roughnessFactor);
+                newMat->addOrSetFloat("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
+                newMat->addOrSetFloat("uMetallicFactor", glTFMatData->metallicFactor);
+                newMat->addOrSetFloat("uRoughnessFactor", glTFMatData->roughnessFactor);
 
                 if (glTFMatData->occlusionTexture)
                 {
-                    newMat->addTextureProperty("uOcclusionMap", glTFMatData->occlusionTexture);
+                    newMat->addOrSetTexture("uOcclusionMap", glTFMatData->occlusionTexture);
                 }
-                newMat->addFloatProperty("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
+                newMat->addOrSetFloat("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
 
                 newMat->setDoubleSided(glTFMatData->doubleSided);
 
                 newMat->setAlphaMode(glTFMatData->alphaMode);
-                newMat->addFloatProperty("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-                newMat->addFloatProperty("uAlphaCutoff", glTFMatData->alphaCutoff);
+                newMat->addOrSetFloat("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
+                newMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);
 
                 node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
             }
