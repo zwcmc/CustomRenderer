@@ -1,7 +1,6 @@
 #include "base/Shader.h"
 
 #include <vector>
-#include <fstream>
 
 Shader::Shader()
     : m_ShaderID(0), m_ShaderName("")

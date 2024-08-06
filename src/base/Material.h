@@ -14,7 +14,7 @@ class Material
 public:
     enum AlphaMode
     {
-        OPAQUE,
+        DEFAULT_OPAQUE = 0,
         MASK,
         BLEND
     };

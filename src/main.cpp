@@ -9,8 +9,8 @@
 
 #include "loader/AssetsLoader.h"
 
-#include "renderer/glTFRenderer.h"
-#include "renderer/ShapeRenderer.h"
+#include "renderer/RenderNode.h"
+
 #include "SceneRenderGraph.h"
 
 const int WIDTH = 1280;
@@ -19,7 +19,6 @@ const int HEIGHT = 720;
 float m_LastX = WIDTH / 2.0f;
 float m_LastY = HEIGHT / 2.0f;
 bool m_LeftMouseButtonPressed = false;
-bool m_MiddleMouseButtonPressed = false;
 bool m_RightMouseButtonPressed = false;
 
 GLFWwindow* m_Window;
@@ -80,11 +79,10 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    // glTF models
-     glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-     //glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
-    //glTFRenderer::Ptr glTFModelRenderer = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
-    m_SceneRenderGraph->addModelRenderer(glTFModelRenderer);
+    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
+    m_SceneRenderGraph->pushRenderNode(renderNode);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 256.0f);
@@ -98,10 +96,7 @@ int main()
     {
         processWindowInput(m_Window);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        m_SceneRenderGraph->render();
+        m_SceneRenderGraph->executeCommandBuffer();
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();
@@ -130,7 +125,9 @@ void resizeCallback(GLFWwindow* window, int width, int height)
 void processWindowInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, true);
+    }
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -147,19 +144,17 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         else if (action == GLFW_RELEASE)
             m_LeftMouseButtonPressed = false;
     }
-    else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
     {
         if (action == GLFW_PRESS)
-            m_MiddleMouseButtonPressed = true;
-        else if (action == GLFW_RELEASE)
-            m_MiddleMouseButtonPressed = false;
-    }
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-    {
-        if (action == GLFW_PRESS)
+        {
             m_RightMouseButtonPressed = true;
+        }
         else if (action == GLFW_RELEASE)
+        {
             m_RightMouseButtonPressed = false;
+        }
     }
 }
 
@@ -176,16 +171,11 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
 
     if (m_LeftMouseButtonPressed)
     {
-        m_SceneRenderGraph->rotateModelRenderers(glm::vec3(dy, -dx, 0.0f));
-    }
-    
-    if (m_MiddleMouseButtonPressed)
-    {
-        m_SceneRenderGraph->getActiveCamera()->panning(dx, -dy);
+        m_SceneRenderGraph->getActiveCamera()->arcballing(dx, dy);
     }
 
     if (m_RightMouseButtonPressed)
     {
-        m_SceneRenderGraph->getActiveCamera()->arcballing(dx, dy);
+        m_SceneRenderGraph->getActiveCamera()->panning(dx, -dy);
     }
 }

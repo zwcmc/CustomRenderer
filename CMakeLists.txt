@@ -16,11 +16,10 @@ set(SOURCES
     src/base/Texture.cpp
     src/base/Material.cpp
     src/cameras/ArcballCamera.cpp
+    src/renderer/CommandBuffer.cpp
     src/renderer/MeshRender.cpp
-    src/renderer/glTFRenderer.cpp
-    src/renderer/ShapeRenderer.cpp
+    src/renderer/RenderNode.cpp
     src/meshes/Mesh.cpp
-    src/meshes/Cube.cpp
     src/meshes/Sphere.cpp
     src/lights/BaseLight.cpp
     src/lights/DirectionalLight.cpp
@@ -35,14 +34,12 @@ set(HEADERS
     src/base/Texture.h
     src/base/Material.h
     src/cameras/ArcballCamera.h
-    src/renderer/ModelRenderer.h
+    src/renderer/RenderCommand.h
+    src/renderer/CommandBuffer.h
     src/renderer/MeshRender.h
-    src/renderer/glTFRenderer.h
-    src/renderer/ShapeRenderer.h
+    src/renderer/RenderNode.h
     src/meshes/Mesh.h
-    src/meshes/Cube.h
     src/meshes/Sphere.h
-    src/meshes/Models.h
     src/lights/BaseLight.h
     src/lights/DirectionalLight.h
 )

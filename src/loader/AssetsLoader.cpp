@@ -74,7 +74,8 @@ Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureNam
     return texture;
 }
 
-glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
+// ----------------
+RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -82,7 +83,7 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
     tinygltf::TinyGLTF glTFContext;
     std::string error, warning;
 
-    glTFRenderer::Ptr renderer = glTFRenderer::New();
+    RenderNode::Ptr rootNode = RenderNode::New();
 
     bool fileLoaded = glTFContext.LoadASCIIFromFile(&glTFInput, &error, &warning, newPath);
     if (fileLoaded)
@@ -90,11 +91,11 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
         // Load texture and material data
         loadglTFMaterials(glTFInput);
 
-        const tinygltf::Scene &scene = glTFInput.scenes[0];
+        const tinygltf::Scene& scene = glTFInput.scenes[0];
         for (size_t i = 0; i < scene.nodes.size(); ++i)
         {
             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            loadglTFNode(node, glTFInput, renderer, nullptr);
+            loadglTFNode(node, glTFInput, rootNode);
         }
     }
     else
@@ -102,8 +103,187 @@ glTFRenderer::Ptr AssetsLoader::loadglTFFile(const std::string &filePath)
         std::cerr << "Could not open the glTF file: " << newPath << ", error: " << error << std::endl;
     }
 
-    return renderer;
+    return rootNode;
 }
+void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent)
+{
+    RenderNode::Ptr node = RenderNode::New();
+    node->Parent = parent;
+
+    // Model matrix
+    {
+        if (inputNode.translation.size() == 3)
+        {
+            glm::vec3 translation = glm::make_vec3(inputNode.translation.data());
+            node->ModelMatrix = glm::translate(node->ModelMatrix, translation);
+        }
+        if (inputNode.rotation.size() == 4)
+        {
+            glm::quat q = glm::make_quat(inputNode.rotation.data());
+            glm::mat4 m = glm::mat4(q);
+            node->ModelMatrix *= m;
+        }
+        if (inputNode.scale.size() == 3)
+        {
+            glm::vec3 scale = glm::make_vec3(inputNode.scale.data());
+            node->ModelMatrix = glm::scale(node->ModelMatrix, scale);
+        }
+        if (inputNode.matrix.size() == 16)
+        {
+            glm::mat4 m = glm::make_mat4x4(inputNode.matrix.data());
+            node->ModelMatrix = m;
+        };
+    }
+
+    // Load node's children
+    {
+        if (inputNode.children.size() > 0)
+        {
+            for (size_t i = 0; i < inputNode.children.size(); i++)
+            {
+                loadglTFNode(input.nodes[inputNode.children[i]], input, node);
+            }
+        }
+    }
+
+    // Create mesh render
+    {
+        if (inputNode.mesh > -1)
+        {
+            const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
+            for (size_t i = 0; i < mesh.primitives.size(); i++)
+            {
+                const tinygltf::Primitive& glTFPrimitive = mesh.primitives[i];
+
+                // Vertices
+                std::vector<vec3> vertices;
+                std::vector<vec2> texcoords;
+                std::vector<vec3> normals;
+                {
+                    const float* vertexBuffer = nullptr;
+                    const float* texcoordBuffer = nullptr;
+                    const float* normalsBuffer = nullptr;
+                    size_t vertexCount = 0;
+
+                    if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
+                        const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                        vertexBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                        vertexCount = accessor.count;
+                    }
+
+                    if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
+                        const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                        texcoordBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    }
+
+                    if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
+                        const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                        normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    }
+
+                    for (size_t i = 0; i < vertexCount; ++i)
+                    {
+                        vertices.push_back(glm::make_vec3(&vertexBuffer[i * 3]));
+                        texcoords.push_back(texcoordBuffer ? glm::make_vec2(&texcoordBuffer[i * 2]) : glm::vec2(0.0f));
+                        normals.push_back(glm::normalize(normalsBuffer ? glm::make_vec3(&normalsBuffer[i * 3]) : glm::vec3(0.0f)));
+                    }
+                }
+
+                // Indices
+                std::vector<unsigned int> indices;
+                {
+                    const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.indices];
+                    const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
+                    const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
+
+                    switch (accessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
+                    {
+                        const unsigned int* buf = reinterpret_cast<const unsigned int*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                        for (size_t i = 0; i < accessor.count; ++i)
+                        {
+                            indices.push_back(buf[i]);
+                        }
+                        break;
+                    }
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        const unsigned short* buf = reinterpret_cast<const unsigned short*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                        for (size_t i = 0; i < accessor.count; ++i)
+                        {
+                            indices.push_back(buf[i]);
+                        }
+                        break;
+                    }
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        const unsigned char* buf = reinterpret_cast<const unsigned char*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                        for (size_t i = 0; i < accessor.count; ++i)
+                        {
+                            indices.push_back(buf[i]);
+                        }
+                        break;
+                    }
+                    default:
+                        std::cerr << "Index component type " << accessor.componentType << " is not supported!" << std::endl;
+                        break;
+                    }
+                }
+
+                glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
+
+                Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
+                if (glTFMatData->baseColorTexture)
+                    newMat->addTextureProperty("uAlbedoMap", glTFMatData->baseColorTexture);
+                newMat->addFloatProperty("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+                newMat->addVectorProperty("uBaseColor", glTFMatData->baseColorFactor);
+
+                if (glTFMatData->normalTexture)
+                    newMat->addTextureProperty("uNormalMap", glTFMatData->normalTexture);
+                newMat->addFloatProperty("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
+
+                if (glTFMatData->emissiveTexture)
+                {
+                    newMat->addTextureProperty("uEmissiveMap", glTFMatData->emissiveTexture);
+                    newMat->addVectorProperty("uEmissiveColor", glTFMatData->emissiveFactor);
+                }
+                newMat->addFloatProperty("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
+
+                if (glTFMatData->metallicRoughnessTexture)
+                {
+                    newMat->addTextureProperty("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
+                }
+                newMat->addFloatProperty("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
+                newMat->addFloatProperty("uMetallicFactor", glTFMatData->metallicFactor);
+                newMat->addFloatProperty("uRoughnessFactor", glTFMatData->roughnessFactor);
+
+                if (glTFMatData->occlusionTexture)
+                {
+                    newMat->addTextureProperty("uOcclusionMap", glTFMatData->occlusionTexture);
+                }
+                newMat->addFloatProperty("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
+
+                newMat->setDoubleSided(glTFMatData->doubleSided);
+
+                newMat->setAlphaMode(glTFMatData->alphaMode);
+                newMat->addFloatProperty("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
+                newMat->addFloatProperty("uAlphaCutoff", glTFMatData->alphaCutoff);
+
+                node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
+            }
+        }
+    }
+
+    parent->Children.push_back(node);
+}
+// ----------------
 
 void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
 {
@@ -213,185 +393,6 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
                 matData->alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
             }
         }
-    }
-}
-
-void AssetsLoader::loadglTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, glTFRenderer::Ptr renderer, glTFRenderer::glTFNode::Ptr parent)
-{
-    glTFRenderer::glTFNode::Ptr node = glTFRenderer::glTFNode::New();
-    node->parent = parent;
-
-    // Model matrix
-    if (inputNode.translation.size() == 3)
-    {
-        glm::vec3 translation = glm::make_vec3(inputNode.translation.data());
-        node->matrix = glm::translate(node->matrix, translation);
-    }
-    if (inputNode.rotation.size() == 4)
-    {
-        glm::quat q = glm::make_quat(inputNode.rotation.data());
-        glm::mat4 m = glm::mat4(q);
-        node->matrix *= m;
-    }
-    if (inputNode.scale.size() == 3)
-    {
-        glm::vec3 scale = glm::make_vec3(inputNode.scale.data());
-        node->matrix = glm::scale(node->matrix, scale);
-    }
-    if (inputNode.matrix.size() == 16)
-    {
-        glm::mat4 m = glm::make_mat4x4(inputNode.matrix.data());
-        node->matrix = m;
-    };
-
-    // Load node's children
-    if (inputNode.children.size() > 0)
-    {
-        for (size_t i = 0; i < inputNode.children.size(); i++)
-        {
-            loadglTFNode(input.nodes[inputNode.children[i]], input, renderer, node);
-        }
-    }
-
-    if (inputNode.mesh > -1)
-    {
-        const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
-        for (size_t i = 0; i < mesh.primitives.size(); i++)
-        {
-            const tinygltf::Primitive& glTFPrimitive = mesh.primitives[i];
-
-            // Vertices
-            std::vector<vec3> vertices;
-            std::vector<vec2> texcoords;
-            std::vector<vec3> normals;
-            {
-                const float* vertexBuffer = nullptr;
-                const float* texcoordBuffer = nullptr;
-                const float* normalsBuffer = nullptr;
-                size_t vertexCount = 0;
-
-                if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end())
-                {
-                    const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
-                    const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
-                    vertexBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                    vertexCount = accessor.count;
-                }
-
-                if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end())
-                {
-                    const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
-                    const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
-                    texcoordBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                }
-
-                if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end())
-                {
-                    const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
-                    const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
-                    normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                }
-
-                for (size_t i = 0; i < vertexCount; ++i)
-                {
-                    vertices.push_back(glm::make_vec3(&vertexBuffer[i * 3]));
-                    texcoords.push_back(texcoordBuffer ? glm::make_vec2(&texcoordBuffer[i * 2]) : glm::vec2(0.0f));
-                    normals.push_back(glm::normalize(normalsBuffer ? glm::make_vec3(&normalsBuffer[i * 3]) : glm::vec3(0.0f)));
-                }
-            }
-
-            // Indices
-            std::vector<unsigned int> indices;
-            {
-                const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.indices];
-                const tinygltf::BufferView &bufferView = input.bufferViews[accessor.bufferView];
-                const tinygltf::Buffer &buffer = input.buffers[bufferView.buffer];
-
-                switch (accessor.componentType)
-                {
-                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
-                    {
-                        const unsigned int *buf = reinterpret_cast<const unsigned int *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                        for (size_t i = 0; i < accessor.count; ++i)
-                        {
-                            indices.push_back(buf[i]);
-                        }
-                        break;
-                    }
-                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
-                    {
-                        const unsigned short *buf = reinterpret_cast<const unsigned short *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                        for (size_t i = 0; i < accessor.count; ++i)
-                        {
-                            indices.push_back(buf[i]);
-                        }
-                        break;
-                    }
-                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
-                    {
-                        const unsigned char *buf = reinterpret_cast<const unsigned char *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                        for (size_t i = 0; i < accessor.count; ++i)
-                        {
-                            indices.push_back(buf[i]);
-                        }
-                        break;
-                    }
-                    default:
-                        std::cerr << "Index component type " << accessor.componentType << " is not supported!" << std::endl;
-                        break;
-                }
-            }
-
-            glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
-
-            Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
-            if (glTFMatData->baseColorTexture)
-                newMat->addTextureProperty("uAlbedoMap", glTFMatData->baseColorTexture);
-            newMat->addFloatProperty("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
-            newMat->addVectorProperty("uBaseColor", glTFMatData->baseColorFactor);
-
-            if (glTFMatData->normalTexture)
-                newMat->addTextureProperty("uNormalMap", glTFMatData->normalTexture);
-            newMat->addFloatProperty("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
-
-            if (glTFMatData->emissiveTexture)
-            {
-                newMat->addTextureProperty("uEmissiveMap", glTFMatData->emissiveTexture);
-                newMat->addVectorProperty("uEmissiveColor", glTFMatData->emissiveFactor);
-            }
-            newMat->addFloatProperty("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
-
-            if (glTFMatData->metallicRoughnessTexture)
-            {
-                newMat->addTextureProperty("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
-            }
-            newMat->addFloatProperty("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
-            newMat->addFloatProperty("uMetallicFactor", glTFMatData->metallicFactor);
-            newMat->addFloatProperty("uRoughnessFactor", glTFMatData->roughnessFactor);
-
-            if (glTFMatData->occlusionTexture)
-            {
-                newMat->addTextureProperty("uOcclusionMap", glTFMatData->occlusionTexture);
-            }
-            newMat->addFloatProperty("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
-
-            newMat->setDoubleSided(glTFMatData->doubleSided);
-
-            newMat->setAlphaMode(glTFMatData->alphaMode);
-            newMat->addFloatProperty("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-            newMat->addFloatProperty("uAlphaCutoff", glTFMatData->alphaCutoff);
-
-            node->meshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
-        }
-    }
-
-    if (parent)
-    {
-        parent->children.push_back(node);
-    }
-    else
-    {
-        renderer->addNode(node);
     }
 }
 

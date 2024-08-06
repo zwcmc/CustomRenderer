@@ -3,7 +3,7 @@
 #include "loader/AssetsLoader.h"
 
 Material::Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath)
-    : m_DoubleSided(false), m_AlphaMode(AlphaMode::OPAQUE)
+    : m_DoubleSided(false), m_AlphaMode(AlphaMode::DEFAULT_OPAQUE)
 {
     m_Shader = AssetsLoader::loadShaderFromFile(shaderName, vsPath, fsPath);
 }

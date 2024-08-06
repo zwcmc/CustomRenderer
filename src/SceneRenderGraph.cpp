@@ -1,8 +1,6 @@
 #include "SceneRenderGraph.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
-#include "base/Material.h"
+#include <stack>
 
 SceneRenderGraph::SceneRenderGraph()
     : m_GlobalUniformBufferID(0)
@@ -10,12 +8,13 @@ SceneRenderGraph::SceneRenderGraph()
 
 SceneRenderGraph::~SceneRenderGraph()
 {
-    m_ModelRenderers.clear();
     m_Lights.clear();
 }
 
 void SceneRenderGraph::init()
 {
+    m_CommandBuffer = CommandBuffer::New();
+
     // Depth test
     glEnable(GL_DEPTH_TEST);
 
@@ -38,68 +37,117 @@ void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
     m_Camera = camera;
 }
 
-void SceneRenderGraph::rotateModelRenderers(const glm::vec3 &delta)
-{
-    for (auto &model : m_ModelRenderers)
-    {
-        model->rotate(glm::radians(delta.x) * ROTATION_SPEED, glm::vec3(1.0f, 0.0f, 0.0f));
-        model->rotate(glm::radians(delta.y) * ROTATION_SPEED, glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-}
-
-void SceneRenderGraph::addModelRenderer(ModelRenderer::Ptr renderer)
-{
-    m_ModelRenderers.push_back(renderer);
-}
-
 void SceneRenderGraph::addLight(BaseLight::Ptr light)
 {
     m_Lights.push_back(light);
 }
 
-void SceneRenderGraph::render()
+void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
 {
+    std::stack<RenderNode::Ptr> nodeStack;
+    nodeStack.push(renderNode);
+    for (size_t i = 0; i < renderNode->Children.size(); ++i)
+    {
+        nodeStack.push(renderNode->Children[i]);
+    }
+    while (!nodeStack.empty())
+    {
+        RenderNode::Ptr node = nodeStack.top();
+        nodeStack.pop();
+
+        glm::mat4 model = node->getModelMatrix();
+        for (size_t i = 0; i < node->MeshRenders.size(); ++i)
+        {
+            m_CommandBuffer->pushCommand(node->MeshRenders[i]->getMesh(), node->MeshRenders[i]->getMaterial(), model);
+        }
+
+        for (size_t i = 0; i < node->Children.size(); ++i)
+        {
+            nodeStack.push(node->Children[i]);
+        }
+    }
+}
+
+void SceneRenderGraph::executeCommandBuffer()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(v));
-    glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(glm::mat4), glm::value_ptr(p));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &v[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(glm::mat4), &p[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    if (m_Lights.size() > 0)
-    {
-        for (auto &light : m_Lights)
-        {
-            light->draw(m_Camera);
 
-            for (auto &renderer : m_ModelRenderers)
-            {
-                renderer->draw(m_Camera, light, Material::AlphaMode::OPAQUE);
-            }
-            for (auto &renderer : m_ModelRenderers)
-            {
-                renderer->draw(m_Camera, light, Material::AlphaMode::MASK);
-            }
-            for (auto &renderer : m_ModelRenderers)
-            {
-                renderer->draw(m_Camera, light, Material::AlphaMode::BLEND);
-            }
-        }
+    // Opaque
+    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueRenderCommands();
+    for (size_t i = 0; i < opaqueCommands.size(); ++i)
+    {
+        RenderCommand::Ptr command = opaqueCommands[i];
+        renderCommand(command);
+    }
+
+    // Transparent
+    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentRenderCommands();
+    for (size_t i = 0; i < transparentCommands.size(); ++i)
+    {
+        RenderCommand::Ptr command = transparentCommands[i];
+        renderCommand(command);
+    }
+}
+
+void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
+{
+    Mesh::Ptr mesh = command->Mesh;
+    Material::Ptr mat = command->Material;
+
+    if (mat->getDoubleSided())
+    {
+        glDisable(GL_CULL_FACE);
     }
     else
     {
-        for (auto &renderer : m_ModelRenderers)
-        {
-            renderer->draw(m_Camera, Material::AlphaMode::OPAQUE);
-        }
-        for (auto &renderer : m_ModelRenderers)
-        {
-            renderer->draw(m_Camera, Material::AlphaMode::MASK);
-        }
-        for (auto &renderer : m_ModelRenderers)
-        {
-            renderer->draw(m_Camera, Material::AlphaMode::BLEND);
-        }
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
     }
+    if (mat->getAlphaMode() == Material::AlphaMode::BLEND)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    else
+    {
+        glDisable(GL_BLEND);
+    }
+
+    BaseLight::Ptr light = m_Lights[0];
+    mat->addVectorProperty("uLightDirection", light->getLightPosition());
+    mat->addVectorProperty("uLightColorIntensity", light->getLightColorAndIntensity());
+    mat->addVectorProperty("uCameraPos", m_Camera->getPosition());
+
+    mat->use();
+    mat->setMatrix("uModelMatrix", command->Transform);
+    mat->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(command->Transform)));
+
+    renderMesh(mesh);
+}
+
+void SceneRenderGraph::renderMesh(Mesh::Ptr mesh)
+{
+    glBindVertexArray(mesh->getVertexArrayID());
+
+    if (mesh->getIndicesCount() > 0)
+    {
+        glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+    }
+    else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, mesh->getVerticesCount());
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindVertexArray(0);
 }
