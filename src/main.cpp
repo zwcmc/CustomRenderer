@@ -79,9 +79,9 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
     //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
-    //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
+    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;

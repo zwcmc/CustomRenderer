@@ -37,6 +37,12 @@ private:
 
     void renderLight(BaseLight::Ptr light);
 
+    void setGLCull(bool enable);
+    void setGLBlend(bool enable);
+
+    bool m_CullFace;
+    bool m_Blend;
+
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
     // {

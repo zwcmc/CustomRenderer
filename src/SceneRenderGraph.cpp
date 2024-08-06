@@ -21,10 +21,13 @@ void SceneRenderGraph::init()
     glEnable(GL_DEPTH_TEST);
 
     // Default cull face state
+    m_CullFace = true;
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
 
+    // Default blend state
+    m_Blend = false;
     glDisable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
@@ -123,24 +126,8 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
     Mesh::Ptr mesh = command->Mesh;
     Material::Ptr mat = command->Material;
 
-    if (mat->getDoubleSided())
-    {
-        glDisable(GL_CULL_FACE);
-    }
-    else
-    {
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-    }
-    if (mat->getAlphaMode() == Material::AlphaMode::BLEND)
-    {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-    else
-    {
-        glDisable(GL_BLEND);
-    }
+    setGLCull(mat->getDoubleSided());
+    setGLBlend(mat->getAlphaMode() == Material::AlphaMode::BLEND);
 
     mat->use();
     mat->setMatrix("uModelMatrix", command->Transform);
@@ -177,4 +164,36 @@ void SceneRenderGraph::renderLight(BaseLight::Ptr light)
     m_LightMaterial->setMatrix("uModelMatrix", transform);
 
     renderMesh(m_LightSphere);
+}
+
+void SceneRenderGraph::setGLCull(bool enable)
+{
+    if (m_CullFace != enable)
+    {
+        m_CullFace = enable;
+        if (enable)
+        {
+            glEnable(GL_CULL_FACE);
+        }
+        else
+        {
+            glDisable(GL_CULL_FACE);
+        }
+    }
+}
+
+void SceneRenderGraph::setGLBlend(bool enable)
+{
+    if (m_Blend != enable)
+    {
+        m_Blend = enable;
+        if (enable)
+        {
+            glEnable(GL_BLEND);
+        }
+        else
+        {
+            glDisable(GL_BLEND);
+        }
+    }
 }
