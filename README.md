@@ -18,6 +18,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
 - [x] Physically Based Rendering
+- [x] Gamma Correction
 - [ ] Skybox
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping
