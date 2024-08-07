@@ -54,6 +54,8 @@ private:
     //     vec3 cameraPos;        // 16 bytes;  byte offset = 160;
     // };                         // total bytes = 176
 
+    std::vector<RenderNode::Ptr> m_RenderNodes;
+
     CommandBuffer::Ptr m_CommandBuffer;
     ArcballCamera::Ptr m_Camera;
     std::vector<BaseLight::Ptr> m_Lights;

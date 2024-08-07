@@ -31,6 +31,7 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void cursorPositionCallback(GLFWwindow* window, double x, double y);
 void processWindowInput(GLFWwindow* window);
+void checkOpenGLError();
 
 int main()
 {
@@ -79,10 +80,10 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
-    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
+     //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+     //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+    //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
@@ -95,6 +96,8 @@ int main()
 
     while (!glfwWindowShouldClose(m_Window))
     {
+        checkOpenGLError();
+
         processWindowInput(m_Window);
 
         m_SceneRenderGraph->executeCommandBuffer();
@@ -105,6 +108,24 @@ int main()
 
     glfwTerminate();
     return 0;
+}
+
+void checkOpenGLError()
+{
+    GLenum err = glGetError();
+    while (err != GL_NO_ERROR) {
+        const char* error;
+        switch (err) {
+        case GL_INVALID_OPERATION:      error = "INVALID_OPERATION"; break;
+        case GL_INVALID_ENUM:           error = "INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:          error = "INVALID_VALUE"; break;
+        case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY"; break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        default:                        error = "UNKNOWN_ERROR"; break;
+        }
+        fprintf(stderr, "OpenGL error: %s\n", error);
+        err = glGetError();
+    }
 }
 
 void errorCallback(int error, const char* description)

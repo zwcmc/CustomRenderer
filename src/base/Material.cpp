@@ -95,7 +95,6 @@ void Material::use()
         int slot = 0;
         for (auto &pair : m_Textures)
         {
-            std::cout << pair.first << ", " << slot << std::endl;
             m_Shader->setUniformInt(pair.first, slot);
             glActiveTexture(GL_TEXTURE0 + slot);
             glBindTexture(GL_TEXTURE_2D, pair.second->getTextureID());

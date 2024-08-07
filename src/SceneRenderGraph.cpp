@@ -5,11 +5,12 @@
 #include "meshes/Sphere.h"
 
 SceneRenderGraph::SceneRenderGraph()
-    : m_GlobalUniformBufferID(0)
+    : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false)
 { }
 
 SceneRenderGraph::~SceneRenderGraph()
 {
+    m_RenderNodes.clear();
     m_Lights.clear();
 }
 
@@ -52,6 +53,8 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
 {
+    m_RenderNodes.push_back(renderNode);
+
     buildRenderCommands(renderNode);
 }
 
