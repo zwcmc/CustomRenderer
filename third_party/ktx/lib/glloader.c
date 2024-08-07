@@ -190,7 +190,7 @@ static GLboolean supportsCubeMapArrays = GL_FALSE;
  * @brief Workaround mismatch of glGetString declaration and standard string
  *        function parameters.
  */
-#define glGetString(x) (const char*)glGetString(x)
+#define glGetStringKTX(x) (const char*)glGetString(x)
 
 /**
  * @internal
@@ -209,7 +209,7 @@ static GLboolean
 hasExtension(const char* extension) 
 {
     if (pfGlGetStringi == NULL) {
-        if (strstr(glGetString(GL_EXTENSIONS), extension) != NULL)
+        if (strstr(glGetStringKTX(GL_EXTENSIONS), extension) != NULL)
             return GL_TRUE;
         else
             return GL_FALSE;
@@ -249,7 +249,7 @@ discoverContextCapabilities(void)
     // declaration would happen before these pointers have been initialized.
     INITIALIZE_GL_FUNCPTRS
 
-    if (strstr(glGetString(GL_VERSION), "GL ES") != NULL)
+    if (strstr(glGetStringKTX(GL_VERSION), "GL ES") != NULL)
         contextProfile = _CONTEXT_ES_PROFILE_BIT;
     // MAJOR & MINOR only introduced in GL {,ES} 3.0
     glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
@@ -257,10 +257,10 @@ discoverContextCapabilities(void)
     if (glGetError() != GL_NO_ERROR) {
         // < v3.0; resort to the old-fashioned way.
         if (contextProfile & _CONTEXT_ES_PROFILE_BIT)
-            sscanf(glGetString(GL_VERSION), "OpenGL ES %d.%d ",
+            sscanf(glGetStringKTX(GL_VERSION), "OpenGL ES %d.%d ",
                    &majorVersion, &minorVersion);
         else
-            sscanf(glGetString(GL_VERSION), "OpenGL %d.%d ",
+            sscanf(glGetStringKTX(GL_VERSION), "OpenGL %d.%d ",
                    &majorVersion, &minorVersion);
     }
     if (contextProfile & _CONTEXT_ES_PROFILE_BIT) {
