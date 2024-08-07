@@ -378,7 +378,7 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
 
                 glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
 
-                Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
+                Material::Ptr newMat = Material::New("PBRLit", "glsl_shaders/PBRLit.vs", "glsl_shaders/PBRLit.fs");
                 if (glTFMatData->baseColorTexture)
                 {
                     newMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
