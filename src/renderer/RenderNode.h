@@ -21,4 +21,6 @@ public:
 
     std::vector<RenderNode::Ptr> Children;
     std::weak_ptr<RenderNode> Parent;
+
+    std::vector<Texture::Ptr> NodeTextures;
 };

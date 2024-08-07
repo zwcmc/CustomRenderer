@@ -51,7 +51,7 @@ public:
 private:
     AssetsLoader() = default;
 
-    static void loadglTFMaterials(const tinygltf::Model &input);
+    static void loadglTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode);
     static void loadglTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent);
     static std::string readShader(std::ifstream& file, const std::string& name);
 

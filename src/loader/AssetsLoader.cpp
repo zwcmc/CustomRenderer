@@ -91,7 +91,7 @@ RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
     if (fileLoaded)
     {
         // Load texture and material data
-        loadglTFMaterials(glTFInput);
+        loadglTFMaterials(glTFInput, rootNode);
 
         const tinygltf::Scene& scene = glTFInput.scenes[0];
         for (size_t i = 0; i < scene.nodes.size(); ++i)
@@ -124,7 +124,7 @@ Texture::Ptr AssetsLoader::loadTextureFromKTXFile(const std::string &textureName
     return texture;
 }
 
-void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
+void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)
 {
     // Load texture indices
     std::vector<int> textureIndices;
@@ -137,14 +137,15 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
     }
 
     // Create textures
-    std::vector<Texture::Ptr> textures;
+    //std::vector<Texture::Ptr> textures;
+    rootNode->NodeTextures.clear();
     {
-        textures.resize(input.images.size());
+        rootNode->NodeTextures.resize(input.images.size());
         for (size_t index = 0; index < input.images.size(); ++index)
         {
             const tinygltf::Image &glTFImage = input.images[index];
             unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
-            textures[index] = createTextureFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void *>(buffer));
+            rootNode->NodeTextures[index] = createTextureFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void *>(buffer));
         }
     }
 
@@ -164,7 +165,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
             if (mat.values.find("baseColorTexture") != mat.values.end())
             {
                 int textureIndex = mat.values["baseColorTexture"].TextureIndex();
-                matData->baseColorTexture = textures[textureIndices[textureIndex]];
+                matData->baseColorTexture = rootNode->NodeTextures[textureIndices[textureIndex]];
             }
             // Base color
             if (mat.values.find("baseColorFactor") != mat.values.end())
@@ -175,14 +176,14 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
             if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
             {
                 int normalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
-                matData->normalTexture = textures[textureIndices[normalTextureIndex]];
+                matData->normalTexture = rootNode->NodeTextures[textureIndices[normalTextureIndex]];
             }
 
             // Emissive
             if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
             {
                 int emissiveTextureIndex = mat.additionalValues["emissiveTexture"].TextureIndex();
-                matData->emissiveTexture = textures[textureIndices[emissiveTextureIndex]];
+                matData->emissiveTexture = rootNode->NodeTextures[textureIndices[emissiveTextureIndex]];
             }
             if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end())
             {
@@ -193,7 +194,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
             if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
             {
                 int metallicRoughnessTextureIndex = mat.values["metallicRoughnessTexture"].TextureIndex();
-                matData->metallicRoughnessTexture = textures[textureIndices[metallicRoughnessTextureIndex]];
+                matData->metallicRoughnessTexture = rootNode->NodeTextures[textureIndices[metallicRoughnessTextureIndex]];
             }
             if (mat.values.find("metallicFactor") != mat.values.end())
             {
@@ -208,7 +209,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input)
             if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
             {
                 int occlusionTextureIndex = mat.additionalValues["occlusionTexture"].TextureIndex();
-                matData->occlusionTexture = textures[textureIndices[occlusionTextureIndex]];
+                matData->occlusionTexture = rootNode->NodeTextures[textureIndices[occlusionTextureIndex]];
             }
 
             // Doublesided
