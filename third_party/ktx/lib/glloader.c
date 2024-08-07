@@ -48,7 +48,8 @@
     #endif
   #endif
   #if KTX_USE_GETPROC
-    #include <GL/glew.h>
+    //#include <GL/glew.h>
+    #include <glad/glad.h>
   #else
     #define GL_GLEXT_PROTOTYPES
     #include <GL/glcorearb.h>
