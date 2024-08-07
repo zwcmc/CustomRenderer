@@ -48,7 +48,7 @@ public:
     static RenderNode::Ptr loadglTFFile(const std::string &filePath);
 
     static Texture2D::Ptr loadTexture2DFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
-    static TextureCube::Ptr loadCubemapFromKTXFile(const std::string& filePath);
+    static TextureCube::Ptr loadCubemapFromKTXFile(const std::string &textureName, const std::string& filePath);
 
 private:
     AssetsLoader() = default;

@@ -85,9 +85,6 @@ int main()
      //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
-
-    TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("textures/environments/cubemap_yokohama_rgba.ktx");
-
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 256.0f);
     camera->setScreenSize(WIDTH, HEIGHT);

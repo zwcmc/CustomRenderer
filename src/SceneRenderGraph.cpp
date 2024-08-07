@@ -4,6 +4,9 @@
 
 #include "meshes/Sphere.h"
 
+#include "base/TextureCube.h"
+#include "loader/AssetsLoader.h"
+
 SceneRenderGraph::SceneRenderGraph()
     : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false)
 { }
@@ -45,6 +48,13 @@ void SceneRenderGraph::init()
 
     m_LightSphere = Sphere::New(32, 32);
     m_EmissiveMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
+
+
+    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs");
+    TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("uCubemap", "textures/environments/cubemap_yokohama_rgba.ktx");
+    skyboxMat->addOrSetTextureCube(cubemap);
+    m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
+    m_Skybox->setOverrideMaterial(skyboxMat);
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -114,12 +124,49 @@ void SceneRenderGraph::executeCommandBuffer()
         renderCommand(command);
     }
 
+    if (m_Skybox)
+    {
+        renderSkybox();
+    }
+
     // Transparent
     std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentRenderCommands();
     for (size_t i = 0; i < transparentCommands.size(); ++i)
     {
         RenderCommand::Ptr command = transparentCommands[i];
         renderCommand(command);
+    }
+}
+
+void SceneRenderGraph::renderSkybox()
+{
+    glDepthFunc(GL_LEQUAL);
+
+    drawNode(m_Skybox);
+
+    glDepthFunc(GL_LESS);
+}
+
+void SceneRenderGraph::drawNode(RenderNode::Ptr node)
+{
+    Material::Ptr overrideMat = node->OverrideMat;
+    for (size_t i = 0; i < node->MeshRenders.size(); ++i)
+    {
+        MeshRender::Ptr mr = node->MeshRenders[i];
+        if (overrideMat)
+        {
+            overrideMat->use();
+        }
+        else
+        {
+            mr->getMaterial()->use();
+        }
+        renderMesh(mr->getMesh());
+    }
+
+    for (size_t i = 0; i < node->Children.size(); ++i)
+    {
+        drawNode(node->Children[i]);
     }
 }
 

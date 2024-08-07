@@ -33,10 +33,14 @@ public:
     void renderCommand(RenderCommand::Ptr command);
     void renderMesh(Mesh::Ptr mesh);
 
+    void renderSkybox();
+
 private:
 
     void buildRenderCommands(RenderNode::Ptr renderNode);
     void renderLight(BaseLight::Ptr light);
+
+    void drawNode(RenderNode::Ptr renderNode);
 
     void setGLCull(bool enable);
     void setGLBlend(bool enable);
@@ -64,4 +68,5 @@ private:
 
     Mesh::Ptr m_LightSphere;
     Material::Ptr m_EmissiveMat;
+    RenderNode::Ptr m_Skybox;
 };

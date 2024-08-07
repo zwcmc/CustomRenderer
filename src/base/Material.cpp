@@ -11,6 +11,7 @@ Material::Material(const std::string &shaderName, const std::string &vsPath, con
 Material::~Material()
 {
     m_Textures.clear();
+    m_TextureCubes.clear();
     m_UniformVec3.clear();
     m_UniformVec4.clear();
     m_UniformFloats.clear();
@@ -19,6 +20,11 @@ Material::~Material()
 void Material::addOrSetTexture(Texture2D::Ptr texture)
 {
     m_Textures.insert_or_assign(texture->getTextureName(), texture);
+}
+
+void Material::addOrSetTextureCube(TextureCube::Ptr textureCube)
+{
+    m_TextureCubes.insert_or_assign(textureCube->getTextureName(), textureCube);
 }
 
 void Material::addOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture)
@@ -90,9 +96,16 @@ void Material::use()
         }
     }
 
-    if (m_Textures.size() > 0)
+    if (m_Textures.size() > 0 || m_TextureCubes.size() > 0)
     {
         int slot = 0;
+        for (auto &pair : m_TextureCubes)
+        {
+            m_Shader->setUniformInt(pair.first, slot);
+            glActiveTexture(GL_TEXTURE0 + slot);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, pair.second->getTextureID());
+            ++slot;
+        }
         for (auto &pair : m_Textures)
         {
             m_Shader->setUniformInt(pair.first, slot);

@@ -12,5 +12,5 @@ public:
     TextureCube() = default;
     ~TextureCube() = default;
 
-    void initTextureCube();
+    void initTextureCube(const std::string &textureName, ktxTexture* kTexture);
 };

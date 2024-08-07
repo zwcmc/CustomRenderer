@@ -1,5 +1,7 @@
 #include "base/Texture2D.h"
 
+#define ENUM_TO_STRING_CASE(name) case name: return #name;
+
 void Texture2D::initTexture2D(const std::string& textureName, int width, int height, int components, GLenum format, void* data, bool useMipmap)
 {
     m_TextureName = textureName;
@@ -29,6 +31,8 @@ void Texture2D::initTexture2D(const std::string& textureName, int width, int hei
 void Texture2D::initTexture2D(const std::string& textureName, ktxTexture* kTexture, bool useMipmap)
 {
     m_TextureName = textureName;
+    m_Width = kTexture->baseWidth;
+    m_Height = kTexture->baseHeight;
 
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);
@@ -36,6 +40,11 @@ void Texture2D::initTexture2D(const std::string& textureName, ktxTexture* kTextu
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
     GLenum target, glerror;
     KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &target, &glerror);
+
+    if (result != KTX_SUCCESS)
+    {
+        std::cerr << "Create Texture2D from KTX file failed, texture name:  " << textureName << ", error: " << result << std::endl;
+    }
 
     if (useMipmap)
     {

@@ -131,7 +131,7 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromKTXFile(const std::string &texture
     return texture;
 }
 
-TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string& filePath)
+TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string &textureName, const std::string& filePath)
 {
     ktxTexture* kTexture;
     KTX_error_code result;
@@ -141,9 +141,9 @@ TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string& filePat
 
     assert(result == KTX_SUCCESS);
 
-    std::cout << kTexture->baseWidth << ", " << kTexture->baseHeight << ", " << kTexture->numLevels << std::endl;
-
     TextureCube::Ptr textureCube = TextureCube::New();
+    textureCube->initTextureCube(textureName, kTexture);
+    ktxTexture_Destroy(kTexture);
     return textureCube;
 }
 
