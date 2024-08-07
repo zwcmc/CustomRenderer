@@ -63,5 +63,5 @@ private:
     GLuint m_GlobalUniformBufferID;
 
     Mesh::Ptr m_LightSphere;
-    Material::Ptr m_LightMaterial;
+    Material::Ptr m_EmissiveMat;
 };

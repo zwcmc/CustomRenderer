@@ -38,7 +38,7 @@ void SceneRenderGraph::init()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     m_LightSphere = Sphere::New(32, 32);
-    m_LightMaterial = Material::New("SphereLight", "glsl_shaders/SphereLight.vs", "glsl_shaders/SphereLight.fs");
+    m_EmissiveMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -151,13 +151,13 @@ void SceneRenderGraph::renderMesh(Mesh::Ptr mesh)
 
 void SceneRenderGraph::renderLight(BaseLight::Ptr light)
 {
-    m_LightMaterial->addOrSetVector("uLightColor", light->getLightColor());
-    m_LightMaterial->use();
+    m_EmissiveMat->addOrSetVector("uEmissiveColor", light->getLightColor());
+    m_EmissiveMat->use();
 
     glm::mat4 transform = glm::mat4(1.0f);
     transform = glm::translate(transform, light->getLightPosition());
     transform = glm::scale(transform, glm::vec3(0.01f));
-    m_LightMaterial->setMatrix("uModelMatrix", transform);
+    m_EmissiveMat->setMatrix("uModelMatrix", transform);
 
     renderMesh(m_LightSphere);
 }
