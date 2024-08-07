@@ -3,6 +3,7 @@ out vec4 FragColor;
 
 #include "pbr/Lighting.glsl"
 #include "common/Uniforms.glsl"
+#include "common/Defines.glsl"
 
 in VertexData
 {
@@ -99,7 +100,7 @@ void main()
     color += emission;
 
     // Gamma correction
-    color = pow(color, vec3(1.0 / 2.2));
+    color = pow(color, vec3(1.0 / GAMMA));
 
     FragColor = vec4(color, albedo.a);
 }
