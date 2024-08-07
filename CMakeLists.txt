@@ -99,6 +99,8 @@ set(KTX_SOURCES
 )
 add_library(ktx STATIC ${KTX_SOURCES})
 target_link_libraries(${PROJECT_NAME} ktx)
+# define KTX_OPENGL for ktx in glloader.c
+add_definitions(-DKTX_OPENGL=1)
 
 # # imgui
 # add_subdirectory(third_party/imgui)
@@ -106,8 +108,5 @@ target_link_libraries(${PROJECT_NAME} ktx)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
-
-# define KTX_OPENGL for ktx in glloader.c
-add_definitions(-DKTX_OPENGL=1)
 
 # target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

@@ -28,6 +28,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [ ] FXAA
 - [ ] SSAO
 - [ ] TAA
+- [ ] Kulla-Conty BRDF
 
 ## References
 
