@@ -373,7 +373,6 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
                 Material::Ptr newMat = Material::New("Default", "glsl_shaders/Default.vs", "glsl_shaders/Default.fs");
                 if (glTFMatData->baseColorTexture)
                 {
-                    std::cout << "11111" << std::endl;
                     newMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
                 }
                 newMat->addOrSetFloat("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
