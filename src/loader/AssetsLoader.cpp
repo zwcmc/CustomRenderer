@@ -34,9 +34,9 @@ Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std:
     return Shader::New(name, vsSource, fsSource);
 }
 
-Texture::Ptr AssetsLoader::loadTextureFromFile(const std::string& textureName, const std::string& filePath, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureName, const std::string& filePath, bool useMipmap)
 {
-    Texture::Ptr texture = Texture::New();
+    Texture2D::Ptr texture = Texture2D::New();
 
     stbi_set_flip_vertically_on_load(true);
 
@@ -46,7 +46,7 @@ Texture::Ptr AssetsLoader::loadTextureFromFile(const std::string& textureName, c
     if (data)
     {
         GLenum format = getFormat(components);
-        texture->initTexture(textureName, width, height, components, format, data, useMipmap);
+        texture->initTexture2D(textureName, width, height, components, format, data, useMipmap);
     }
     else
     {
@@ -60,18 +60,18 @@ Texture::Ptr AssetsLoader::loadTextureFromFile(const std::string& textureName, c
     return texture;
 }
 
-Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap)
+Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap)
 {
-    Texture::Ptr texture = Texture::New();
+    Texture2D::Ptr texture = Texture2D::New();
 
     if (buffer)
     {
         GLenum format = getFormat(components);
-        texture->initTexture(textureName, width, height, components, format, buffer, useMipmap);
+        texture->initTexture2D(textureName, width, height, components, format, buffer, useMipmap);
     }
     else
     {
-        std::cerr << "Failer to create texture: "<< textureName << "! Texture buffer is nullptr." << std::endl;
+        std::cerr << "Failer to create texture: "<< textureName << "! Texture2D buffer is nullptr." << std::endl;
     }
 
     return texture;
@@ -115,7 +115,7 @@ RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
     return rootNode;
 }
 
-Texture::Ptr AssetsLoader::loadTextureFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTexture2DFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap)
 {
     ktxTexture* kTexture;
     KTX_error_code result;
@@ -125,10 +125,26 @@ Texture::Ptr AssetsLoader::loadTextureFromKTXFile(const std::string &textureName
 
     assert(result == KTX_SUCCESS);
 
-    Texture::Ptr texture = Texture::New();
-    texture->initTexture(textureName, kTexture, useMipmap);
+    Texture2D::Ptr texture = Texture2D::New();
+    texture->initTexture2D(textureName, kTexture, useMipmap);
     ktxTexture_Destroy(kTexture);
     return texture;
+}
+
+TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string& filePath)
+{
+    ktxTexture* kTexture;
+    KTX_error_code result;
+
+    std::string newPath = getAssetsPath() + filePath;
+    result = ktxTexture_CreateFromNamedFile(newPath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
+
+    assert(result == KTX_SUCCESS);
+
+    std::cout << kTexture->baseWidth << ", " << kTexture->baseHeight << ", " << kTexture->numLevels << std::endl;
+
+    TextureCube::Ptr textureCube = TextureCube::New();
+    return textureCube;
 }
 
 void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)
@@ -144,7 +160,6 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::P
     }
 
     // Create textures
-    //std::vector<Texture::Ptr> textures;
     rootNode->NodeTextures.clear();
     {
         rootNode->NodeTextures.resize(input.images.size());
@@ -152,7 +167,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::P
         {
             const tinygltf::Image &glTFImage = input.images[index];
             unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
-            rootNode->NodeTextures[index] = createTextureFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void *>(buffer));
+            rootNode->NodeTextures[index] = createTexture2DFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component, reinterpret_cast<void *>(buffer));
         }
     }
 

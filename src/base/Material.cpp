@@ -16,12 +16,12 @@ Material::~Material()
     m_UniformFloats.clear();
 }
 
-void Material::addOrSetTexture(Texture::Ptr texture)
+void Material::addOrSetTexture(Texture2D::Ptr texture)
 {
     m_Textures.insert_or_assign(texture->getTextureName(), texture);
 }
 
-void Material::addOrSetTexture(const std::string &propertyName, Texture::Ptr texture)
+void Material::addOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture)
 {
     texture->setTextureName(propertyName);
     m_Textures.insert_or_assign(propertyName, texture);

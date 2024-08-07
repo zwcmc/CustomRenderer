@@ -15,10 +15,13 @@ set(SOURCES
     src/base/Shader.cpp
     src/base/Texture.cpp
     src/base/Material.cpp
+    src/base/Texture2D.cpp
+    src/base/TextureCube.cpp
     src/cameras/ArcballCamera.cpp
     src/renderer/CommandBuffer.cpp
     src/renderer/MeshRender.cpp
     src/renderer/RenderNode.cpp
+    src/renderer/SkyboxRender.cpp
     src/meshes/Mesh.cpp
     src/meshes/Sphere.cpp
     src/lights/BaseLight.cpp
@@ -33,11 +36,14 @@ set(HEADERS
     src/base/Shader.h
     src/base/Texture.h
     src/base/Material.h
+    src/base/Texture2D.h
+    src/base/TextureCube.h
     src/cameras/ArcballCamera.h
     src/renderer/RenderCommand.h
     src/renderer/CommandBuffer.h
     src/renderer/MeshRender.h
     src/renderer/RenderNode.h
+    src/renderer/SkyboxRender.h
     src/meshes/Mesh.h
     src/meshes/Sphere.h
     src/lights/BaseLight.h

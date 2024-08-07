@@ -80,14 +80,13 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-     //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
      //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
      //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/BoxTextured/glTF-Embedded/BoxTextured.gltf");
-    Material::Ptr overrideMat = Material::New("Texture", "glsl_shaders/Texture.vs", "glsl_shaders/Texture.fs");
-    overrideMat->addOrSetTexture(AssetsLoader::loadTextureFromKTXFile("uTexture", "textures/lavaplanet_rgba.ktx"));
-    renderNode->setOverrideMaterial(overrideMat);
     m_SceneRenderGraph->pushRenderNode(renderNode);
+
+
+    TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("textures/environments/cubemap_yokohama_rgba.ktx");
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), aspectRatio, 0.1f, 256.0f);

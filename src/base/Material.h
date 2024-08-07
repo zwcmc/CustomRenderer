@@ -6,7 +6,7 @@
 
 #include "ptr.h"
 #include "base/Shader.h"
-#include "base/Texture.h"
+#include "base/Texture2D.h"
 
 class Material
 {
@@ -22,8 +22,8 @@ public:
     Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath);
     ~Material();
 
-    void addOrSetTexture(Texture::Ptr texture);
-    void addOrSetTexture(const std::string &propertyName, Texture::Ptr texture);
+    void addOrSetTexture(Texture2D::Ptr texture);
+    void addOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture);
     void addOrSetVector(const std::string &propertyName, const glm::vec3 &value);
     void addOrSetVector(const std::string &propertyName, const glm::vec4 &value);
     void addOrSetFloat(const std::string &propertyName, const float &value);
@@ -40,9 +40,7 @@ public:
 private:
     Shader::Ptr m_Shader;
 
-    // std::vector<Texture::Ptr> m_Textures;
-
-    std::map<std::string, Texture::Ptr> m_Textures;
+    std::map<std::string, Texture2D::Ptr> m_Textures;
     std::map<std::string, glm::vec3> m_UniformVec3;
     std::map<std::string, glm::vec4> m_UniformVec4;
     std::map<std::string, float> m_UniformFloats;

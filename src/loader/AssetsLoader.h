@@ -6,7 +6,8 @@
 #include "tiny_gltf.h"
 
 #include "base/Shader.h"
-#include "base/Texture.h"
+#include "base/Texture2D.h"
+#include "base/TextureCube.h"
 #include "renderer/RenderNode.h"
 
 class AssetsLoader
@@ -16,19 +17,19 @@ public:
     {
         SHARED_PTR_STRUCT(glTFMaterialData)
 
-        Texture::Ptr baseColorTexture;
+        Texture2D::Ptr baseColorTexture;
         glm::vec4 baseColorFactor;
 
-        Texture::Ptr normalTexture;
+        Texture2D::Ptr normalTexture;
 
-        Texture::Ptr emissiveTexture;
+        Texture2D::Ptr emissiveTexture;
         glm::vec3 emissiveFactor;
 
-        Texture::Ptr metallicRoughnessTexture;
+        Texture2D::Ptr metallicRoughnessTexture;
         float metallicFactor;
         float roughnessFactor;
 
-        Texture::Ptr occlusionTexture;
+        Texture2D::Ptr occlusionTexture;
 
         bool doubleSided;
 
@@ -42,11 +43,12 @@ public:
     };
 
     static Shader::Ptr loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
-    static Texture::Ptr loadTextureFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
-    static Texture::Ptr createTextureFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap = true);
+    static Texture2D::Ptr loadTexture2DFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
+    static Texture2D::Ptr createTexture2DFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap = true);
     static RenderNode::Ptr loadglTFFile(const std::string &filePath);
 
-    static Texture::Ptr loadTextureFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
+    static Texture2D::Ptr loadTexture2DFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
+    static TextureCube::Ptr loadCubemapFromKTXFile(const std::string& filePath);
 
 private:
     AssetsLoader() = default;
