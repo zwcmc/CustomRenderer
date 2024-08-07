@@ -18,6 +18,12 @@ void SceneRenderGraph::init()
 {
     m_CommandBuffer = CommandBuffer::New();
 
+    // No seams at cubemap edges
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+    // Set clear color
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
     // Depth test
     glEnable(GL_DEPTH_TEST);
 
@@ -75,7 +81,6 @@ void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
 
 void SceneRenderGraph::executeCommandBuffer()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 v = m_Camera->getViewMatrix();
