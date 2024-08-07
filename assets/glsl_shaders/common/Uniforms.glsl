@@ -1,5 +1,5 @@
-#ifndef UNIFORMS
-#define UNIFORMS
+#ifndef UNIFORMS_GLSL
+#define UNIFORMS_GLSL
 
 layout (std140) uniform GlobalUniforms
 {

@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 #include "pbr/Lighting.glsl"
 #include "common/Uniforms.glsl"
-#include "common/Defines.glsl"
+#include "common/Functions.glsl"
 
 in VertexData
 {
@@ -53,12 +53,6 @@ vec3 getNormal()
     return normalize(TBN * tangentNormal);
 }
 
-vec4 SRGBtoLINEAR(vec4 srgbIn)
-{
-    vec3 linOut = pow(srgbIn.xyz, vec3(2.2));
-    return vec4(linOut, srgbIn.w);
-}
-
 void main()
 {
     vec4 albedo = uAlbedoMapSet > 0.0 ? SRGBtoLINEAR(texture(uAlbedoMap, fs_in.UV0)) * uBaseColor : uBaseColor;
@@ -100,7 +94,7 @@ void main()
     color += emission;
 
     // Gamma correction
-    color = pow(color, vec3(1.0 / GAMMA));
+    color = GammaCorrection(color);
 
     FragColor = vec4(color, albedo.a);
 }
