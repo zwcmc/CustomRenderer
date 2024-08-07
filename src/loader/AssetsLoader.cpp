@@ -377,47 +377,46 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
                 }
 
                 glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
-
-                Material::Ptr newMat = Material::New("PBRLit", "glsl_shaders/PBRLit.vs", "glsl_shaders/PBRLit.fs");
+                Material::Ptr meshMat = Material::New("PBRLit", "glsl_shaders/PBRLit.vs", "glsl_shaders/PBRLit.fs");
                 if (glTFMatData->baseColorTexture)
                 {
-                    newMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
+                    meshMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
                 }
-                newMat->addOrSetFloat("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
-                newMat->addOrSetVector("uBaseColor", glTFMatData->baseColorFactor);
+                meshMat->addOrSetFloat("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+                meshMat->addOrSetVector("uBaseColor", glTFMatData->baseColorFactor);
 
                 if (glTFMatData->normalTexture)
-                    newMat->addOrSetTexture("uNormalMap", glTFMatData->normalTexture);
-                newMat->addOrSetFloat("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
+                    meshMat->addOrSetTexture("uNormalMap", glTFMatData->normalTexture);
+                meshMat->addOrSetFloat("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
 
                 if (glTFMatData->emissiveTexture)
                 {
-                    newMat->addOrSetTexture("uEmissiveMap", glTFMatData->emissiveTexture);
-                    newMat->addOrSetVector("uEmissiveColor", glTFMatData->emissiveFactor);
+                    meshMat->addOrSetTexture("uEmissiveMap", glTFMatData->emissiveTexture);
+                    meshMat->addOrSetVector("uEmissiveColor", glTFMatData->emissiveFactor);
                 }
-                newMat->addOrSetFloat("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
+                meshMat->addOrSetFloat("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
 
                 if (glTFMatData->metallicRoughnessTexture)
                 {
-                    newMat->addOrSetTexture("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
+                    meshMat->addOrSetTexture("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
                 }
-                newMat->addOrSetFloat("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
-                newMat->addOrSetFloat("uMetallicFactor", glTFMatData->metallicFactor);
-                newMat->addOrSetFloat("uRoughnessFactor", glTFMatData->roughnessFactor);
+                meshMat->addOrSetFloat("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
+                meshMat->addOrSetFloat("uMetallicFactor", glTFMatData->metallicFactor);
+                meshMat->addOrSetFloat("uRoughnessFactor", glTFMatData->roughnessFactor);
 
                 if (glTFMatData->occlusionTexture)
                 {
-                    newMat->addOrSetTexture("uOcclusionMap", glTFMatData->occlusionTexture);
+                    meshMat->addOrSetTexture("uOcclusionMap", glTFMatData->occlusionTexture);
                 }
-                newMat->addOrSetFloat("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
+                meshMat->addOrSetFloat("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
 
-                newMat->setDoubleSided(glTFMatData->doubleSided);
+                meshMat->setDoubleSided(glTFMatData->doubleSided);
 
-                newMat->setAlphaMode(glTFMatData->alphaMode);
-                newMat->addOrSetFloat("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-                newMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);
+                meshMat->setAlphaMode(glTFMatData->alphaMode);
+                meshMat->addOrSetFloat("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
+                meshMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);
 
-                node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), newMat));
+                node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), meshMat));
             }
         }
     }

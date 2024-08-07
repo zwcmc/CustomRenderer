@@ -18,3 +18,12 @@ glm::mat4 RenderNode::getModelMatrix()
 
     return model;
 }
+
+void RenderNode::setOverrideMaterial(Material::Ptr mat)
+{
+    OverrideMat = mat;
+    for (size_t i = 0; i < Children.size(); ++i)
+    {
+        Children[i]->setOverrideMaterial(mat);
+    }
+}

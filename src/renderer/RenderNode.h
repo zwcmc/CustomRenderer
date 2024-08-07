@@ -16,6 +16,8 @@ public:
 
     glm::mat4 getModelMatrix();
 
+    void setOverrideMaterial(Material::Ptr mat);
+
     std::vector<MeshRender::Ptr> MeshRenders;
     glm::mat4 ModelMatrix;
 
@@ -23,4 +25,6 @@ public:
     std::weak_ptr<RenderNode> Parent;
 
     std::vector<Texture::Ptr> NodeTextures;
+
+    Material::Ptr OverrideMat;
 };

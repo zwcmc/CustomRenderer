@@ -61,9 +61,10 @@ void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
 void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
 {
     glm::mat4 model = renderNode->getModelMatrix();
+    Material::Ptr overrideMat = renderNode->OverrideMat;
     for (size_t i = 0; i < renderNode->MeshRenders.size(); ++i)
     {
-        m_CommandBuffer->pushCommand(renderNode->MeshRenders[i]->getMesh(), renderNode->MeshRenders[i]->getMaterial(), model);
+        m_CommandBuffer->pushCommand(renderNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : renderNode->MeshRenders[i]->getMaterial(), model);
     }
 
     for (size_t i = 0; i < renderNode->Children.size(); ++i)
