@@ -1,4 +1,5 @@
 #version 410 core
+out vec4 FragColor;
 
 #include "pbr/Lighting.glsl"
 #include "common/Uniforms.glsl"
@@ -31,8 +32,6 @@ uniform float uOcclusionMapSet;
 
 uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
-
-out vec4 FragColor;
 
 vec3 getNormal()
 {
