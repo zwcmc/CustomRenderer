@@ -79,6 +79,13 @@ Texture::Ptr AssetsLoader::createTextureFromBuffer(const std::string &textureNam
 
 RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
 {
+    bool binary = false;
+    size_t extPos = filePath.rfind('.', filePath.length());
+    if (extPos != std::string::npos)
+    {
+        binary = (filePath.substr(extPos + 1, filePath.length() - extPos) == "glb");
+    }
+
     std::string newPath = getAssetsPath() + filePath;
 
     tinygltf::Model glTFInput;
@@ -87,7 +94,7 @@ RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
 
     RenderNode::Ptr rootNode = RenderNode::New();
 
-    bool fileLoaded = glTFContext.LoadASCIIFromFile(&glTFInput, &error, &warning, newPath);
+    bool fileLoaded = binary ? glTFContext.LoadBinaryFromFile(&glTFInput, &error, &warning, newPath) : glTFContext.LoadASCIIFromFile(&glTFInput, &error, &warning, newPath);
     if (fileLoaded)
     {
         // Load texture and material data
