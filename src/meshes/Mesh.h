@@ -19,6 +19,8 @@ public:
     Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<unsigned int> &indices);
     Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices);
 
+    void initMesh(const std::vector<vec3> &vertices);
+    void initMesh(const std::vector<vec3>& vertices, const std::vector<vec2> &texcoords);
     void initMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices);
 
     inline GLuint getVertexArrayID() { return m_VertexArrayID; }

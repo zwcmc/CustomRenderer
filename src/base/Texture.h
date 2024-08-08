@@ -18,7 +18,8 @@ public:
     std::string& getTextureName() { return m_TextureName; }
     GLuint getTextureID() { return m_TextureID; }
 
-    void bind(int unit);
+    void bind(int unit = -1);
+    void unbind();
 
 protected:
     std::string m_TextureName;

@@ -7,12 +7,20 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-    glActiveTexture(0);
     glDeleteTextures(1, &m_TextureID);
+    m_TextureID = 0;
 }
 
 void Texture::bind(int unit)
 {
-    glActiveTexture(GL_TEXTURE0 + unit);
+    if (unit >= 0)
+    {
+        glActiveTexture(GL_TEXTURE0 + unit);
+    }
     glBindTexture(m_Target, m_TextureID);
+}
+
+void Texture::unbind()
+{
+    glBindTexture(m_Target, 0);
 }

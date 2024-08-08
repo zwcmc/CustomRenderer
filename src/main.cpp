@@ -81,23 +81,26 @@ int main()
     m_SceneRenderGraph->init();
 
     RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-     //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
-     //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/buster_drone/busterDrone.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), WIDTH, HEIGHT, 0.1f, 256.0f);
     m_SceneRenderGraph->setCamera(camera);
+
+    m_SceneRenderGraph->setRenderSize(WIDTH, HEIGHT);
 
     DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(1.0f, 1.0f, 1.0f));
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))
     {
-        checkOpenGLError();
-
         processWindowInput(m_Window);
 
         m_SceneRenderGraph->executeCommandBuffer();
+
+        checkOpenGLError();
 
         glfwSwapBuffers(m_Window);
         glfwPollEvents();

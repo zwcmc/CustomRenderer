@@ -22,8 +22,10 @@ set(SOURCES
     src/renderer/MeshRender.cpp
     src/renderer/RenderNode.cpp
     src/renderer/SkyboxRender.cpp
+    src/renderer/RenderTarget.cpp
     src/meshes/Mesh.cpp
     src/meshes/Sphere.cpp
+    src/meshes/TriangleCS.cpp
     src/lights/BaseLight.cpp
     src/lights/DirectionalLight.cpp
 )
@@ -44,8 +46,10 @@ set(HEADERS
     src/renderer/MeshRender.h
     src/renderer/RenderNode.h
     src/renderer/SkyboxRender.h
+    src/renderer/RenderTarget.h
     src/meshes/Mesh.h
     src/meshes/Sphere.h
+    src/meshes/TriangleCS.h
     src/lights/BaseLight.h
     src/lights/DirectionalLight.h
 )

@@ -2,8 +2,6 @@
 
 #include <stack>
 
-#include "meshes/Sphere.h"
-
 #include "base/TextureCube.h"
 #include "loader/AssetsLoader.h"
 
@@ -55,7 +53,9 @@ void SceneRenderGraph::init()
     m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
     m_Skybox->setOverrideMaterial(skyboxMat);
 
-    // m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT, 1);
+    m_BlitQuad = TriangleCS::New();
+    m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
+    m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
 }
 
 void SceneRenderGraph::setRenderSize(int width, int height)
@@ -64,6 +64,8 @@ void SceneRenderGraph::setRenderSize(int width, int height)
     m_RenderSize.y = height;
 
     m_Camera->setScreenSize(width, height);
+
+    m_RenderTarget->resize(glm::u32vec2(width, height));
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -100,7 +102,7 @@ void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
 
 void SceneRenderGraph::executeCommandBuffer()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
@@ -119,32 +121,37 @@ void SceneRenderGraph::executeCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    // Bind framebuffer
+    m_RenderTarget->bind();
+
     // Render Lights
     for (size_t i = 0; i < m_Lights.size(); ++i)
     {
-        renderLight(m_Lights[i]);
+       renderLight(m_Lights[i]);
     }
 
     // Opaque
     std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueRenderCommands();
     for (size_t i = 0; i < opaqueCommands.size(); ++i)
     {
-        RenderCommand::Ptr command = opaqueCommands[i];
-        renderCommand(command);
+       RenderCommand::Ptr command = opaqueCommands[i];
+       renderCommand(command);
     }
 
     if (m_Skybox)
     {
-        renderSkybox();
+       renderSkybox();
     }
 
     // Transparent
     std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentRenderCommands();
     for (size_t i = 0; i < transparentCommands.size(); ++i)
     {
-        RenderCommand::Ptr command = transparentCommands[i];
-        renderCommand(command);
+       RenderCommand::Ptr command = transparentCommands[i];
+       renderCommand(command);
     }
+
+    blitToScreen(m_RenderTarget->getColorTexture(0));
 }
 
 void SceneRenderGraph::renderSkybox()
@@ -256,8 +263,14 @@ void SceneRenderGraph::setGLBlend(bool enable)
     }
 }
 
-void SceneRenderGraph::blitToScreen(Texture2D::Ptr)
+void SceneRenderGraph::blitToScreen(Texture2D::Ptr source)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glViewport(0, 0, m_Camera->)
+    glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    m_BlitMat->addOrSetTexture(source);
+    m_BlitMat->use();
+
+    renderMesh(m_BlitQuad);
 }

@@ -14,7 +14,10 @@
 #include "renderer/CommandBuffer.h"
 #include "renderer/RenderNode.h"
 
-// #include "renderer/RenderTarget.h"
+#include "meshes/Sphere.h"
+#include "meshes/TriangleCS.h"
+
+#include "renderer/RenderTarget.h"
 
 class SceneRenderGraph
 {
@@ -73,9 +76,11 @@ private:
 
     GLuint m_GlobalUniformBufferID;
 
-    Mesh::Ptr m_LightSphere;
+    Sphere::Ptr m_LightSphere;
     Material::Ptr m_EmissiveMat;
     RenderNode::Ptr m_Skybox;
 
-    // RenderTarget::Ptr m_RenderTarget;
+    RenderTarget::Ptr m_RenderTarget;
+    Material::Ptr m_BlitMat;
+    TriangleCS::Ptr m_BlitQuad;
 };

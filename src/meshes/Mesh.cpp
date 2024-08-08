@@ -42,6 +42,29 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     initBuffers();
 }
 
+void Mesh::initMesh(const std::vector<vec3> &vertices)
+{
+    m_VertexArrayID = 0;
+    m_VertexBufferID = 0;
+    m_ElementBufferID = 0;
+
+    m_Vertices = vertices;
+
+    initBuffers();
+}
+
+void Mesh::initMesh(const std::vector<vec3>& vertices, const std::vector<vec2>& texcoords)
+{
+    m_VertexArrayID = 0;
+    m_VertexBufferID = 0;
+    m_ElementBufferID = 0;
+
+    m_Vertices = vertices;
+    m_Texcoords = texcoords;
+
+    initBuffers();
+}
+
 void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
 {
     m_VertexArrayID = 0;

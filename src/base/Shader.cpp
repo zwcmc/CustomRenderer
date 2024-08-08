@@ -16,6 +16,7 @@ Shader::Shader(const std::string &name, const std::string &vsSource, const std::
 Shader::~Shader()
 {
     glDeleteProgram(m_ShaderID);
+    m_ShaderID = 0;
 }
 
 void Shader::use()

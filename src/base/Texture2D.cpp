@@ -13,6 +13,15 @@ void Texture2D::setWrapMode(GLenum wrapS, GLenum wrapT)
     m_WarpT = wrapT;
 }
 
+void Texture2D::resize(glm::u32vec2 size)
+{
+    bind();
+    if (m_Target == GL_TEXTURE_2D)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, size.x, size.y, 0, m_Format, m_Type, 0);
+    }
+}
+
 void Texture2D::initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
 {
     m_Size = size;
@@ -20,10 +29,9 @@ void Texture2D::initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum f
     m_Format = format;
     m_Type = type;
 
-    if (m_TextureID == 0)
-        glGenTextures(1, &m_TextureID);
-
+    glGenTextures(1, &m_TextureID);
     glBindTexture(m_Target, m_TextureID);
+
     glTexImage2D(m_Target, 0, format, size.x, size.y, 0, format, type, data);
     if (useMipmap)
     {
@@ -38,6 +46,8 @@ void Texture2D::initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum f
 
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, m_WarpS);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, m_WarpT);
+
+    glBindTexture(m_Target, 0);
 }
 
 void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
@@ -47,10 +57,10 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
     m_Format = kTexture->glFormat;
     m_Type = kTexture->glType;
 
-    if (m_TextureID == 0)
-        glGenTextures(1, &m_TextureID);
 
+    glGenTextures(1, &m_TextureID);
     glBindTexture(m_Target, m_TextureID);
+
     GLenum target, glerror;
     KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &target, &glerror);
 
@@ -72,4 +82,6 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
 
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, m_WarpS);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, m_WarpT);
+
+    glBindTexture(m_Target, 0);
 }

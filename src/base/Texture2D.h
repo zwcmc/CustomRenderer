@@ -16,6 +16,7 @@ public:
     void initTexture2D(ktxTexture* kTexture, bool useMipmap = true);
 
     void setWrapMode(GLenum wrapS, GLenum wrapT);
+    void resize(glm::u32vec2 size);
 
 private:
     GLenum m_WarpS, m_WarpT;

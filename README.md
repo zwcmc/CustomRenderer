@@ -20,6 +20,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Physically Based Rendering
 - [x] Gamma Correction
 - [ ] Skybox
+- [ ] Tonemapping
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping
   - [ ] Cascaded Shadow Mapping

@@ -29,6 +29,7 @@ public:
     void addOrSetVector(const std::string &propertyName, const glm::vec3 &value);
     void addOrSetVector(const std::string &propertyName, const glm::vec4 &value);
     void addOrSetFloat(const std::string &propertyName, const float &value);
+
     void setMatrix(const std::string &propertyName, const glm::mat3x3 &value);
     void setMatrix(const std::string &propertyName, const glm::mat4x4& value);
 
