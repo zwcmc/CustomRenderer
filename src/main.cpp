@@ -48,8 +48,12 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
+
+    // cannot use any features that have been marked as deprecated
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#ifdef __APPLE__
+    // Retina support on macOS
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
     // Create window
@@ -89,7 +93,11 @@ int main()
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), WIDTH, HEIGHT, 0.1f, 256.0f);
     m_SceneRenderGraph->setCamera(camera);
 
-    m_SceneRenderGraph->setRenderSize(WIDTH, HEIGHT);
+    // Get the real size in pixels
+    int width, height;
+    glfwGetFramebufferSize(m_Window, &width, &height);
+    glViewport(0, 0, width, height);
+    m_SceneRenderGraph->setRenderSize(width, height);
 
     DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(1.0f, 1.0f, 1.0f));
     m_SceneRenderGraph->addLight(light);

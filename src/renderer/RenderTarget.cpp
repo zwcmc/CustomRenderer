@@ -18,7 +18,7 @@ RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAtt
     }
     for (size_t i = 0; i < colorAttachmentsNum; i++)
     {
-        Texture2D::Ptr colorAttachment = Texture2D::New("ColorAttachment" + i);
+        Texture2D::Ptr colorAttachment = Texture2D::New("ColorAttachment" + std::to_string(i));
         colorAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         colorAttachment->initTexture2D(size, internalFormat, GL_RGBA, type, 0, false);
 
