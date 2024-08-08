@@ -9,8 +9,8 @@ class TextureCube : public Texture
 {
     SHARED_PTR(TextureCube)
 public:
-    TextureCube() = default;
+    TextureCube(const std::string &name);
     ~TextureCube() = default;
 
-    void initTextureCube(const std::string &textureName, ktxTexture* kTexture);
+    void initTextureCube(ktxTexture* kTexture);
 };

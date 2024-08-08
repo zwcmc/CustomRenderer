@@ -1,10 +1,16 @@
 #include "base/TextureCube.h"
 
-void TextureCube::initTextureCube(const std::string &textureName, ktxTexture* kTexture)
+TextureCube::TextureCube(const std::string& name)
 {
-    m_TextureName = textureName;
+    m_TextureName = name;
+}
+
+void TextureCube::initTextureCube(ktxTexture* kTexture)
+{
     m_Width = kTexture->baseWidth;
     m_Height = kTexture->baseHeight;
+    m_InternalFormat = kTexture->glInternalformat;
+    m_Format = kTexture->glFormat;
 
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);
@@ -16,7 +22,7 @@ void TextureCube::initTextureCube(const std::string &textureName, ktxTexture* kT
 
     if (result != KTX_SUCCESS)
     {
-        std::cerr << "Create TextureCube from KTX file failed, texture name:  " << textureName << ", error: " << result << std::endl;
+        std::cerr << "Create TextureCube from KTX file failed, texture name:  " << m_TextureName << ", error: " << result << std::endl;
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

@@ -36,7 +36,7 @@ Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std:
 
 Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureName, const std::string& filePath, bool useMipmap)
 {
-    Texture2D::Ptr texture = Texture2D::New();
+    Texture2D::Ptr texture = Texture2D::New(textureName);
 
     stbi_set_flip_vertically_on_load(true);
 
@@ -46,7 +46,7 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureNam
     if (data)
     {
         GLenum format = getFormat(components);
-        texture->initTexture2D(textureName, static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, data, useMipmap);
+        texture->initTexture2D(static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, format, data, useMipmap);
     }
     else
     {
@@ -62,12 +62,12 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureNam
 
 Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, void* buffer, bool useMipmap)
 {
-    Texture2D::Ptr texture = Texture2D::New();
+    Texture2D::Ptr texture = Texture2D::New(textureName);
 
     if (buffer)
     {
         GLenum format = getFormat(components);
-        texture->initTexture2D(textureName, static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, buffer, useMipmap);
+        texture->initTexture2D(static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, format, buffer, useMipmap);
     }
     else
     {
@@ -125,8 +125,8 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromKTXFile(const std::string &texture
 
     assert(result == KTX_SUCCESS);
 
-    Texture2D::Ptr texture = Texture2D::New();
-    texture->initTexture2D(textureName, kTexture, useMipmap);
+    Texture2D::Ptr texture = Texture2D::New(textureName);
+    texture->initTexture2D(kTexture, useMipmap);
     ktxTexture_Destroy(kTexture);
     return texture;
 }
@@ -141,8 +141,8 @@ TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string &texture
 
     assert(result == KTX_SUCCESS);
 
-    TextureCube::Ptr textureCube = TextureCube::New();
-    textureCube->initTextureCube(textureName, kTexture);
+    TextureCube::Ptr textureCube = TextureCube::New(textureName);
+    textureCube->initTextureCube(kTexture);
     ktxTexture_Destroy(kTexture);
     return textureCube;
 }

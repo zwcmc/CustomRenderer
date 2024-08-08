@@ -9,9 +9,9 @@ class Texture2D : public Texture
 {
     SHARED_PTR(Texture2D)
 public:
-    Texture2D() = default;
+    Texture2D(const std::string &name);
     ~Texture2D() = default;
 
-    void initTexture2D(const std::string& textureName, unsigned int width, unsigned int height, GLenum format, void* data, bool useMipmap = true);
-    void initTexture2D(const std::string& textureName, ktxTexture* kTexture, bool useMipmap = true);
+    void initTexture2D(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, void* data, bool useMipmap = true);
+    void initTexture2D(ktxTexture* kTexture, bool useMipmap = true);
 };
