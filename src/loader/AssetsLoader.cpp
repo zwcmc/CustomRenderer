@@ -141,10 +141,21 @@ TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string &texture
 
     assert(result == KTX_SUCCESS);
 
-    TextureCube::Ptr textureCube = TextureCube::New(textureName);
-    textureCube->initTextureCube(kTexture);
-    ktxTexture_Destroy(kTexture);
-    return textureCube;
+    // is cubemap
+    if (kTexture->numFaces == 6)
+    {
+        TextureCube::Ptr textureCube = TextureCube::New(textureName);
+        textureCube->initTextureCube(kTexture);
+
+        ktxTexture_Destroy(kTexture);
+
+        return textureCube;
+    }
+    else if (kTexture->numFaces == 1)
+    {
+        std::cerr << "Not a cubemap texture" << std::endl;
+        return nullptr;
+    }
 }
 
 void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)

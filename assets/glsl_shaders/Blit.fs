@@ -11,6 +11,9 @@ void main()
 {
     vec3 color = texture(ColorAttachment0, UV0).rgb;
 
+    // TODO: tonemapping
+    // http://filmicworlds.com/blog/filmic-tonemapping-operators/
+
     // Gamma correction in final blit
     color = GammaCorrection(color);
 
