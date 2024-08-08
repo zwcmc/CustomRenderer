@@ -3,35 +3,28 @@
 #include "globals.h"
 
 ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const glm::vec3 upVector)
-    : m_Position(eye), m_LookAt(lookAt), m_UpVector(upVector), m_ScreenSize(glm::u32vec2(1))
+    : m_Position(eye), m_LookAt(lookAt), m_UpVector(upVector), m_ScreenSize(1)
 {
     updateViewMatrix();
 }
 
-ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, glm::u32vec2 size, float zNear, float zFar)
+ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, int screenWidth, int screenHeight, float zNear, float zFar)
 {
     ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    camera->initCamera(fovy, size, zNear, zFar);
+    camera->initCamera(fovy, screenWidth, screenHeight, zNear, zFar);
     return camera;
 }
 
-void ArcballCamera::setScreenSize(const glm::u32vec2& size)
+void ArcballCamera::setScreenSize(int width, int height)
 {
-    if (size.x != m_ScreenSize.x || size.y != m_ScreenSize.y)
-    {
-        m_ScreenSize = size;
-
-        m_Aspect = static_cast<float>(size.x) / size.y;
-        updateProjectionMatrix();
-    }
+    m_ScreenSize.x = width;
+    m_ScreenSize.y = height;
 }
 
 void ArcballCamera::zooming(const float &yoffset)
 {
     m_Fovy -= yoffset * CAMERA_ZOOMING_SPEED;
     m_Fovy = glm::clamp(m_Fovy, glm::radians(1.0f), glm::radians(90.0f));
-
-    updateProjectionMatrix();
 }
 
 void ArcballCamera::panning(float xoffset, float yoffset)
@@ -96,18 +89,17 @@ void ArcballCamera::updateViewMatrix()
     m_ViewMatrix = glm::lookAt(m_Position, m_LookAt, m_UpVector);
 }
 
-void ArcballCamera::initCamera(float fovy, glm::u32vec2 size, float zNear, float zFar)
+void ArcballCamera::initCamera(float fovy, int width, int height, float zNear, float zFar)
 {
     m_Fovy = fovy;
-    m_ScreenSize = size;
-    m_Aspect = static_cast<float>(size.x) / size.y;
+    m_ScreenSize.x = width;
+    m_ScreenSize.y = height;
     m_ZNear = zNear;
     m_ZFar = zFar;
-
-    updateProjectionMatrix();
 }
 
-void ArcballCamera::updateProjectionMatrix()
+glm::mat4& ArcballCamera::getProjectionMatrix()
 {
-    m_ProjectionMatrix = glm::perspective(m_Fovy, m_Aspect, m_ZNear, m_ZFar);
+    float aspect = static_cast<float>(m_ScreenSize.x) / m_ScreenSize.y;
+    return glm::perspective(m_Fovy, aspect, m_ZNear, m_ZFar);
 }

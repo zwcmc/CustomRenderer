@@ -85,8 +85,7 @@ int main()
      //RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
-    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), glm::u32vec2(WIDTH, HEIGHT), 0.1f, 256.0f);
-    camera->setScreenSize(glm::u32vec2(WIDTH, HEIGHT));
+    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), WIDTH, HEIGHT, 0.1f, 256.0f);
     m_SceneRenderGraph->setCamera(camera);
 
     DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -135,7 +134,7 @@ void resizeCallback(GLFWwindow* window, int width, int height)
 {
     if (width > 0.0f && height > 0.0f)
     {
-        m_SceneRenderGraph->getActiveCamera()->setScreenSize(glm::u32vec2(width, height));
+        m_SceneRenderGraph->setRenderSize(width, height);
     }
 
     glViewport(0, 0, width, height);

@@ -14,6 +14,8 @@
 #include "renderer/CommandBuffer.h"
 #include "renderer/RenderNode.h"
 
+// #include "renderer/RenderTarget.h"
+
 class SceneRenderGraph
 {
     SHARED_PTR(SceneRenderGraph)
@@ -21,6 +23,7 @@ public:
     SceneRenderGraph();
     ~SceneRenderGraph();
 
+    void setRenderSize(int width, int height);
     void setCamera(ArcballCamera::Ptr camera);
     ArcballCamera::Ptr getActiveCamera() { return m_Camera; }
 
@@ -45,6 +48,8 @@ private:
     void setGLCull(bool enable);
     void setGLBlend(bool enable);
 
+    void blitToScreen(Texture2D::Ptr texture);
+
     bool m_CullFace;
     bool m_Blend;
 
@@ -58,6 +63,8 @@ private:
     //     vec3 cameraPos;        // 16 bytes;  byte offset = 160;
     // };                         // total bytes = 176
 
+    glm::u32vec2 m_RenderSize;
+
     std::vector<RenderNode::Ptr> m_RenderNodes;
 
     CommandBuffer::Ptr m_CommandBuffer;
@@ -69,4 +76,6 @@ private:
     Mesh::Ptr m_LightSphere;
     Material::Ptr m_EmissiveMat;
     RenderNode::Ptr m_Skybox;
+
+    // RenderTarget::Ptr m_RenderTarget;
 };

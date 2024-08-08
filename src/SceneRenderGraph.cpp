@@ -8,7 +8,7 @@
 #include "loader/AssetsLoader.h"
 
 SceneRenderGraph::SceneRenderGraph()
-    : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false)
+    : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false), m_RenderSize(glm::u32vec2(1))
 { }
 
 SceneRenderGraph::~SceneRenderGraph()
@@ -49,12 +49,21 @@ void SceneRenderGraph::init()
     m_LightSphere = Sphere::New(32, 32);
     m_EmissiveMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
 
-
     Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs");
     TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("uCubemap", "textures/environments/cubemap_yokohama_rgba.ktx");
     skyboxMat->addOrSetTextureCube(cubemap);
     m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
     m_Skybox->setOverrideMaterial(skyboxMat);
+
+    // m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT, 1);
+}
+
+void SceneRenderGraph::setRenderSize(int width, int height)
+{
+    m_RenderSize.x = width;
+    m_RenderSize.y = height;
+
+    m_Camera->setScreenSize(width, height);
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -245,4 +254,10 @@ void SceneRenderGraph::setGLBlend(bool enable)
             glDisable(GL_BLEND);
         }
     }
+}
+
+void SceneRenderGraph::blitToScreen(Texture2D::Ptr)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glViewport(0, 0, m_Camera->)
 }
