@@ -93,8 +93,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0f, 0.0f, 0.0f);
     color += emission;
 
-    // Gamma correction
-    color = GammaCorrection(color);
-
     FragColor = vec4(color, albedo.a);
 }
