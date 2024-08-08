@@ -1,7 +1,5 @@
 #version 410 core
 
-layout (location = 0) in vec3 vPosition;
-
 out vec2 UV0;
 
 void main()

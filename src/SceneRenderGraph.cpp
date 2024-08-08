@@ -53,7 +53,6 @@ void SceneRenderGraph::init()
     m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
     m_Skybox->setOverrideMaterial(skyboxMat);
 
-    m_BlitQuad = TriangleCS::New();
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
     m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
 }
@@ -272,5 +271,9 @@ void SceneRenderGraph::blitToScreen(Texture2D::Ptr source)
     m_BlitMat->addOrSetTexture(source);
     m_BlitMat->use();
 
-    renderMesh(m_BlitQuad);
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
 }

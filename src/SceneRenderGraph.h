@@ -15,7 +15,6 @@
 #include "renderer/RenderNode.h"
 
 #include "meshes/Sphere.h"
-#include "meshes/TriangleCS.h"
 
 #include "renderer/RenderTarget.h"
 
@@ -82,5 +81,4 @@ private:
 
     RenderTarget::Ptr m_RenderTarget;
     Material::Ptr m_BlitMat;
-    TriangleCS::Ptr m_BlitQuad;
 };
