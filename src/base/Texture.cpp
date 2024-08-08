@@ -1,7 +1,7 @@
 #include "base/Texture.h"
 
 Texture::Texture()
-    : m_TextureName(""), m_TextureID(0), m_Width(1), m_Height(1), m_InternalFormat(GL_RGBA), m_Format(GL_RGBA), m_Type(GL_UNSIGNED_BYTE)
+    : m_TextureName(""), m_TextureID(0), m_Size(glm::u32vec2(1)), m_InternalFormat(GL_RGBA), m_Format(GL_RGBA), m_Type(GL_UNSIGNED_BYTE)
 { }
 
 Texture::~Texture()

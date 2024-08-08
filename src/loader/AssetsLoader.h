@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <glm/glm.hpp>
 
 #include "tiny_gltf.h"
 
@@ -44,7 +45,7 @@ public:
 
     static Shader::Ptr loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
     static Texture2D::Ptr loadTexture2DFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
-    static Texture2D::Ptr createTexture2DFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, GLenum type, void* buffer, bool useMipmap = true);
+    static Texture2D::Ptr createTexture2DFromBuffer(const std::string &textureName, const glm::u32vec2 &size, const int &components, GLenum type, void* buffer, bool useMipmap = true);
     static RenderNode::Ptr loadglTFFile(const std::string &filePath);
 
     static Texture2D::Ptr loadTexture2DFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);

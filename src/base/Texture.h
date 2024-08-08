@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <glm/glm.hpp>
 #include <glad/glad.h>
 
 #include "ptr.h"
@@ -20,6 +21,6 @@ public:
 protected:
     std::string m_TextureName;
     GLuint m_TextureID;
-    unsigned int m_Width, m_Height;
     GLenum m_InternalFormat, m_Format, m_Type;
+    glm::u32vec2 m_Size;
 };

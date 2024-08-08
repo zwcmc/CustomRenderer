@@ -12,7 +12,7 @@ public:
     Texture2D(const std::string &name);
     ~Texture2D() = default;
 
-    void initTexture2D(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap = true);
+    void initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap = true);
     void initTexture2D(ktxTexture* kTexture, bool useMipmap = true);
 
     void setWrapMode(GLenum wrapS, GLenum wrapT);

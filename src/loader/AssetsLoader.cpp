@@ -46,7 +46,7 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureNam
     if (data)
     {
         GLenum format = getFormat(components);
-        texture->initTexture2D(static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, format, GL_UNSIGNED_BYTE, data, useMipmap);
+        texture->initTexture2D(glm::u32vec2(width, height), format, format, GL_UNSIGNED_BYTE, data, useMipmap);
     }
     else
     {
@@ -60,14 +60,14 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureNam
     return texture;
 }
 
-Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textureName, const int &width, const int &height, const int &components, GLenum type, void* buffer, bool useMipmap)
+Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textureName, const glm::u32vec2& size, const int &components, GLenum type, void* buffer, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
 
     if (buffer)
     {
         GLenum format = getFormat(components);
-        texture->initTexture2D(static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, format, type, buffer, useMipmap);
+        texture->initTexture2D(size, format, format, type, buffer, useMipmap);
     }
     else
     {
@@ -167,7 +167,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::P
         {
             const tinygltf::Image &glTFImage = input.images[index];
             unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
-            rootNode->NodeTextures[index] = createTexture2DFromBuffer(glTFImage.name, glTFImage.width, glTFImage.height, glTFImage.component,
+            rootNode->NodeTextures[index] = createTexture2DFromBuffer(glTFImage.name, glm::u32vec2(glTFImage.width, glTFImage.height), glTFImage.component,
                 glTFImage.pixel_type, reinterpret_cast<void *>(buffer));
         }
     }

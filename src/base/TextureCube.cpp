@@ -7,8 +7,7 @@ TextureCube::TextureCube(const std::string& name)
 
 void TextureCube::initTextureCube(ktxTexture* kTexture)
 {
-    m_Width = kTexture->baseWidth;
-    m_Height = kTexture->baseHeight;
+    m_Size = glm::u32vec2(kTexture->baseWidth, kTexture->baseHeight);
     m_InternalFormat = kTexture->glInternalformat;
     m_Format = kTexture->glFormat;
     m_Type = kTexture->glType;

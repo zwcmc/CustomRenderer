@@ -12,10 +12,9 @@ void Texture2D::setWrapMode(GLenum wrapS, GLenum wrapT)
     m_WarpT = wrapT;
 }
 
-void Texture2D::initTexture2D(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
+void Texture2D::initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
 {
-    m_Width = width;
-    m_Height = height;
+    m_Size = size;
     m_InternalFormat = internalFormat;
     m_Format = format;
     m_Type = type;
@@ -24,7 +23,7 @@ void Texture2D::initTexture2D(unsigned int width, unsigned int height, GLenum in
         glGenTextures(1, &m_TextureID);
 
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, format, type, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format, type, data);
     if (useMipmap)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -42,8 +41,7 @@ void Texture2D::initTexture2D(unsigned int width, unsigned int height, GLenum in
 
 void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
 {
-    m_Width = kTexture->baseWidth;
-    m_Height = kTexture->baseHeight;
+    m_Size = glm::u32vec2(kTexture->baseWidth, kTexture->baseHeight);
     m_InternalFormat = kTexture->glInternalformat;
     m_Format = kTexture->glFormat;
     m_Type = kTexture->glType;
