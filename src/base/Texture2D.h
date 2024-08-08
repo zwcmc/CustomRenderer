@@ -12,6 +12,6 @@ public:
     Texture2D() = default;
     ~Texture2D() = default;
 
-    void initTexture2D(const std::string& textureName, int width, int height, int components, GLenum format, void* data, bool useMipmap = true);
+    void initTexture2D(const std::string& textureName, unsigned int width, unsigned int height, GLenum format, void* data, bool useMipmap = true);
     void initTexture2D(const std::string& textureName, ktxTexture* kTexture, bool useMipmap = true);
 };

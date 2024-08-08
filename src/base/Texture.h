@@ -20,5 +20,5 @@ public:
 protected:
     std::string m_TextureName;
     GLuint m_TextureID;
-    int m_Width, m_Height;
+    unsigned int m_Width, m_Height;
 };

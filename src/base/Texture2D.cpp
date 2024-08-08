@@ -2,7 +2,7 @@
 
 #define ENUM_TO_STRING_CASE(name) case name: return #name;
 
-void Texture2D::initTexture2D(const std::string& textureName, int width, int height, int components, GLenum format, void* data, bool useMipmap)
+void Texture2D::initTexture2D(const std::string& textureName, unsigned int width, unsigned int height, GLenum format, void* data, bool useMipmap)
 {
     m_TextureName = textureName;
     m_Width = width;

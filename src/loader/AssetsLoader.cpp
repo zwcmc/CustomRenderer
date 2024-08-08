@@ -46,7 +46,7 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureNam
     if (data)
     {
         GLenum format = getFormat(components);
-        texture->initTexture2D(textureName, width, height, components, format, data, useMipmap);
+        texture->initTexture2D(textureName, static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, data, useMipmap);
     }
     else
     {
@@ -67,7 +67,7 @@ Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textur
     if (buffer)
     {
         GLenum format = getFormat(components);
-        texture->initTexture2D(textureName, width, height, components, format, buffer, useMipmap);
+        texture->initTexture2D(textureName, static_cast<unsigned int>(width), static_cast<unsigned int>(height), format, buffer, useMipmap);
     }
     else
     {
