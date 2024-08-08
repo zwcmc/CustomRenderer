@@ -20,7 +20,7 @@ public:
     void arcballing(float xoffset, float yoffset);
 
     glm::mat4& getViewMatrix() { return m_ViewMatrix; }
-    glm::mat4& getProjectionMatrix();
+    glm::mat4 getProjectionMatrix();
     glm::vec3& getPosition() { return m_Position; }
 
 private:

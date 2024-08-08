@@ -98,7 +98,7 @@ void ArcballCamera::initCamera(float fovy, int width, int height, float zNear, f
     m_ZFar = zFar;
 }
 
-glm::mat4& ArcballCamera::getProjectionMatrix()
+glm::mat4 ArcballCamera::getProjectionMatrix()
 {
     float aspect = static_cast<float>(m_ScreenSize.x) / m_ScreenSize.y;
     return glm::perspective(m_Fovy, aspect, m_ZNear, m_ZFar);
