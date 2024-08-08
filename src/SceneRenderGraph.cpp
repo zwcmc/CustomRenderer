@@ -155,10 +155,21 @@ void SceneRenderGraph::executeCommandBuffer()
 
 void SceneRenderGraph::renderSkybox()
 {
+
+    // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
+    // ensure that the skybox is only renderered in pixels that are not covered by the opaque objects.
+    // Pixels covered by opaque objects have a depth less than 1.0. Therefore, the depth test will never pass when rendering the skybox.
     glDepthFunc(GL_LEQUAL);
+
+    // Depth write off
+    glDepthMask(GL_FALSE);
 
     drawNode(m_Skybox);
 
+    // Depth write on
+    glDepthMask(GL_TRUE);
+
+    // Set back to less
     glDepthFunc(GL_LESS);
 }
 
