@@ -9,13 +9,11 @@ class ArcballCamera
 {
     SHARED_PTR(ArcballCamera)
 public:
-    ArcballCamera() = default;
     ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const glm::vec3 upVector);
 
-    static ArcballCamera::Ptr perspectiveCamera(float fovy, float aspect, float zNear, float zFar);
+    static ArcballCamera::Ptr perspectiveCamera(float fovy, glm::u32vec2 size, float zNear, float zFar);
 
-    void setScreenSize(const int &width, const int &height);
-    void setAspectRatio(float &aspect);
+    void setScreenSize(const glm::u32vec2 &size);
 
     void zooming(const float &yoffset);
     void panning(float xoffset, float yoffset);
@@ -31,13 +29,13 @@ private:
 
     void updateViewMatrix();
     void updateProjectionMatrix();
-    void setFovAspectZNearFar(float fovy, float aspect, float zNear, float zFar);
+    void initCamera(float fovy, glm::u32vec2 size, float zNear, float zFar);
 
     glm::mat4 m_ViewMatrix, m_ProjectionMatrix;
     glm::vec3 m_Position, m_LookAt, m_UpVector;
     float m_Fovy, m_Aspect, m_ZNear, m_ZFar;
 
-    int m_ScreenWidth, m_ScreenHeight;
+    glm::u32vec2 m_ScreenSize;
 
     static constexpr float CAMERA_PANNING_SPEED = 0.005f;
     static constexpr float CAMERA_ARCBALLING_SPEED = 0.2f;

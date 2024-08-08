@@ -3,29 +3,27 @@
 #include "globals.h"
 
 ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const glm::vec3 upVector)
-    : m_Position(eye), m_LookAt(lookAt), m_UpVector(upVector), m_ScreenWidth(0), m_ScreenHeight(0)
+    : m_Position(eye), m_LookAt(lookAt), m_UpVector(upVector), m_ScreenSize(glm::u32vec2(1))
 {
     updateViewMatrix();
 }
 
-ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, float aspect, float zNear, float zFar)
+ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, glm::u32vec2 size, float zNear, float zFar)
 {
     ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    camera->setFovAspectZNearFar(fovy, aspect, zNear, zFar);
+    camera->initCamera(fovy, size, zNear, zFar);
     return camera;
 }
 
-void ArcballCamera::setScreenSize(const int &width, const int &height)
+void ArcballCamera::setScreenSize(const glm::u32vec2& size)
 {
-    m_ScreenWidth = width;
-    m_ScreenHeight = height;
-}
+    if (size.x != m_ScreenSize.x || size.y != m_ScreenSize.y)
+    {
+        m_ScreenSize = size;
 
-void ArcballCamera::setAspectRatio(float &aspect)
-{
-    m_Aspect = aspect;
-
-    updateProjectionMatrix();
+        m_Aspect = static_cast<float>(size.x) / size.y;
+        updateProjectionMatrix();
+    }
 }
 
 void ArcballCamera::zooming(const float &yoffset)
@@ -58,8 +56,8 @@ void ArcballCamera::arcballing(float xoffset, float yoffset)
     glm::vec4 position = glm::vec4(m_Position, 1.0f);
     glm::vec4 pivot = glm::vec4(m_LookAt, 1.0f);
 
-    float deltaAngleX = (M_TAU / m_ScreenWidth);
-    float deltaAngleY = (M_PI / m_ScreenHeight);
+    float deltaAngleX = (M_TAU / m_ScreenSize.x);
+    float deltaAngleY = (M_PI / m_ScreenSize.y);
 
     float xAngle = xoffset * deltaAngleX;
     float yAngle = yoffset * deltaAngleY;
@@ -98,10 +96,11 @@ void ArcballCamera::updateViewMatrix()
     m_ViewMatrix = glm::lookAt(m_Position, m_LookAt, m_UpVector);
 }
 
-void ArcballCamera::setFovAspectZNearFar(float fovy, float aspect, float zNear, float zFar)
+void ArcballCamera::initCamera(float fovy, glm::u32vec2 size, float zNear, float zFar)
 {
     m_Fovy = fovy;
-    m_Aspect = aspect;
+    m_ScreenSize = size;
+    m_Aspect = static_cast<float>(size.x) / size.y;
     m_ZNear = zNear;
     m_ZFar = zFar;
 
