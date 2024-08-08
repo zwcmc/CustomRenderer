@@ -18,9 +18,11 @@ public:
     std::string& getTextureName() { return m_TextureName; }
     GLuint getTextureID() { return m_TextureID; }
 
+    void bind(int unit);
+
 protected:
     std::string m_TextureName;
     GLuint m_TextureID;
-    GLenum m_InternalFormat, m_Format, m_Type;
+    GLenum m_InternalFormat, m_Format, m_Type, m_Target;
     glm::u32vec2 m_Size;
 };

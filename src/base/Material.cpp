@@ -98,20 +98,18 @@ void Material::use()
 
     if (m_Textures.size() > 0 || m_TextureCubes.size() > 0)
     {
-        int slot = 0;
+        int unit = 0;
         for (auto &pair : m_TextureCubes)
         {
-            m_Shader->setUniformInt(pair.first, slot);
-            glActiveTexture(GL_TEXTURE0 + slot);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, pair.second->getTextureID());
-            ++slot;
+            m_Shader->setUniformInt(pair.first, unit);
+            pair.second->bind(unit);
+            ++unit;
         }
         for (auto &pair : m_Textures)
         {
-            m_Shader->setUniformInt(pair.first, slot);
-            glActiveTexture(GL_TEXTURE0 + slot);
-            glBindTexture(GL_TEXTURE_2D, pair.second->getTextureID());
-            ++slot;
+            m_Shader->setUniformInt(pair.first, unit);
+            pair.second->bind(unit);
+            ++unit;
         }
     }
 }
