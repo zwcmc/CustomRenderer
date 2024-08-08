@@ -11,6 +11,7 @@ void TextureCube::initTextureCube(ktxTexture* kTexture)
     m_Height = kTexture->baseHeight;
     m_InternalFormat = kTexture->glInternalformat;
     m_Format = kTexture->glFormat;
+    m_Type = kTexture->glType;
 
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);

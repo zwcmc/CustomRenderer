@@ -5,18 +5,19 @@ Texture2D::Texture2D(const std::string& name)
     m_TextureName = name;
 }
 
-void Texture2D::initTexture2D(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, void* data, bool useMipmap)
+void Texture2D::initTexture2D(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
 {
     m_Width = width;
     m_Height = height;
     m_InternalFormat = internalFormat;
     m_Format = format;
+    m_Type = type;
 
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);
 
     glBindTexture(GL_TEXTURE_2D, m_TextureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, format, type, data);
     if (useMipmap)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -38,6 +39,7 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
     m_Height = kTexture->baseHeight;
     m_InternalFormat = kTexture->glInternalformat;
     m_Format = kTexture->glFormat;
+    m_Type = kTexture->glType;
 
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);

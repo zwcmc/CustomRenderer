@@ -21,5 +21,5 @@ protected:
     std::string m_TextureName;
     GLuint m_TextureID;
     unsigned int m_Width, m_Height;
-    GLenum m_InternalFormat, m_Format;
+    GLenum m_InternalFormat, m_Format, m_Type;
 };
