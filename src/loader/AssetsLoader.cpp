@@ -10,7 +10,7 @@
 
 std::vector<AssetsLoader::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
 
-Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
+Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
 {
     std::string vsPath = getAssetsPath() + vsFilePath;
     std::string fsPath = getAssetsPath() + fsFilePath;
@@ -34,7 +34,7 @@ Shader::Ptr AssetsLoader::loadShaderFromFile(const std::string &name, const std:
     return Shader::New(name, vsSource, fsSource);
 }
 
-Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureName, const std::string& filePath, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTexture(const std::string& textureName, const std::string& filePath, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
 
@@ -60,7 +60,7 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromFile(const std::string& textureNam
     return texture;
 }
 
-Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textureName, const glm::u32vec2& size, const int &components, GLenum type, void* buffer, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTextureBuffer(const std::string &textureName, const glm::u32vec2& size, const int &components, GLenum type, void* buffer, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
 
@@ -77,7 +77,7 @@ Texture2D::Ptr AssetsLoader::createTexture2DFromBuffer(const std::string &textur
     return texture;
 }
 
-RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
+RenderNode::Ptr AssetsLoader::load_glTF(const std::string& filePath)
 {
     bool binary = false;
     size_t extPos = filePath.rfind('.', filePath.length());
@@ -98,13 +98,13 @@ RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
     if (fileLoaded)
     {
         // Load texture and material data
-        loadglTFMaterials(glTFInput, rootNode);
+        load_glTFMaterials(glTFInput, rootNode);
 
         const tinygltf::Scene& scene = glTFInput.scenes[0];
         for (size_t i = 0; i < scene.nodes.size(); ++i)
         {
             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            loadglTFNode(node, glTFInput, rootNode);
+            load_glTFNode(node, glTFInput, rootNode);
         }
     }
     else
@@ -115,7 +115,7 @@ RenderNode::Ptr AssetsLoader::loadglTFFile(const std::string& filePath)
     return rootNode;
 }
 
-Texture2D::Ptr AssetsLoader::loadTexture2DFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap)
 {
     ktxTexture* kTexture;
     KTX_error_code result;
@@ -131,7 +131,7 @@ Texture2D::Ptr AssetsLoader::loadTexture2DFromKTXFile(const std::string &texture
     return texture;
 }
 
-TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string &textureName, const std::string& filePath)
+TextureCube::Ptr AssetsLoader::loadCubemapKTX(const std::string &textureName, const std::string& filePath)
 {
     ktxTexture* kTexture;
     KTX_error_code result;
@@ -152,7 +152,7 @@ TextureCube::Ptr AssetsLoader::loadCubemapFromKTXFile(const std::string &texture
     return textureCube;
 }
 
-void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)
+void AssetsLoader::load_glTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)
 {
     // Load texture indices
     std::vector<int> textureIndices;
@@ -172,7 +172,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::P
         {
             const tinygltf::Image &glTFImage = input.images[index];
             unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
-            rootNode->NodeTextures[index] = createTexture2DFromBuffer(glTFImage.name, glm::u32vec2(glTFImage.width, glTFImage.height), glTFImage.component,
+            rootNode->NodeTextures[index] = loadTextureBuffer(glTFImage.name, glm::u32vec2(glTFImage.width, glTFImage.height), glTFImage.component,
                 glTFImage.pixel_type, reinterpret_cast<void *>(buffer));
         }
     }
@@ -265,7 +265,7 @@ void AssetsLoader::loadglTFMaterials(const tinygltf::Model &input, RenderNode::P
     }
 }
 
-void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent)
+void AssetsLoader::load_glTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent)
 {
     RenderNode::Ptr node = RenderNode::New();
     node->Parent = parent;
@@ -301,7 +301,7 @@ void AssetsLoader::loadglTFNode(const tinygltf::Node& inputNode, const tinygltf:
         {
             for (size_t i = 0; i < inputNode.children.size(); i++)
             {
-                loadglTFNode(input.nodes[inputNode.children[i]], input, node);
+                load_glTFNode(input.nodes[inputNode.children[i]], input, node);
             }
         }
     }

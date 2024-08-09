@@ -16,7 +16,7 @@ void TextureCube::initTextureCube(ktxTexture* kTexture)
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);
 
-    glBindTexture(m_Target, m_TextureID);
+    bind();
 
     GLenum glerror;
     KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
@@ -31,4 +31,6 @@ void TextureCube::initTextureCube(ktxTexture* kTexture)
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    unbind();
 }

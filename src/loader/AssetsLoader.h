@@ -43,19 +43,18 @@ public:
         { }
     };
 
-    static Shader::Ptr loadShaderFromFile(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
-    static Texture2D::Ptr loadTexture2DFromFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
-    static Texture2D::Ptr createTexture2DFromBuffer(const std::string &textureName, const glm::u32vec2 &size, const int &components, GLenum type, void* buffer, bool useMipmap = true);
-    static RenderNode::Ptr loadglTFFile(const std::string &filePath);
-
-    static Texture2D::Ptr loadTexture2DFromKTXFile(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
-    static TextureCube::Ptr loadCubemapFromKTXFile(const std::string &textureName, const std::string& filePath);
+    static Shader::Ptr loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
+    static Texture2D::Ptr loadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
+    static Texture2D::Ptr loadTextureBuffer(const std::string &textureName, const glm::u32vec2 &size, const int &components, GLenum type, void* buffer, bool useMipmap = true);
+    static RenderNode::Ptr load_glTF(const std::string &filePath);
+    static Texture2D::Ptr loadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap = true);
+    static TextureCube::Ptr loadCubemapKTX(const std::string &textureName, const std::string& filePath);
 
 private:
     AssetsLoader() = default;
 
-    static void loadglTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode);
-    static void loadglTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent);
+    static void load_glTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode);
+    static void load_glTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent);
     static std::string readShader(std::ifstream& file, const std::string& name);
 
     inline static std::string getAssetsPath() { return "./../assets/"; }
