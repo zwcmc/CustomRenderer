@@ -137,19 +137,23 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     glViewport(0, 0, size.x, size.y); // don't forget to configure the viewport to the capture dimensions.
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 
-    Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Skybox.vs", "glsl_shaders/HDRToCubemap.fs");
+    Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/HDRToCubemap.vs", "glsl_shaders/HDRToCubemap.fs");
     capMat->addOrSetTexture("uEnvMap", envMap);
     m_Skybox->setOverrideMaterial(capMat);
 
+    capMat->use();
+    capMat->setMatrix("pp", captureProjection);
+
     for (unsigned int i = 0; i < 6; ++i)
     {
-        // Set global uniforms
-        glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(captureViews[i][0].x));
-        glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(captureProjection[0].x));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+        capMat->setMatrix("vv", captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0);
+        // Check framebuffer status
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            std::cerr << "FrameBuffer is not complete!" << std::endl;
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glDepthFunc(GL_LEQUAL);
@@ -206,8 +210,8 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     }
     else if (fileExt == "hdr")
     {
-        Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("environmentMap", cubemapPath);
-        cubemap->defaultInit(128, 128, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
+        Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uEnvMap", cubemapPath);
+        cubemap->defaultInit(512, 512, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
         renderToCubemap(environmentMap, cubemap);
     }
     else
@@ -260,13 +264,13 @@ void SceneRenderGraph::executeCommandBuffer()
     // Bind framebuffer
     m_RenderTarget->bind();
 
-    // Opaque
-    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
-    for (size_t i = 0; i < opaqueCommands.size(); ++i)
-    {
-       RenderCommand::Ptr command = opaqueCommands[i];
-       renderCommand(command);
-    }
+    // // Opaque
+    // std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
+    // for (size_t i = 0; i < opaqueCommands.size(); ++i)
+    // {
+    //    RenderCommand::Ptr command = opaqueCommands[i];
+    //    renderCommand(command);
+    // }
 
     // Skybox start ----------------
     // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
@@ -289,13 +293,13 @@ void SceneRenderGraph::executeCommandBuffer()
     glDepthFunc(GL_LESS);
     // Skybox end ----------------
 
-    // Transparent
-    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
-    for (size_t i = 0; i < transparentCommands.size(); ++i)
-    {
-       RenderCommand::Ptr command = transparentCommands[i];
-       renderCommand(command);
-    }
+    // // Transparent
+    // std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
+    // for (size_t i = 0; i < transparentCommands.size(); ++i)
+    // {
+    //    RenderCommand::Ptr command = transparentCommands[i];
+    //    renderCommand(command);
+    // }
 
     blitToScreen(m_RenderTarget->getColorTexture(0));
 }
