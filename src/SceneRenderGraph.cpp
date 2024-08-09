@@ -44,8 +44,8 @@ void SceneRenderGraph::init()
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    m_LightSphere = Sphere::New(32, 32);
-    m_EmissiveMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
+    // Mesh for rendering lights
+    m_LightMesh = Sphere::New(2, 2, 0.02f);
 
     Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs");
     TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("uCubemap", "textures/environments/cubemap_yokohama_rgba.ktx");
@@ -75,13 +75,32 @@ void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
 void SceneRenderGraph::addLight(BaseLight::Ptr light)
 {
     m_Lights.push_back(light);
+
+    // Add a new render command for render light
+    addRenderLightCommand(light);
 }
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
 {
     m_RenderNodes.push_back(renderNode);
 
+    // Build render commands
     buildRenderCommands(renderNode);
+}
+
+void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
+{
+    // TODO: All lights can share a single material
+    Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
+    lightMat->addOrSetVector("uEmissiveColor", light->getLightColor());
+
+    // Only need to modify translation colume
+    glm::mat4 transform = glm::mat4(1.0f);
+    glm::vec3 lightPos = light->getLightPosition();
+    transform[3][0] = lightPos.x;
+    transform[3][1] = lightPos.y;
+    transform[3][2] = lightPos.z;
+    m_CommandBuffer->pushCommand(m_LightMesh, lightMat, transform);
 }
 
 void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
@@ -121,14 +140,8 @@ void SceneRenderGraph::executeCommandBuffer()
     // Bind framebuffer
     m_RenderTarget->bind();
 
-    // Render Lights
-    for (size_t i = 0; i < m_Lights.size(); ++i)
-    {
-       renderLight(m_Lights[i]);
-    }
-
     // Opaque
-    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueRenderCommands();
+    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
     for (size_t i = 0; i < opaqueCommands.size(); ++i)
     {
        RenderCommand::Ptr command = opaqueCommands[i];
@@ -141,7 +154,7 @@ void SceneRenderGraph::executeCommandBuffer()
     }
 
     // Transparent
-    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentRenderCommands();
+    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
     for (size_t i = 0; i < transparentCommands.size(); ++i)
     {
        RenderCommand::Ptr command = transparentCommands[i];
@@ -224,19 +237,6 @@ void SceneRenderGraph::renderMesh(Mesh::Ptr mesh)
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
-}
-
-void SceneRenderGraph::renderLight(BaseLight::Ptr light)
-{
-    m_EmissiveMat->addOrSetVector("uEmissiveColor", light->getLightColor());
-    m_EmissiveMat->use();
-
-    glm::mat4 transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, light->getLightPosition());
-    transform = glm::scale(transform, glm::vec3(0.01f));
-    m_EmissiveMat->setMatrix("uModelMatrix", transform);
-
-    renderMesh(m_LightSphere);
 }
 
 void SceneRenderGraph::setGLCull(bool enable)

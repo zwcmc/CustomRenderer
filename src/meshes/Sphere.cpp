@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include "globals.h"
 
-Sphere::Sphere(unsigned int xSegments, unsigned int ySegments)
+Sphere::Sphere(unsigned int xSegments, unsigned int ySegments, float scale)
 {
     std::vector<vec3> sphereVertices;
     for (unsigned int y = 0; y <= ySegments; ++y)
@@ -12,9 +12,9 @@ Sphere::Sphere(unsigned int xSegments, unsigned int ySegments)
         {
             float xSegment = (float)x / (float)xSegments;
             float ySegment = (float)y / (float)ySegments;
-            float xPos = std::cos(xSegment * M_TAU) * std::sin(ySegment * M_PI); // TAU is 2PI
-            float yPos = std::cos(ySegment * M_PI);
-            float zPos = std::sin(xSegment * M_TAU) * std::sin(ySegment * M_PI);
+            float xPos = std::cos(xSegment * M_TAU) * std::sin(ySegment * M_PI) * scale; // TAU is 2PI
+            float yPos = std::cos(ySegment * M_PI) * scale;
+            float zPos = std::sin(xSegment * M_TAU) * std::sin(ySegment * M_PI) * scale;
 
             sphereVertices.push_back(glm::vec3(xPos, yPos, zPos));
         }

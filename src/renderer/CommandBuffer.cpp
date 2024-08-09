@@ -7,8 +7,8 @@ CommandBuffer::~CommandBuffer()
 
 void CommandBuffer::clear()
 {
-    m_OpaqueRenderCommands.clear();
-    m_TransparentRenderCommands.clear();
+    m_OpaqueCommands.clear();
+    m_TransparentCommands.clear();
 }
 
 void CommandBuffer::pushCommand(Mesh::Ptr mesh, Material::Ptr mat, glm::mat4 transform)
@@ -20,10 +20,10 @@ void CommandBuffer::pushCommand(Mesh::Ptr mesh, Material::Ptr mat, glm::mat4 tra
 
     if (mat->getAlphaMode() == Material::AlphaMode::BLEND)
     {
-        m_TransparentRenderCommands.push_back(cmd);
+        m_TransparentCommands.push_back(cmd);
     }
     else
     {
-        m_OpaqueRenderCommands.push_back(cmd);
+        m_OpaqueCommands.push_back(cmd);
     }
 }

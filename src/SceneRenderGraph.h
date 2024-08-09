@@ -42,8 +42,8 @@ public:
 
 private:
 
+    void addRenderLightCommand(BaseLight::Ptr light);
     void buildRenderCommands(RenderNode::Ptr renderNode);
-    void renderLight(BaseLight::Ptr light);
 
     void drawNode(RenderNode::Ptr renderNode);
 
@@ -75,8 +75,8 @@ private:
 
     GLuint m_GlobalUniformBufferID;
 
-    Sphere::Ptr m_LightSphere;
-    Material::Ptr m_EmissiveMat;
+    Sphere::Ptr m_LightMesh;
+
     RenderNode::Ptr m_Skybox;
 
     RenderTarget::Ptr m_RenderTarget;

@@ -13,8 +13,8 @@ public:
     ~BaseLight() = default;
 
     void setPosition(const glm::vec3 &position) { m_Position  = position; }
-    glm::vec3 getLightPosition() { return m_Position; }
-    glm::vec3 getLightColor() { return m_Color; }
+    glm::vec3& getLightPosition() { return m_Position; }
+    glm::vec3& getLightColor() { return m_Color; }
 
 protected:
     glm::vec3 m_Position;

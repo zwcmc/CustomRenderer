@@ -15,10 +15,10 @@ public:
     void pushCommand(Mesh::Ptr mesh, Material::Ptr mat, glm::mat4 transform = glm::mat4(1.0f));
     void clear();
 
-    std::vector<RenderCommand::Ptr> getOpaqueRenderCommands() { return m_OpaqueRenderCommands; }
-    std::vector<RenderCommand::Ptr> getTransparentRenderCommands() { return m_TransparentRenderCommands; }
+    std::vector<RenderCommand::Ptr> getOpaqueCommands() { return m_OpaqueCommands; }
+    std::vector<RenderCommand::Ptr> getTransparentCommands() { return m_TransparentCommands; }
 
 private:
-    std::vector<RenderCommand::Ptr> m_OpaqueRenderCommands;
-    std::vector<RenderCommand::Ptr> m_TransparentRenderCommands;
+    std::vector<RenderCommand::Ptr> m_OpaqueCommands;
+    std::vector<RenderCommand::Ptr> m_TransparentCommands;
 };
