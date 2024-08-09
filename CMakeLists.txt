@@ -21,7 +21,6 @@ set(SOURCES
     src/renderer/CommandBuffer.cpp
     src/renderer/MeshRender.cpp
     src/renderer/RenderNode.cpp
-    src/renderer/SkyboxRender.cpp
     src/renderer/RenderTarget.cpp
     src/meshes/Mesh.cpp
     src/meshes/Sphere.cpp
@@ -44,7 +43,6 @@ set(HEADERS
     src/renderer/CommandBuffer.h
     src/renderer/MeshRender.h
     src/renderer/RenderNode.h
-    src/renderer/SkyboxRender.h
     src/renderer/RenderTarget.h
     src/meshes/Mesh.h
     src/meshes/Sphere.h

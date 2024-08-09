@@ -47,11 +47,8 @@ void SceneRenderGraph::init()
     // Mesh for rendering lights
     m_LightMesh = Sphere::New(2, 2, 0.02f);
 
-    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs");
-    TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("uCubemap", "textures/environments/cubemap_yokohama_rgba.ktx");
-    skyboxMat->addOrSetTextureCube(cubemap);
-    m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
-    m_Skybox->setOverrideMaterial(skyboxMat);
+    // Load skybox
+    loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
 
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
     m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
@@ -94,13 +91,24 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
     Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
     lightMat->addOrSetVector("uEmissiveColor", light->getLightColor());
 
-    // Only need to modify translation colume
+    // Only need to modify the translation column
     glm::mat4 transform = glm::mat4(1.0f);
     glm::vec3 lightPos = light->getLightPosition();
     transform[3][0] = lightPos.x;
     transform[3][1] = lightPos.y;
     transform[3][2] = lightPos.z;
     m_CommandBuffer->pushCommand(m_LightMesh, lightMat, transform);
+}
+
+void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
+{
+    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs", true);
+    TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("uCubemap", cubemapPath);
+    skyboxMat->addOrSetTextureCube(cubemap);
+    m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
+    m_Skybox->setOverrideMaterial(skyboxMat);
+
+    buildRenderCommands(m_Skybox);
 }
 
 void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
@@ -148,10 +156,26 @@ void SceneRenderGraph::executeCommandBuffer()
        renderCommand(command);
     }
 
-    if (m_Skybox)
+    // Skybox start ----------------
+    // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
+    // ensure that the skybox is only renderered in pixels that are not covered by the opaque objects.
+    // Pixels covered by opaque objects have a depth less than 1.0. Therefore, the depth test will never pass when rendering the skybox.
+    glDepthFunc(GL_LEQUAL);
+    // Depth write off
+    glDepthMask(GL_FALSE);
+
+    std::vector<RenderCommand::Ptr> skyboxCommands = m_CommandBuffer->getSkyboxCommands();
+    for (size_t i = 0; i < skyboxCommands.size(); ++i)
     {
-       renderSkybox();
+        RenderCommand::Ptr command = skyboxCommands[i];
+        renderCommand(command);
     }
+
+    // Depth write on
+    glDepthMask(GL_TRUE);
+    // Set back to less
+    glDepthFunc(GL_LESS);
+    // Skybox end ----------------
 
     // Transparent
     std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
@@ -162,49 +186,6 @@ void SceneRenderGraph::executeCommandBuffer()
     }
 
     blitToScreen(m_RenderTarget->getColorTexture(0));
-}
-
-void SceneRenderGraph::renderSkybox()
-{
-
-    // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
-    // ensure that the skybox is only renderered in pixels that are not covered by the opaque objects.
-    // Pixels covered by opaque objects have a depth less than 1.0. Therefore, the depth test will never pass when rendering the skybox.
-    glDepthFunc(GL_LEQUAL);
-
-    // Depth write off
-    glDepthMask(GL_FALSE);
-
-    drawNode(m_Skybox);
-
-    // Depth write on
-    glDepthMask(GL_TRUE);
-
-    // Set back to less
-    glDepthFunc(GL_LESS);
-}
-
-void SceneRenderGraph::drawNode(RenderNode::Ptr node)
-{
-    Material::Ptr overrideMat = node->OverrideMat;
-    for (size_t i = 0; i < node->MeshRenders.size(); ++i)
-    {
-        MeshRender::Ptr mr = node->MeshRenders[i];
-        if (overrideMat)
-        {
-            overrideMat->use();
-        }
-        else
-        {
-            mr->getMaterial()->use();
-        }
-        renderMesh(mr->getMesh());
-    }
-
-    for (size_t i = 0; i < node->Children.size(); ++i)
-    {
-        drawNode(node->Children[i]);
-    }
 }
 
 void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)

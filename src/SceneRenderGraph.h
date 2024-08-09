@@ -38,14 +38,11 @@ public:
     void renderCommand(RenderCommand::Ptr command);
     void renderMesh(Mesh::Ptr mesh);
 
-    void renderSkybox();
-
 private:
 
     void addRenderLightCommand(BaseLight::Ptr light);
+    void loadEnvironment(const std::string &cubemapPath);
     void buildRenderCommands(RenderNode::Ptr renderNode);
-
-    void drawNode(RenderNode::Ptr renderNode);
 
     void setGLCull(bool enable);
     void setGLBlend(bool enable);

@@ -20,7 +20,7 @@ public:
         BLEND
     };
 
-    Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath);
+    Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath, bool usedForSkybox = false);
     ~Material();
 
     void addOrSetTexture(Texture2D::Ptr texture);
@@ -39,6 +39,8 @@ public:
     void setAlphaMode(AlphaMode mode);
     AlphaMode getAlphaMode() { return m_AlphaMode; }
 
+    bool isUsedForSkybox() { return m_UsedForSkybox; }
+
     void use();
 private:
     Shader::Ptr m_Shader;
@@ -49,6 +51,7 @@ private:
     std::map<std::string, glm::vec4> m_UniformVec4;
     std::map<std::string, float> m_UniformFloats;
 
+    bool m_UsedForSkybox;
     bool m_DoubleSided;
     AlphaMode m_AlphaMode;
 };
