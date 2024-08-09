@@ -20,6 +20,8 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Physically Based Rendering
 - [x] Gamma Correction
 - [ ] Skybox
+  - [x] With Cubemap textures
+  - [ ] With HDR textures (Need render-to-cubemap first)
 - [ ] Tonemapping
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping
