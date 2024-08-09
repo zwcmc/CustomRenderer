@@ -15,4 +15,17 @@ vec3 GammaCorrection(vec3 color)
     return pow(color, vec3(INV_GAMMA));
 }
 
+// https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+vec3 ACES(vec3 col)
+{
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return clamp((col*(a*col+b))/(col*(c*col+d)+e), 0.0, 1.0);
+}
+
+// http://filmicworlds.com/blog/filmic-tonemapping-operators/
+
 #endif
