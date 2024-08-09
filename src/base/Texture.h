@@ -16,7 +16,8 @@ public:
 
     void setTextureName(const std::string &name) { m_TextureName = name; }
     std::string& getTextureName() { return m_TextureName; }
-    GLuint getTextureID() { return m_TextureID; }
+    GLuint& getTextureID() { return m_TextureID; }
+    glm::u32vec2& getSize() { return m_Size; }
 
     void bind(int unit = -1);
     void unbind();
