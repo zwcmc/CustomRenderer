@@ -47,12 +47,12 @@ void SceneRenderGraph::init()
     // Mesh for rendering lights
     m_LightMesh = Sphere::New(2, 2, 0.02f);
 
+    m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
+    m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
+
     // Load skybox
     // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
     loadEnvironment("textures/environments/hdr/alley.hdr");
-
-    m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
-    m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
 }
 
 void SceneRenderGraph::setRenderSize(int width, int height)
@@ -123,7 +123,7 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), (float)size.x / size.y, 0.1f, 10.0f);
     glm::mat4 captureViews[] =
     {
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
@@ -137,16 +137,26 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     glViewport(0, 0, size.x, size.y); // don't forget to configure the viewport to the capture dimensions.
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 
-    Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/HDRToCubemap.vs", "glsl_shaders/HDRToCubemap.fs");
+    Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Skybox.vs", "glsl_shaders/HDRToCubemap.fs");
     capMat->addOrSetTexture("uEnvMap", envMap);
     m_Skybox->setOverrideMaterial(capMat);
 
-    capMat->use();
-    capMat->setMatrix("pp", captureProjection);
+
+    // Vertex shader output gl_Postion = clipPos.xyww, depth is maximum 1.0, so use less&equal depth func
+    glDepthFunc(GL_LEQUAL);
+
+    // Importent: Render the spherical position to the cube position inside the inner cube box; cull face must be disabled
+    glDisable(GL_CULL_FACE);
+
+    // Bind global uniforms
+    glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
 
     for (unsigned int i = 0; i < 6; ++i)
     {
-        capMat->setMatrix("vv", captureViews[i]);
+        // Set global uniforms
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(captureViews[i][0].x));
+        glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(captureProjection[0].x));
+
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0);
         // Check framebuffer status
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -156,13 +166,17 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glDepthFunc(GL_LEQUAL);
-
         drawNode(m_Skybox);
     }
 
     // Unbind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Unbind global uniforms
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // Set back to default
+    glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);
 }
 
 void SceneRenderGraph::drawNode(RenderNode::Ptr node)
@@ -212,6 +226,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     {
         Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uEnvMap", cubemapPath);
         cubemap->defaultInit(512, 512, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
+        // Off-screen rendering
         renderToCubemap(environmentMap, cubemap);
     }
     else
@@ -264,13 +279,13 @@ void SceneRenderGraph::executeCommandBuffer()
     // Bind framebuffer
     m_RenderTarget->bind();
 
-    // // Opaque
-    // std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
-    // for (size_t i = 0; i < opaqueCommands.size(); ++i)
-    // {
-    //    RenderCommand::Ptr command = opaqueCommands[i];
-    //    renderCommand(command);
-    // }
+    // Opaque
+    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
+    for (size_t i = 0; i < opaqueCommands.size(); ++i)
+    {
+       RenderCommand::Ptr command = opaqueCommands[i];
+       renderCommand(command);
+    }
 
     // Skybox start ----------------
     // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
@@ -293,13 +308,13 @@ void SceneRenderGraph::executeCommandBuffer()
     glDepthFunc(GL_LESS);
     // Skybox end ----------------
 
-    // // Transparent
-    // std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
-    // for (size_t i = 0; i < transparentCommands.size(); ++i)
-    // {
-    //    RenderCommand::Ptr command = transparentCommands[i];
-    //    renderCommand(command);
-    // }
+    // Transparent
+    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
+    for (size_t i = 0; i < transparentCommands.size(); ++i)
+    {
+       RenderCommand::Ptr command = transparentCommands[i];
+       renderCommand(command);
+    }
 
     blitToScreen(m_RenderTarget->getColorTexture(0));
 }
