@@ -18,12 +18,12 @@ void TextureCube::initTextureCube(ktxTexture* kTexture)
 
     glBindTexture(m_Target, m_TextureID);
 
-    GLenum target, glerror;
-    KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &target, &glerror);
+    GLenum glerror;
+    KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
 
     if (result != KTX_SUCCESS)
     {
-        std::cerr << "Create TextureCube from KTX file failed, texture name:  " << m_TextureName << ", error: " << result << std::endl;
+        std::cerr << "Create TextureCube from KTX file failed, texture name:  " << m_TextureName << ", error: " << glerror << std::endl;
     }
 
     glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

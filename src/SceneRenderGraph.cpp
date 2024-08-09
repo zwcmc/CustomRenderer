@@ -101,8 +101,6 @@ void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
 
 void SceneRenderGraph::executeCommandBuffer()
 {
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
     
