@@ -116,6 +116,11 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size.x, size.y);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferID);
 
+    // Check framebuffer status
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cerr << "FrameBuffer is not complete!" << std::endl;
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -144,11 +149,16 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
         glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(captureProjection[0].x));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0.0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glDepthFunc(GL_LEQUAL);
 
         drawNode(m_Skybox);
     }
+
+    // Unbind framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void SceneRenderGraph::drawNode(RenderNode::Ptr node)

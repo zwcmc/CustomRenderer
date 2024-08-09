@@ -9,7 +9,6 @@ out vec3 WorldPos;
 void main()
 {
     WorldPos = vPosition;
-    // WorldPos.y *= -1.0;
 
     vec4 clipPos = projectionMatrix * mat4(mat3(viewMatrix)) * vec4(vPosition, 1.0);
 
