@@ -40,8 +40,13 @@ public:
 
 private:
 
+    void drawNode(RenderNode::Ptr renderNode);
+
     void addRenderLightCommand(BaseLight::Ptr light);
+    
     void loadEnvironment(const std::string &cubemapPath);
+    void renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr cubemap);
+
     void buildRenderCommands(RenderNode::Ptr renderNode);
 
     void setGLCull(bool enable);

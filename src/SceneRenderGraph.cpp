@@ -48,7 +48,8 @@ void SceneRenderGraph::init()
     m_LightMesh = Sphere::New(2, 2, 0.02f);
 
     // Load skybox
-    loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
+    // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
+    loadEnvironment("textures/environments/hdr/alley.hdr");
 
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
     m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
@@ -100,14 +101,115 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
     m_CommandBuffer->pushCommand(m_LightMesh, lightMat, transform);
 }
 
+void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr cubemap)
+{
+    glm::u32vec2 size = cubemap->getSize();
+
+    // render texture to cubemap
+    GLuint frameBufferID;
+    GLuint renderBufferID;
+    glGenFramebuffers(1, &frameBufferID);
+    glGenRenderbuffers(1, &renderBufferID);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderBufferID);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size.x, size.y);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferID);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureViews[] =
+    {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+    };
+
+    glViewport(0, 0, size.x, size.y); // don't forget to configure the viewport to the capture dimensions.
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+
+    Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Skybox.vs", "glsl_shaders/HDRToCubemap.fs");
+    capMat->addOrSetTexture("uEnvMap", envMap);
+    m_Skybox->setOverrideMaterial(capMat);
+
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        // Set global uniforms
+        glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(captureViews[i][0].x));
+        glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(captureProjection[0].x));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        drawNode(m_Skybox);
+    }
+}
+
+void SceneRenderGraph::drawNode(RenderNode::Ptr node)
+{
+    Material::Ptr overrideMat = node->OverrideMat;
+    for (size_t i = 0; i < node->MeshRenders.size(); ++i)
+    {
+        MeshRender::Ptr mr = node->MeshRenders[i];
+        if (overrideMat)
+        {
+            overrideMat->use();
+        }
+        else
+        {
+            mr->getMaterial()->use();
+        }
+        renderMesh(mr->getMesh());
+    }
+
+    for (size_t i = 0; i < node->Children.size(); ++i)
+    {
+        drawNode(node->Children[i]);
+    }
+}
+
 void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
 {
-    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs", true);
-    TextureCube::Ptr cubemap = AssetsLoader::loadCubemapFromKTXFile("uCubemap", cubemapPath);
-    skyboxMat->addOrSetTextureCube(cubemap);
-    m_Skybox = AssetsLoader::loadglTFFile("models/Box/glTF-Embedded/Box.gltf");
-    m_Skybox->setOverrideMaterial(skyboxMat);
+    std::string fileExt;
+    size_t extPos = cubemapPath.rfind('.', cubemapPath.length());
+    if (extPos != std::string::npos)
+    {
+        fileExt = cubemapPath.substr(extPos + 1, cubemapPath.length());
+    }
+    else
+    {
+        std::cerr << "Cubemap file path is wrong, path is: " << cubemapPath << std::endl;
+        return;
+    }
 
+    m_Skybox = AssetsLoader::load_glTF("models/Box/glTF-Embedded/Box.gltf");
+    TextureCube::Ptr cubemap = TextureCube::New("uCubemap");
+    if (fileExt == "ktx")
+    {
+        cubemap = AssetsLoader::loadCubemapKTX("uCubemap", cubemapPath);
+    }
+    else if (fileExt == "hdr")
+    {
+        Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("environmentMap", cubemapPath);
+        cubemap->defaultInit(128, 128, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
+        renderToCubemap(environmentMap, cubemap);
+    }
+    else
+    {
+        std::cerr << "Unsupport cubemap file, path is: " << cubemapPath << std::endl;
+        return;
+    }
+
+    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs", true);
+    skyboxMat->addOrSetTextureCube(cubemap);
+
+    m_Skybox->setOverrideMaterial(skyboxMat);
     buildRenderCommands(m_Skybox);
 }
 
