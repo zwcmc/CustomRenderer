@@ -90,7 +90,7 @@ int main()
     // RenderNode::Ptr renderNode = AssetsLoader::loadglTFFile("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
-    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(45.0f), WIDTH, HEIGHT, 0.1f, 256.0f);
+    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.1f, 1000.0f);
     m_SceneRenderGraph->setCamera(camera);
 
     // Get the real size in pixels
