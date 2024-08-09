@@ -12,5 +12,6 @@ public:
     TextureCube(const std::string &name);
     ~TextureCube() = default;
 
-    void initTextureCube(ktxTexture* kTexture);
+    void initTextureCube(ktxTexture* kTexture, bool useMipmap = false);
+    void defaultInit(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, GLenum type, bool useMipmap = false);
 };

@@ -20,7 +20,7 @@ RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAtt
     {
         Texture2D::Ptr colorAttachment = Texture2D::New("ColorAttachment" + std::to_string(i));
         colorAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        colorAttachment->initTexture2D(size, internalFormat, GL_RGBA, type, 0, false);
+        colorAttachment->initTexture2D(size, internalFormat, GL_RGBA, type, 0);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + static_cast<int>(i), GL_TEXTURE_2D, colorAttachment->getTextureID(), 0);
         m_ColorAttachments.push_back(colorAttachment);
@@ -30,7 +30,7 @@ RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAtt
     {
         Texture2D::Ptr depthStencilAttachment = Texture2D::New("DepthStencilAttachment");
         depthStencilAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        depthStencilAttachment->initTexture2D(size, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0, false);
+        depthStencilAttachment->initTexture2D(size, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilAttachment->getTextureID(), 0);
         m_DepthStencilAttachment = depthStencilAttachment;

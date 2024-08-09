@@ -60,6 +60,45 @@ Texture2D::Ptr AssetsLoader::loadTexture(const std::string& textureName, const s
     return texture;
 }
 
+Texture2D::Ptr AssetsLoader::loadHDRTexture(const std::string& textureName, const std::string& filePath, bool useMipmap)
+{
+    Texture2D::Ptr texture = Texture2D::New(textureName);
+
+    stbi_set_flip_vertically_on_load(true);
+
+    std::string newPath = getAssetsPath() + filePath;
+    if (stbi_is_hdr(newPath.c_str()))
+    {
+        int width, height, components;
+        float* data = stbi_loadf(newPath.c_str(), &width, &height, &components, 0);
+        if (data)
+        {
+            GLenum internalFormat, format;
+            if (components == 3)
+            {
+                internalFormat = GL_RGB32F;
+                format = GL_RGB;
+            }
+            else if (components == 4)
+            {
+                internalFormat = GL_RGBA32F;
+                format = GL_RGBA;
+            }
+
+            texture->initTexture2D(glm::u32vec2(width, height), internalFormat, format, GL_FLOAT, data, useMipmap);
+        }
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cerr << newPath << " is not a HDR file!" << std::endl;
+    }
+
+    stbi_set_flip_vertically_on_load(false);
+
+    return texture;
+}
+
 Texture2D::Ptr AssetsLoader::loadTextureBuffer(const std::string &textureName, const glm::u32vec2& size, const int &components, GLenum type, void* buffer, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
@@ -173,7 +212,7 @@ void AssetsLoader::load_glTFMaterials(const tinygltf::Model &input, RenderNode::
             const tinygltf::Image &glTFImage = input.images[index];
             unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
             rootNode->NodeTextures[index] = loadTextureBuffer(glTFImage.name, glm::u32vec2(glTFImage.width, glTFImage.height), glTFImage.component,
-                glTFImage.pixel_type, reinterpret_cast<void *>(buffer));
+                glTFImage.pixel_type, reinterpret_cast<void *>(buffer), true);
         }
     }
 

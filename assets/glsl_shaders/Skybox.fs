@@ -7,6 +7,6 @@ in vec3 WorldPos;
 
 void main()
 {
-    vec3 color = textureLod(uCubemap, WorldPos, 0.0).rgb;
+    vec3 color = texture(uCubemap, WorldPos).rgb;
     FragColor = vec4(color, 1.0);
 }
