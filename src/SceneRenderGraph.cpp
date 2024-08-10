@@ -52,7 +52,7 @@ void SceneRenderGraph::init()
 
     // Load skybox
     // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
-    loadEnvironment("textures/environments/hdr/alley.hdr");
+    loadEnvironment("textures/environments/hdr/newport_loft.hdr");
 }
 
 void SceneRenderGraph::setRenderSize(int width, int height)
@@ -62,7 +62,7 @@ void SceneRenderGraph::setRenderSize(int width, int height)
 
     m_Camera->setScreenSize(width, height);
 
-    m_RenderTarget->resize(glm::u32vec2(width, height));
+    m_RenderTarget->resize(glm::u32vec2(width, height)); 
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -107,14 +107,16 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
 
     // render texture to cubemap
     GLuint frameBufferID;
-    GLuint renderBufferID;
     glGenFramebuffers(1, &frameBufferID);
-    glGenRenderbuffers(1, &renderBufferID);
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
-    glBindRenderbuffer(GL_RENDERBUFFER, renderBufferID);
+
+    GLuint cubemapDepthRenderBufferID;
+    glGenRenderbuffers(1, &cubemapDepthRenderBufferID);
+    glBindRenderbuffer(GL_RENDERBUFFER, cubemapDepthRenderBufferID);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size.x, size.y);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferID);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, cubemapDepthRenderBufferID);
 
     // Check framebuffer status
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -134,13 +136,15 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
     };
 
-    glViewport(0, 0, size.x, size.y); // don't forget to configure the viewport to the capture dimensions.
+    // Configure the viewport to the capture dimensions
+    glViewport(0, 0, size.x, size.y);
+    
+    // Bind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 
     Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Skybox.vs", "glsl_shaders/HDRToCubemap.fs");
     capMat->addOrSetTexture("uEnvMap", envMap);
     m_Skybox->setOverrideMaterial(capMat);
-
 
     // Vertex shader output gl_Postion = clipPos.xyww, depth is maximum 1.0, so use less&equal depth func
     glDepthFunc(GL_LEQUAL);
@@ -151,11 +155,12 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     // Bind global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
 
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(captureProjection[0].x));
+
     for (unsigned int i = 0; i < 6; ++i)
     {
         // Set global uniforms
         glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(captureViews[i][0].x));
-        glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(captureProjection[0].x));
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0);
         // Check framebuffer status
@@ -177,6 +182,8 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     // Set back to default
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
+
+    glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
 }
 
 void SceneRenderGraph::drawNode(RenderNode::Ptr node)
@@ -225,8 +232,8 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     else if (fileExt == "hdr")
     {
         Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uEnvMap", cubemapPath);
-        cubemap->defaultInit(512, 512, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
-        // Off-screen rendering
+        cubemap->defaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT);
+        // Equirectangular map to a cubemap
         renderToCubemap(environmentMap, cubemap);
     }
     else
