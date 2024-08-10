@@ -50,9 +50,10 @@ void SceneRenderGraph::init()
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
     m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
 
-    // Load skybox
-    // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
+    // Load environment cubemaps
     loadEnvironment("textures/environments/hdr/newport_loft.hdr");
+
+    buildSkyboxRenderCommands();
 }
 
 void SceneRenderGraph::setRenderSize(int width, int height)
@@ -101,6 +102,14 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
     m_CommandBuffer->pushCommand(m_LightMesh, lightMat, transform);
 }
 
+void SceneRenderGraph::buildSkyboxRenderCommands()
+{
+    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs", true);
+    skyboxMat->addOrSetTextureCube(m_EnvironmentCubemap);
+    m_Cube->setOverrideMaterial(skyboxMat);
+    buildRenderCommands(m_Cube);
+}
+
 void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr cubemap)
 {
     glm::u32vec2 size = cubemap->getSize();
@@ -144,7 +153,7 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
 
     Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Skybox.vs", "glsl_shaders/HDRToCubemap.fs");
     capMat->addOrSetTexture("uEnvMap", envMap);
-    m_Skybox->setOverrideMaterial(capMat);
+    m_Cube->setOverrideMaterial(capMat);
 
     // Vertex shader output gl_Postion = clipPos.xyww, depth is maximum 1.0, so use less&equal depth func
     glDepthFunc(GL_LEQUAL);
@@ -171,7 +180,7 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        drawNode(m_Skybox);
+        drawRenderNode(m_Cube);
     }
 
     // Unbind framebuffer
@@ -186,7 +195,7 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
 }
 
-void SceneRenderGraph::drawNode(RenderNode::Ptr node)
+void SceneRenderGraph::drawRenderNode(RenderNode::Ptr node)
 {
     Material::Ptr overrideMat = node->OverrideMat;
     for (size_t i = 0; i < node->MeshRenders.size(); ++i)
@@ -205,12 +214,15 @@ void SceneRenderGraph::drawNode(RenderNode::Ptr node)
 
     for (size_t i = 0; i < node->Children.size(); ++i)
     {
-        drawNode(node->Children[i]);
+        drawRenderNode(node->Children[i]);
     }
 }
 
 void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
 {
+    m_Cube = AssetsLoader::load_glTF("models/Box/glTF-Embedded/Box.gltf");
+    m_EnvironmentCubemap = TextureCube::New("uEnvironmentCubemap");
+
     std::string fileExt;
     size_t extPos = cubemapPath.rfind('.', cubemapPath.length());
     if (extPos != std::string::npos)
@@ -223,30 +235,22 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
         return;
     }
 
-    m_Skybox = AssetsLoader::load_glTF("models/Box/glTF-Embedded/Box.gltf");
-    TextureCube::Ptr cubemap = TextureCube::New("uCubemap");
     if (fileExt == "ktx")
     {
-        cubemap = AssetsLoader::loadCubemapKTX("uCubemap", cubemapPath);
+        m_EnvironmentCubemap = AssetsLoader::loadCubemapKTX("uCubemap", cubemapPath);
     }
     else if (fileExt == "hdr")
     {
         Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uEnvMap", cubemapPath);
-        cubemap->defaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT);
+        m_EnvironmentCubemap->defaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT);
         // Equirectangular map to a cubemap
-        renderToCubemap(environmentMap, cubemap);
+        renderToCubemap(environmentMap, m_EnvironmentCubemap);
     }
     else
     {
         std::cerr << "Unsupport cubemap file, path is: " << cubemapPath << std::endl;
         return;
     }
-
-    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs", true);
-    skyboxMat->addOrSetTextureCube(cubemap);
-
-    m_Skybox->setOverrideMaterial(skyboxMat);
-    buildRenderCommands(m_Skybox);
 }
 
 void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)

@@ -40,10 +40,10 @@ public:
 
 private:
 
-    void drawNode(RenderNode::Ptr renderNode);
+    void drawRenderNode(RenderNode::Ptr renderNode);
 
     void addRenderLightCommand(BaseLight::Ptr light);
-    
+    void buildSkyboxRenderCommands();
     void loadEnvironment(const std::string &cubemapPath);
     void renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr cubemap);
 
@@ -57,16 +57,6 @@ private:
     bool m_CullFace;
     bool m_Blend;
 
-    // Should match GlobalUniforms in Uniforms.glsl
-    // struct GlobalUniforms
-    // {
-    //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
-    //     glm::mat4 projection;  // 64 bytes;  byte offset = 64;
-    //     vec3 lightDirection0;  // 16 bytes;  byte offset = 128;
-    //     vec3 lightColor0;      // 16 bytes;  byte offset = 144;
-    //     vec3 cameraPos;        // 16 bytes;  byte offset = 160;
-    // };                         // total bytes = 176
-
     glm::u32vec2 m_RenderSize;
 
     std::vector<RenderNode::Ptr> m_RenderNodes;
@@ -79,8 +69,20 @@ private:
 
     Sphere::Ptr m_LightMesh;
 
-    RenderNode::Ptr m_Skybox;
-
     RenderTarget::Ptr m_RenderTarget;
     Material::Ptr m_BlitMat;
+
+    // Environments
+    RenderNode::Ptr m_Cube;
+    TextureCube::Ptr m_EnvironmentCubemap;
+
+    // Should match GlobalUniforms in Uniforms.glsl
+    // struct GlobalUniforms
+    // {
+    //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
+    //     glm::mat4 projection;  // 64 bytes;  byte offset = 64;
+    //     vec3 lightDirection0;  // 16 bytes;  byte offset = 128;
+    //     vec3 lightColor0;      // 16 bytes;  byte offset = 144;
+    //     vec3 cameraPos;        // 16 bytes;  byte offset = 160;
+    // };                         // total bytes = 176
 };
