@@ -21,7 +21,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Gamma Correction
 - [ ] Skybox
   - [x] With Cubemap texture
-  - [ ] With HDR texture (Need rendered-to-cubemap first)
+  - [x] With Radiance HDR texture (Need rendered-to-cubemap first)
 - [ ] Tonemapping
 - [ ] Image Based Lighting
 - [ ] Shadow Mapping
