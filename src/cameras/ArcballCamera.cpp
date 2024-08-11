@@ -1,6 +1,6 @@
 #include "cameras/ArcballCamera.h"
 
-#include "globals.h"
+#include "defines.h"
 
 ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const glm::vec3 upVector)
     : m_Position(eye), m_LookAt(lookAt), m_UpVector(upVector), m_ScreenSize(1)
@@ -49,8 +49,8 @@ void ArcballCamera::arcballing(float xoffset, float yoffset)
     glm::vec4 position = glm::vec4(m_Position, 1.0f);
     glm::vec4 pivot = glm::vec4(m_LookAt, 1.0f);
 
-    float deltaAngleX = (M_TAU / m_ScreenSize.x);
-    float deltaAngleY = (M_PI / m_ScreenSize.y);
+    float deltaAngleX = ((float)M_TAU / m_ScreenSize.x);
+    float deltaAngleY = ((float)M_PI / m_ScreenSize.y);
 
     float xAngle = xoffset * deltaAngleX;
     float yAngle = yoffset * deltaAngleY;

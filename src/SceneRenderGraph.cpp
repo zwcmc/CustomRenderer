@@ -51,7 +51,8 @@ void SceneRenderGraph::init()
     m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
 
     // Load environment cubemaps
-    loadEnvironment("textures/environments/hdr/newport_loft.hdr");
+    // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
+    loadEnvironment("textures/environments/hdr/venice_sunset.hdr");
 
     buildSkyboxRenderCommands();
 }
@@ -76,7 +77,7 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
     m_Lights.push_back(light);
 
     // Add a new render command for render light
-    addRenderLightCommand(light);
+    // addRenderLightCommand(light);
 }
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
@@ -104,13 +105,13 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
 
 void SceneRenderGraph::buildSkyboxRenderCommands()
 {
-    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Skybox.vs", "glsl_shaders/Skybox.fs", true);
+    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Cube.vs", "glsl_shaders/Skybox.fs", true);
     skyboxMat->addOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->setOverrideMaterial(skyboxMat);
     buildRenderCommands(m_Cube);
 }
 
-void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr cubemap)
+void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, int mipLevel)
 {
     glm::u32vec2 size = cubemap->getSize();
 
@@ -134,7 +135,7 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), (float)size.x / size.y, 0.1f, 10.0f);
+    glm::mat4 captureProjection = glm::perspective((float)M_PI / 2.0f, (float)size.x / size.y, 0.1f, 10.0f);
     glm::mat4 captureViews[] =
     {
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
@@ -150,10 +151,6 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
     
     // Bind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
-
-    Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Skybox.vs", "glsl_shaders/HDRToCubemap.fs");
-    capMat->addOrSetTexture("uEnvMap", envMap);
-    m_Cube->setOverrideMaterial(capMat);
 
     // Vertex shader output gl_Postion = clipPos.xyww, depth is maximum 1.0, so use less&equal depth func
     glDepthFunc(GL_LEQUAL);
@@ -171,7 +168,7 @@ void SceneRenderGraph::renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr c
         // Set global uniforms
         glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(captureViews[i][0].x));
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), mipLevel);
         // Check framebuffer status
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
@@ -237,20 +234,38 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
 
     if (fileExt == "ktx")
     {
-        m_EnvironmentCubemap = AssetsLoader::loadCubemapKTX("uCubemap", cubemapPath);
+        AssetsLoader::initCubemapKTX(m_EnvironmentCubemap, cubemapPath);
     }
     else if (fileExt == "hdr")
     {
-        Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uEnvMap", cubemapPath);
+        Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uHDRMap", cubemapPath);
         m_EnvironmentCubemap->defaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT);
+
         // Equirectangular map to a cubemap
-        renderToCubemap(environmentMap, m_EnvironmentCubemap);
+        Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Cube.vs", "glsl_shaders/HDRToCubemap.fs");
+        capMat->addOrSetTexture(environmentMap);
+        m_Cube->setOverrideMaterial(capMat);
+        renderToCubemap(m_EnvironmentCubemap);
     }
     else
     {
         std::cerr << "Unsupport cubemap file, path is: " << cubemapPath << std::endl;
         return;
     }
+
+    // Generate irradiance cubemap and pre-filtered cuebmap
+    generateCubemaps();
+}
+
+void SceneRenderGraph::generateCubemaps()
+{
+    m_IrradianceCubemap = TextureCube::New("uIrradianceCubemap");
+    m_IrradianceCubemap->defaultInit(64, 64, GL_RGB32F, GL_RGB, GL_FLOAT);
+
+    Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "glsl_shaders/Cube.vs", "glsl_shaders/IrradianceCubemap.fs");
+    cubemapConvolutionMat->addOrSetTextureCube(m_EnvironmentCubemap);
+    m_Cube->setOverrideMaterial(cubemapConvolutionMat);
+    renderToCubemap(m_IrradianceCubemap);
 }
 
 void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
@@ -337,6 +352,8 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
 
     setGLCull(mat->getDoubleSided());
     setGLBlend(mat->getAlphaMode() == Material::AlphaMode::BLEND);
+
+    mat->addOrSetTextureCube(m_IrradianceCubemap);
 
     mat->use();
     mat->setMatrix("uModelMatrix", command->Transform);

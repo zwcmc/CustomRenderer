@@ -192,6 +192,24 @@ TextureCube::Ptr AssetsLoader::loadCubemapKTX(const std::string &textureName, co
     return textureCube;
 }
 
+void AssetsLoader::initCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath)
+{
+    ktxTexture *kTexture;
+    KTX_error_code result;
+
+    std::string newPath = getAssetsPath() + filePath;
+    result = ktxTexture_CreateFromNamedFile(newPath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
+
+    assert(result == KTX_SUCCESS);
+
+    // must be a cubemap texture
+    assert(kTexture->numFaces == 6);
+
+    cubemap->initTextureCube(kTexture);
+
+    ktxTexture_Destroy(kTexture);
+}
+
 void AssetsLoader::load_glTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)
 {
     // Load texture indices

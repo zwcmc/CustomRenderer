@@ -30,7 +30,7 @@ set(SOURCES
 
 set(HEADERS
     src/ptr.h
-    src/globals.h
+    src/defines.h
     src/SceneRenderGraph.h
     src/loader/AssetsLoader.h
     src/base/Shader.h
@@ -85,17 +85,18 @@ target_link_libraries(${PROJECT_NAME} tinygltf)
 include_directories(third_party/glad/include)
 include_directories(third_party/ktx/include)
 include_directories(third_party/ktx/lib)
-set(KTX_DIR third_party/ktx)
+set(KTX_DIR third_party/ktx/lib)
 set(KTX_SOURCES
-    ${KTX_DIR}/lib/texture.c
-    ${KTX_DIR}/lib/hashlist.c
-    ${KTX_DIR}/lib/checkheader.c
-    ${KTX_DIR}/lib/swap.c
-    ${KTX_DIR}/lib/memstream.c
-    ${KTX_DIR}/lib/filestream.c
-    ${KTX_DIR}/lib/etcdec.cxx
-    ${KTX_DIR}/lib/etcunpack.cxx
-    ${KTX_DIR}/lib/glloader.c
+    ${KTX_DIR}/texture.c
+    ${KTX_DIR}/hashlist.c
+    ${KTX_DIR}/checkheader.c
+    ${KTX_DIR}/swap.c
+    ${KTX_DIR}/memstream.c
+    ${KTX_DIR}/filestream.c
+    ${KTX_DIR}/etcdec.cxx
+    ${KTX_DIR}/etcunpack.cxx
+    ${KTX_DIR}/glloader.c
+    # ${KTX_DIR}/writer.c
 )
 add_library(ktx STATIC ${KTX_SOURCES})
 target_link_libraries(${PROJECT_NAME} ktx)

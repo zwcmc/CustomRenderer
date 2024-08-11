@@ -1,11 +1,11 @@
 #ifndef DEFINES_GLSL
 #define DEFINES_GLSL
 
-#define M_PI 3.14159265359
+#define M_PI   3.1415926535897932
+#define M_TAU  6.2831853071795862
+#define M_PI_2 1.5707963267948966
 
 #define GAMMA 2.2
-
-// 1.0 / 2.2
 #define INV_GAMMA 0.454545
 
 #endif

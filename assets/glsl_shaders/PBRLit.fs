@@ -1,10 +1,6 @@
 #version 410 core
 out vec4 FragColor;
 
-#include "pbr/Lighting.glsl"
-#include "common/Uniforms.glsl"
-#include "common/Functions.glsl"
-
 in VertexData
 {
     vec2 UV0;
@@ -33,6 +29,12 @@ uniform float uOcclusionMapSet;
 
 uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
+
+uniform samplerCube uIrradianceCubemap;
+
+#include "pbr/BRDF.glsl"
+#include "common/Uniforms.glsl"
+#include "common/Functions.glsl"
 
 vec3 getNormal()
 {
@@ -81,17 +83,54 @@ void main()
     vec3 worldLightDir = normalize(lightDirection0);
 
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
+    float roughness = alphaRoughness;
+    vec3 lightColor = lightColor0;
 
-    vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, lightColor0);
+    // vec3 color = PBRLighting(albedo.rgb, worldNormal, metallic, alphaRoughness, fs_in.WorldPos, worldViewDir, worldLightDir, lightColor0);
+
+    vec3 N = normalize(worldNormal);
+    vec3 V = normalize(worldViewDir);
+    vec3 L = normalize(worldLightDir);
+    vec3 H = normalize(L + V);
+
+    vec3 F0 = vec3(0.04);
+
+    vec3 brdfSpecular = mix(F0, albedo.rgb, metallic);
+
+    vec3 radiance = lightColor;
+
+    float NdotV = clamp(abs(dot(N, V)), 0.001, 1.0);
+    float NdotL = clamp(dot(N, L), 0.001, 1.0);
+    float HdotV = clamp(dot(H, V), 0.0, 1.0);
+    float NdotH = clamp(dot(N, H), 0.0, 1.0);
+
+    vec3 Lo = vec3(0.0);
+
+    // BRDF
+    float D = MicrofacetDistribution(NdotH, roughness);
+    vec3 F = fresnelSchlick(HdotV, brdfSpecular);
+    float G = GeometricOcclusion(NdotV, NdotL, roughness);
+    vec3 numerator = D * G * F;
+    float denominator = max((4.0 * NdotL * NdotV), 0.001);
+    vec3 BRDF = numerator / denominator;
+    Lo += BRDF * radiance * NdotL;
+
+    // Diffuse
+    vec3 oneMinusDielectricSpec = vec3(1.0) - F0;
+    vec3 brdfDiffuse = albedo.rgb * (oneMinusDielectricSpec - metallic * oneMinusDielectricSpec);
+    Lo += (brdfDiffuse / M_PI) * radiance * NdotL;
+
+    // IBL
+    Lo += texture(uIrradianceCubemap, N).rgb * brdfDiffuse;
 
     if (uOcclusionMapSet > 0.0)
     {
         float ao = texture(uOcclusionMap, fs_in.UV0).r;
-        color *= ao;
+        Lo *= ao;
     }
 
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0f, 0.0f, 0.0f);
-    color += emission;
+    Lo += emission;
 
-    FragColor = vec4(color, albedo.a);
+    FragColor = vec4(Lo, albedo.a);
 }

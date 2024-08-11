@@ -24,6 +24,8 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] With Radiance HDR texture (Need rendered-to-cubemap first)
 - [ ] Tonemapping
 - [ ] Image Based Lighting
+  - [x] Irradiance Cubemap
+  - [ ] Pre-filterd Cubemap
 - [ ] Shadow Mapping
   - [ ] Cascaded Shadow Mapping
 - [ ] HDR

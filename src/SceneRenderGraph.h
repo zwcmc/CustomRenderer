@@ -44,8 +44,10 @@ private:
 
     void addRenderLightCommand(BaseLight::Ptr light);
     void buildSkyboxRenderCommands();
+
     void loadEnvironment(const std::string &cubemapPath);
-    void renderToCubemap(Texture2D::Ptr envMap, TextureCube::Ptr cubemap);
+    void generateCubemaps();
+    void renderToCubemap(TextureCube::Ptr cubemap, int mipLevel = 0);
 
     void buildRenderCommands(RenderNode::Ptr renderNode);
 
@@ -75,6 +77,7 @@ private:
     // Environments
     RenderNode::Ptr m_Cube;
     TextureCube::Ptr m_EnvironmentCubemap;
+    TextureCube::Ptr m_IrradianceCubemap;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
