@@ -56,7 +56,7 @@ void main()
     vec3 R = N;
     vec3 V = N;
 
-    const uint SAMPLE_COUNT = 4096u * 4u;
+    const uint SAMPLE_COUNT = 2048u * 4u;
 
     vec3 prefilteredColor = vec3(0.0);
     float totalWeight = 0.0;

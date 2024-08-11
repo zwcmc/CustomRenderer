@@ -51,8 +51,8 @@ void SceneRenderGraph::init()
     m_RenderTarget = RenderTarget::New(1, 1, GL_HALF_FLOAT);
 
     // Load environment cubemaps
-    // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
-    loadEnvironment("textures/environments/hdr/venice_sunset.hdr");
+    // loadEnvironment("textures/environments/gcanyon_cube.ktx");
+    loadEnvironment("textures/environments/shanghai_bund.hdr");
 
     generateBRDFLUT();
 
@@ -245,7 +245,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     else if (fileExt == "hdr")
     {
         Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uHDRMap", cubemapPath);
-        m_EnvironmentCubemap->defaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT);
+        m_EnvironmentCubemap->defaultInit(environmentMap->getSize().y, environmentMap->getSize().y, GL_RGB32F, GL_RGB, GL_FLOAT);
 
         // Equirectangular map to a cubemap
         Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Cube.vs", "glsl_shaders/HDRToCubemap.fs");

@@ -84,10 +84,9 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/buster_drone/busterDrone.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf");
+    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/buster_drone/busterDrone.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/AnisotropyBarnLamp/glTF/AnisotropyBarnLamp.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.1f, 1000.0f);

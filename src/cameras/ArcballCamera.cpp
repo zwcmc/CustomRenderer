@@ -10,7 +10,7 @@ ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const
 
 ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, int screenWidth, int screenHeight, float zNear, float zFar)
 {
-    ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 2.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     camera->initCamera(fovy, screenWidth, screenHeight, zNear, zFar);
     return camera;
 }
