@@ -60,6 +60,12 @@ void TextureCube::defaultInit(unsigned int width, unsigned int height, GLenum in
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, nullptr);
+    }
+
     if (useMipmap)
     {
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -68,11 +74,6 @@ void TextureCube::defaultInit(unsigned int width, unsigned int height, GLenum in
     else
     {
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-
-    for (unsigned int i = 0; i < 6; ++i)
-    {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, nullptr);
     }
 
     unbind();

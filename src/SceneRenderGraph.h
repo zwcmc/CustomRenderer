@@ -75,9 +75,12 @@ private:
     Material::Ptr m_BlitMat;
 
     // Environments
+    GLuint m_FrameBufferID;
+    GLuint m_CubemapDepthRenderBufferID;
     RenderNode::Ptr m_Cube;
     TextureCube::Ptr m_EnvironmentCubemap;
     TextureCube::Ptr m_IrradianceCubemap;
+    TextureCube::Ptr m_PrefilteredCubemap;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
