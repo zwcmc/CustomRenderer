@@ -31,6 +31,8 @@ uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
 
 uniform samplerCube uIrradianceCubemap;
+uniform samplerCube uPrefilteredCubemap;
+uniform sampler2D uBRDFLUT;
 
 #include "pbr/BRDF.glsl"
 #include "common/Uniforms.glsl"
@@ -120,8 +122,15 @@ void main()
     vec3 brdfDiffuse = albedo.rgb * (oneMinusDielectricSpec - metallic * oneMinusDielectricSpec);
     Lo += (brdfDiffuse / M_PI) * radiance * NdotL;
 
-    // IBL
+    // IBL irradiance
     Lo += texture(uIrradianceCubemap, N).rgb * brdfDiffuse;
+
+    // IBL specular
+    vec3 R = reflect(-V, N); 
+    const float prefilteredCubeMipLevels = 10.0;
+    vec3 prefilteredColor = textureLod(uPrefilteredCubemap, R, roughness * prefilteredCubeMipLevels).rgb;
+    vec2 envBRDF = texture(uBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    Lo += prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
     if (uOcclusionMapSet > 0.0)
     {
@@ -129,7 +138,7 @@ void main()
         Lo *= ao;
     }
 
-    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0f, 0.0f, 0.0f);
+    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
     FragColor = vec4(Lo, albedo.a);

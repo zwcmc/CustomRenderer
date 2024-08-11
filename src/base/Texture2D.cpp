@@ -34,6 +34,7 @@ void Texture2D::initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum f
     bind();
 
     glTexImage2D(m_Target, 0, m_InternalFormat, size.x, size.y, 0, format, type, data);
+
     if (useMipmap)
     {
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

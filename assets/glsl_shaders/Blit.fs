@@ -5,11 +5,11 @@ out vec4 FragColor;
 
 in vec2 UV0;
 
-uniform sampler2D ColorAttachment0;
+uniform sampler2D uSource;
 
 void main()
 {
-    vec3 color = texture(ColorAttachment0, UV0).rgb;
+    vec3 color = texture(uSource, UV0).rgb;
 
     // HDR tonemapping
     const float exposure = 1.0;

@@ -46,6 +46,7 @@ private:
     void buildSkyboxRenderCommands();
 
     void loadEnvironment(const std::string &cubemapPath);
+    void generateBRDFLUT();
     void generateCubemaps();
     void renderToCubemap(TextureCube::Ptr cubemap, int mipLevel = 0);
 
@@ -54,7 +55,7 @@ private:
     void setGLCull(bool enable);
     void setGLBlend(bool enable);
 
-    void blitToScreen(Texture2D::Ptr texture);
+    void blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat);
 
     bool m_CullFace;
     bool m_Blend;
@@ -81,6 +82,8 @@ private:
     TextureCube::Ptr m_EnvironmentCubemap;
     TextureCube::Ptr m_IrradianceCubemap;
     TextureCube::Ptr m_PrefilteredCubemap;
+
+    RenderTarget::Ptr m_RenderTargetBRDFLUT;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms

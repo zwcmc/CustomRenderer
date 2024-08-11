@@ -1,5 +1,9 @@
 #include "renderer/RenderTarget.h"
 
+RenderTarget::RenderTarget(unsigned int width, unsigned int height, GLenum type, unsigned int colorAttachmentsNum)
+    : RenderTarget(glm::u32vec2(width, height), type, colorAttachmentsNum)
+{ }
+
 RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAttachmentsNum)
     : m_FrameBufferID(0), m_Size(size), m_Type(type)
 {
@@ -18,7 +22,7 @@ RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAtt
     }
     for (size_t i = 0; i < colorAttachmentsNum; i++)
     {
-        Texture2D::Ptr colorAttachment = Texture2D::New("ColorAttachment" + std::to_string(i));
+        Texture2D::Ptr colorAttachment = Texture2D::New("_ColorAttachment" + std::to_string(i));
         colorAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         colorAttachment->initTexture2D(size, internalFormat, GL_RGBA, type, 0);
 
@@ -28,7 +32,7 @@ RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAtt
 
     // Depth stencil attachment
     {
-        Texture2D::Ptr depthStencilAttachment = Texture2D::New("DepthStencilAttachment");
+        Texture2D::Ptr depthStencilAttachment = Texture2D::New("_DepthStencilAttachment");
         depthStencilAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         depthStencilAttachment->initTexture2D(size, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 

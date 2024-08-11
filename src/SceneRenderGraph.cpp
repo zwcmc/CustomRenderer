@@ -48,11 +48,13 @@ void SceneRenderGraph::init()
     m_LightMesh = Sphere::New(2, 2, 0.02f);
 
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
-    m_RenderTarget = RenderTarget::New(glm::u32vec2(1), GL_HALF_FLOAT);
+    m_RenderTarget = RenderTarget::New(1, 1, GL_HALF_FLOAT);
 
     // Load environment cubemaps
     // loadEnvironment("textures/environments/cubemap_yokohama_rgba.ktx");
     loadEnvironment("textures/environments/hdr/venice_sunset.hdr");
+
+    generateBRDFLUT();
 
     buildSkyboxRenderCommands();
 }
@@ -207,6 +209,14 @@ void SceneRenderGraph::drawRenderNode(RenderNode::Ptr node)
     }
 }
 
+void SceneRenderGraph::generateBRDFLUT()
+{
+    m_RenderTargetBRDFLUT = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
+    m_RenderTargetBRDFLUT->getColorTexture(0)->setTextureName("uBRDFLUT");
+    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vs", "glsl_shaders/GenerateBRDFLUT.fs");
+    blit(nullptr, m_RenderTargetBRDFLUT, generateBRDFLUTFMat);
+}
+
 void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
 {
     // Framebuffer and render buffer for off-screen rendering cubemaps
@@ -354,7 +364,7 @@ void SceneRenderGraph::executeCommandBuffer()
        renderCommand(command);
     }
 
-    blitToScreen(m_RenderTarget->getColorTexture(0));
+    blit(m_RenderTarget->getColorTexture(0), nullptr, m_BlitMat);
 }
 
 void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
@@ -366,6 +376,8 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
     setGLBlend(mat->getAlphaMode() == Material::AlphaMode::BLEND);
 
     mat->addOrSetTextureCube(m_IrradianceCubemap);
+    mat->addOrSetTextureCube(m_PrefilteredCubemap);
+    mat->addOrSetTexture(m_RenderTargetBRDFLUT->getColorTexture(0));
 
     mat->use();
     mat->setMatrix("uModelMatrix", command->Transform);
@@ -423,14 +435,31 @@ void SceneRenderGraph::setGLBlend(bool enable)
     }
 }
 
-void SceneRenderGraph::blitToScreen(Texture2D::Ptr source)
+void SceneRenderGraph::blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (destination)
+    {
+        destination->bind();
+    }
+    else
+    {
+        glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
 
-    m_BlitMat->addOrSetTexture(source);
-    m_BlitMat->use();
+    if (blitMat == nullptr)
+    {
+        blitMat = m_BlitMat;
+    }
+
+    if (source)
+    {
+        source->setTextureName("uSource");
+        blitMat->addOrSetTexture(source);
+    }
+
+    blitMat->use();
 
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
