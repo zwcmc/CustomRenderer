@@ -9,11 +9,11 @@ class ArcballCamera
 {
     SHARED_PTR(ArcballCamera)
 public:
-    ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const glm::vec3 upVector);
+    ArcballCamera(const glm::vec3 &eye, const glm::vec3 &lookAt, const glm::vec3 &upVector);
 
-    static ArcballCamera::Ptr perspectiveCamera(float fovy, int screenWidth, int screenHeight, float zNear, float zFar);
+    static ArcballCamera::Ptr perspectiveCamera(const float &fovy, const int &screenWidth, const int &screenHeight, const float &zNear, const float &zFar);
 
-    void setScreenSize(int width, int height);
+    void setScreenSize(const int &width, const int &height);
 
     void zooming(const float &yoffset);
     void panning(float xoffset, float yoffset);
@@ -29,7 +29,7 @@ private:
 
     void updateViewMatrix();
 
-    void initCamera(float fovy, int width, int height, float zNear, float zFar);
+    void initCamera(const float &fovy, const int &width, const int &height, const float &zNear, const float &zFar);
 
     glm::mat4 m_ViewMatrix;
     glm::vec3 m_Position, m_LookAt, m_UpVector;

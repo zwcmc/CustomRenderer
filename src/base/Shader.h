@@ -18,7 +18,7 @@ public:
 
     void use();
 
-    void setUniformInt(const std::string &uniformName, const int value);
+    void setUniformInt(const std::string &uniformName, const int &value);
     void setUniformFloat(const std::string &uniformName, const float &value);
     void setUniformVector(const std::string &uniformName, const glm::vec3 &value);
     void setUniformVector(const std::string &uniformName, const glm::vec4 &value);

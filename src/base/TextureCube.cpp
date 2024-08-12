@@ -44,7 +44,7 @@ void TextureCube::initTextureCube(ktxTexture* kTexture, bool useMipmap)
     unbind();
 }
 
-void TextureCube::defaultInit(unsigned int width, unsigned int height, GLenum internalFormat, GLenum format, GLenum type, bool useMipmap)
+void TextureCube::defaultInit(const unsigned int &width, const unsigned int &height, GLenum internalFormat, GLenum format, GLenum type, bool useMipmap)
 {
     m_Size = glm::u32vec2(width, height);
     m_InternalFormat = internalFormat;

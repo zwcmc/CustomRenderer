@@ -34,7 +34,7 @@ Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string 
     return Shader::New(name, vsSource, fsSource);
 }
 
-Texture2D::Ptr AssetsLoader::loadTexture(const std::string& textureName, const std::string& filePath, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
 
@@ -60,7 +60,7 @@ Texture2D::Ptr AssetsLoader::loadTexture(const std::string& textureName, const s
     return texture;
 }
 
-Texture2D::Ptr AssetsLoader::loadHDRTexture(const std::string& textureName, const std::string& filePath, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadHDRTexture(const std::string &textureName, const std::string &filePath, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
 
@@ -73,7 +73,7 @@ Texture2D::Ptr AssetsLoader::loadHDRTexture(const std::string& textureName, cons
         float* data = stbi_loadf(newPath.c_str(), &width, &height, &components, 0);
         if (data)
         {
-            GLenum internalFormat, format;
+            GLenum internalFormat, format = 0;
             if (components == 3)
             {
                 internalFormat = GL_RGB32F;
@@ -100,7 +100,7 @@ Texture2D::Ptr AssetsLoader::loadHDRTexture(const std::string& textureName, cons
     return texture;
 }
 
-Texture2D::Ptr AssetsLoader::loadTextureBuffer(const std::string &textureName, const glm::u32vec2& size, const int &components, GLenum type, void* buffer, bool useMipmap)
+Texture2D::Ptr AssetsLoader::loadTextureBuffer(const std::string &textureName, const glm::u32vec2 &size, const int &components, GLenum type, void* buffer, bool useMipmap)
 {
     Texture2D::Ptr texture = Texture2D::New(textureName);
 
@@ -117,7 +117,7 @@ Texture2D::Ptr AssetsLoader::loadTextureBuffer(const std::string &textureName, c
     return texture;
 }
 
-RenderNode::Ptr AssetsLoader::load_glTF(const std::string& filePath)
+RenderNode::Ptr AssetsLoader::load_glTF(const std::string &filePath)
 {
     bool binary = false;
     size_t extPos = filePath.rfind('.', filePath.length());
@@ -140,7 +140,7 @@ RenderNode::Ptr AssetsLoader::load_glTF(const std::string& filePath)
         // Load texture and material data
         load_glTFMaterials(glTFInput, rootNode);
 
-        const tinygltf::Scene& scene = glTFInput.scenes[0];
+        const tinygltf::Scene &scene = glTFInput.scenes[0];
         for (size_t i = 0; i < scene.nodes.size(); ++i)
         {
             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
@@ -171,7 +171,7 @@ Texture2D::Ptr AssetsLoader::loadTextureKTX(const std::string &textureName, cons
     return texture;
 }
 
-TextureCube::Ptr AssetsLoader::loadCubemapKTX(const std::string &textureName, const std::string& filePath)
+TextureCube::Ptr AssetsLoader::loadCubemapKTX(const std::string &textureName, const std::string &filePath)
 {
     ktxTexture* kTexture;
     KTX_error_code result;
@@ -323,7 +323,7 @@ void AssetsLoader::load_glTFMaterials(const tinygltf::Model &input, RenderNode::
     }
 }
 
-void AssetsLoader::load_glTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent)
+void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, RenderNode::Ptr parent)
 {
     RenderNode::Ptr node = RenderNode::New();
     node->Parent = parent;
@@ -371,7 +371,7 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node& inputNode, const tinygltf
             const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
             for (size_t i = 0; i < mesh.primitives.size(); i++)
             {
-                const tinygltf::Primitive& glTFPrimitive = mesh.primitives[i];
+                const tinygltf::Primitive &glTFPrimitive = mesh.primitives[i];
 
                 // Vertices
                 std::vector<vec3> vertices;
@@ -385,23 +385,23 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node& inputNode, const tinygltf
 
                     if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end())
                     {
-                        const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
-                        const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                        const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
+                        const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
                         vertexBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                         vertexCount = accessor.count;
                     }
 
                     if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end())
                     {
-                        const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
-                        const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                        const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
+                        const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
                         texcoordBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                     }
 
                     if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end())
                     {
-                        const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
-                        const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                        const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
+                        const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
                         normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                     }
 
@@ -416,9 +416,9 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node& inputNode, const tinygltf
                 // Indices
                 std::vector<unsigned int> indices;
                 {
-                    const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.indices];
-                    const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
-                    const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
+                    const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.indices];
+                    const tinygltf::BufferView &bufferView = input.bufferViews[accessor.bufferView];
+                    const tinygltf::Buffer &buffer = input.buffers[bufferView.buffer];
 
                     switch (accessor.componentType)
                     {
@@ -503,7 +503,7 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node& inputNode, const tinygltf
     parent->Children.push_back(node);
 }
 
-std::string AssetsLoader::readShader(std::ifstream& file, const std::string& name)
+std::string AssetsLoader::readShader(std::ifstream &file, const std::string &name)
 {
     std::string source, line;
     const std::string includeDirective = "#include ";

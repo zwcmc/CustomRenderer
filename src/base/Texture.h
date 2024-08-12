@@ -19,7 +19,7 @@ public:
     GLuint& getTextureID() { return m_TextureID; }
     glm::u32vec2& getSize() { return m_Size; }
 
-    void bind(int unit = -1);
+    void bind(const int &unit = -1);
     void unbind();
 
 protected:

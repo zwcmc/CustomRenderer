@@ -11,7 +11,7 @@ Texture::~Texture()
     m_TextureID = 0;
 }
 
-void Texture::bind(int unit)
+void Texture::bind(const int &unit)
 {
     if (unit >= 0)
     {

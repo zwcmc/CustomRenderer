@@ -12,11 +12,11 @@ public:
     Texture2D(const std::string &name);
     ~Texture2D() = default;
 
-    void initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap = false);
+    void initTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap = false);
     void initTexture2D(ktxTexture* kTexture, bool useMipmap = false);
 
     void setWrapMode(GLenum wrapS, GLenum wrapT);
-    void resize(glm::u32vec2 size);
+    void resize(const glm::u32vec2 &size);
 
 private:
     GLenum m_WarpS, m_WarpT;

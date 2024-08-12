@@ -1,10 +1,10 @@
 #include "renderer/RenderTarget.h"
 
-RenderTarget::RenderTarget(unsigned int width, unsigned int height, GLenum type, unsigned int colorAttachmentsNum)
+RenderTarget::RenderTarget(const unsigned int &width, const unsigned int &height, GLenum type, unsigned int colorAttachmentsNum)
     : RenderTarget(glm::u32vec2(width, height), type, colorAttachmentsNum)
 { }
 
-RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAttachmentsNum)
+RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int colorAttachmentsNum)
     : m_FrameBufferID(0), m_Size(size), m_Type(type)
 {
     glGenFramebuffers(1, &m_FrameBufferID);
@@ -48,7 +48,7 @@ RenderTarget::RenderTarget(glm::u32vec2 size, GLenum type, unsigned int colorAtt
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Texture2D::Ptr RenderTarget::getColorTexture(unsigned int index)
+Texture2D::Ptr RenderTarget::getColorTexture(const unsigned int &index)
 {
     if (index < m_ColorAttachments.size())
     {
@@ -61,7 +61,7 @@ Texture2D::Ptr RenderTarget::getColorTexture(unsigned int index)
     }
 }
 
-void RenderTarget::resize(glm::u32vec2 size)
+void RenderTarget::resize(const glm::u32vec2 &size)
 {
     m_Size = size;
 

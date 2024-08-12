@@ -58,7 +58,7 @@ void SceneRenderGraph::init()
     buildSkyboxRenderCommands();
 }
 
-void SceneRenderGraph::setRenderSize(int width, int height)
+void SceneRenderGraph::setRenderSize(const int &width, const int &height)
 {
     m_RenderSize.x = width;
     m_RenderSize.y = height;

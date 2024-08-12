@@ -1,6 +1,6 @@
 #include "base/Texture2D.h"
 
-Texture2D::Texture2D(const std::string& name)
+Texture2D::Texture2D(const std::string &name)
     : m_WarpS(GL_REPEAT), m_WarpT(GL_REPEAT)
 {
     m_TextureName = name;
@@ -13,7 +13,7 @@ void Texture2D::setWrapMode(GLenum wrapS, GLenum wrapT)
     m_WarpT = wrapT;
 }
 
-void Texture2D::resize(glm::u32vec2 size)
+void Texture2D::resize(const glm::u32vec2 &size)
 {
     bind();
     if (m_Target == GL_TEXTURE_2D)
@@ -22,7 +22,7 @@ void Texture2D::resize(glm::u32vec2 size)
     }
 }
 
-void Texture2D::initTexture2D(glm::u32vec2 size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
+void Texture2D::initTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
 {
     m_Size = size;
     m_InternalFormat = internalFormat;

@@ -10,13 +10,13 @@ class RenderTarget
 {
     SHARED_PTR(RenderTarget)
 public:
-    RenderTarget(unsigned int width, unsigned int height, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1);
-    RenderTarget(glm::u32vec2 size, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1);
+    RenderTarget(const unsigned int &width, const unsigned int &height, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1);
+    RenderTarget(const glm::u32vec2 &size, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1);
 
-    Texture2D::Ptr getColorTexture(unsigned int index);
+    Texture2D::Ptr getColorTexture(const unsigned int &index);
 
     glm::u32vec2& getSize() { return m_Size; }
-    void resize(glm::u32vec2 size);
+    void resize(const glm::u32vec2 &size);
     void bind();
 
 private:

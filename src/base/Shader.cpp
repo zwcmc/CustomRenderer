@@ -24,12 +24,12 @@ void Shader::use()
     glUseProgram(m_ShaderID);
 }
 
-void Shader::setUniformInt(const std::string &uniformName, const int value)
+void Shader::setUniformInt(const std::string &uniformName, const int &value)
 {
     glUniform1i(getUniformLocation(uniformName), value);
 }
 
-void Shader::setUniformFloat(const std::string& uniformName, const float &value)
+void Shader::setUniformFloat(const std::string &uniformName, const float &value)
 {
     glUniform1f(getUniformLocation(uniformName), value);
 }

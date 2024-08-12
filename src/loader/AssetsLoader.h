@@ -45,19 +45,19 @@ public:
 
     static Shader::Ptr loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
     static Texture2D::Ptr loadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static Texture2D::Ptr loadHDRTexture(const std::string& textureName, const std::string& filePath, bool useMipmap = false);
+    static Texture2D::Ptr loadHDRTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
     static Texture2D::Ptr loadTextureBuffer(const std::string &textureName, const glm::u32vec2 &size, const int &components, GLenum type, void* buffer, bool useMipmap = false);
     static RenderNode::Ptr load_glTF(const std::string &filePath);
     static Texture2D::Ptr loadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static TextureCube::Ptr loadCubemapKTX(const std::string &textureName, const std::string& filePath);
+    static TextureCube::Ptr loadCubemapKTX(const std::string &textureName, const std::string &filePath);
     static void initCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath);
 
 private:
     AssetsLoader() = default;
 
     static void load_glTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode);
-    static void load_glTFNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, RenderNode::Ptr parent);
-    static std::string readShader(std::ifstream& file, const std::string& name);
+    static void load_glTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, RenderNode::Ptr parent);
+    static std::string readShader(std::ifstream &file, const std::string &name);
 
     inline static std::string getAssetsPath() { return "./../assets/"; }
     inline static std::string getShaderPath() { return "./../assets/glsl_shaders/"; }

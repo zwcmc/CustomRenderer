@@ -25,7 +25,7 @@ public:
     SceneRenderGraph();
     ~SceneRenderGraph();
 
-    void setRenderSize(int width, int height);
+    void setRenderSize(const int &width, const int &height);
     void setCamera(ArcballCamera::Ptr camera);
     ArcballCamera::Ptr getActiveCamera() { return m_Camera; }
 

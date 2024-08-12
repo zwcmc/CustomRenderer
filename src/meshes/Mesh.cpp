@@ -53,7 +53,7 @@ void Mesh::initMesh(const std::vector<vec3> &vertices)
     initBuffers();
 }
 
-void Mesh::initMesh(const std::vector<vec3>& vertices, const std::vector<vec2>& texcoords)
+void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords)
 {
     m_VertexArrayID = 0;
     m_VertexBufferID = 0;

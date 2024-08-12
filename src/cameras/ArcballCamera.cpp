@@ -2,20 +2,20 @@
 
 #include "defines.h"
 
-ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 lookAt, const glm::vec3 upVector)
+ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 &lookAt, const glm::vec3 &upVector)
     : m_Position(eye), m_LookAt(lookAt), m_UpVector(upVector), m_ScreenSize(1)
 {
     updateViewMatrix();
 }
 
-ArcballCamera::Ptr ArcballCamera::perspectiveCamera(float fovy, int screenWidth, int screenHeight, float zNear, float zFar)
+ArcballCamera::Ptr ArcballCamera::perspectiveCamera(const float &fovy, const int &screenWidth, const int &screenHeight, const float &zNear, const float &zFar)
 {
     ArcballCamera::Ptr camera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 2.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     camera->initCamera(fovy, screenWidth, screenHeight, zNear, zFar);
     return camera;
 }
 
-void ArcballCamera::setScreenSize(int width, int height)
+void ArcballCamera::setScreenSize(const int &width, const int &height)
 {
     m_ScreenSize.x = width;
     m_ScreenSize.y = height;
@@ -89,7 +89,7 @@ void ArcballCamera::updateViewMatrix()
     m_ViewMatrix = glm::lookAt(m_Position, m_LookAt, m_UpVector);
 }
 
-void ArcballCamera::initCamera(float fovy, int width, int height, float zNear, float zFar)
+void ArcballCamera::initCamera(const float &fovy, const int &width, const int &height, const float &zNear, const float &zFar)
 {
     m_Fovy = fovy;
     m_ScreenSize.x = width;

@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include "defines.h"
 
-Sphere::Sphere(unsigned int xSegments, unsigned int ySegments, float scale)
+Sphere::Sphere(const unsigned int &xSegments, const unsigned int &ySegments, const float &scale)
 {
     std::vector<vec3> sphereVertices;
     for (unsigned int y = 0; y <= ySegments; ++y)

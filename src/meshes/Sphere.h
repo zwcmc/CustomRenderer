@@ -7,6 +7,6 @@ class Sphere : public Mesh
 {
     SHARED_PTR(Sphere)
 public:
-    Sphere(unsigned int xSegments, unsigned int ySegments, float scale = 1.0f);
+    Sphere(const unsigned int &xSegments, const unsigned int& ySegments, const float &scale = 1.0f);
     ~Sphere() = default;
 };
