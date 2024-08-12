@@ -19,16 +19,17 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Blinn-Phong Lighting
 - [x] Physically Based Rendering
 - [x] Gamma Correction
-- [ ] Skybox
+- [x] HDR
+- [x] Skybox
   - [x] With Cubemap texture
   - [x] With Radiance HDR texture (Need rendered-to-cubemap first)
 - [ ] Tonemapping
-- [ ] Image Based Lighting
+- [x] Image Based Lighting
   - [x] Irradiance Cubemap
-  - [ ] Pre-filterd Cubemap
+  - [x] Pre-filterd Cubemap
+  - [x] Pre-computing environment BRDF LUT
 - [ ] Shadow Mapping
   - [ ] Cascaded Shadow Mapping
-- [ ] HDR
 - [ ] Bloom
 - [ ] MSAA
 - [ ] FXAA

@@ -48,7 +48,7 @@ private:
     void loadEnvironment(const std::string &cubemapPath);
     void generateBRDFLUT();
     void generateCubemaps();
-    void renderToCubemap(TextureCube::Ptr cubemap, int mipLevel = 0);
+    void renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
 
     void buildRenderCommands(RenderNode::Ptr renderNode);
 

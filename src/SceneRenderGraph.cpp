@@ -1,7 +1,6 @@
 #include "SceneRenderGraph.h"
 
-#include <stack>
-
+#include "defines.h"
 #include "base/TextureCube.h"
 #include "loader/AssetsLoader.h"
 
@@ -113,10 +112,10 @@ void SceneRenderGraph::buildSkyboxRenderCommands()
     buildRenderCommands(m_Cube);
 }
 
-void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, int mipLevel)
+void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel)
 {
-    float width = cubemap->getSize().x >> mipLevel;
-    float height = cubemap->getSize().y >> mipLevel;
+    int width = cubemap->getSize().x >> mipLevel;
+    int height = cubemap->getSize().y >> mipLevel;
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, m_CubemapDepthRenderBufferID);
@@ -129,7 +128,7 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, int mipLevel)
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glm::mat4 captureProjection = glm::perspective((float)M_PI / 2.0f, width / height, 0.1f, 10.0f);
+    glm::mat4 captureProjection = glm::perspective((float)M_PI / 2.0f, (float)width / height, 0.1f, 10.0f);
     glm::mat4 captureViews[] =
     {
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
@@ -283,7 +282,7 @@ void SceneRenderGraph::generateCubemaps()
     m_Cube->setOverrideMaterial(cubemapPrefilteredMat);
 
     const uint32_t numMips = static_cast<uint32_t>(floor(std::log2(512))) + 1;
-    for (size_t mip = 0; mip < numMips; ++mip)
+    for (unsigned int mip = 0; mip < numMips; ++mip)
     {
         cubemapPrefilteredMat->addOrSetFloat("uRoughness", (float)(mip) / (numMips - 1));
         renderToCubemap(m_PrefilteredCubemap, mip);
