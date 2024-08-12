@@ -59,8 +59,15 @@ private:
     static void load_glTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, RenderNode::Ptr parent);
     static std::string readShader(std::ifstream &file, const std::string &name);
 
-    inline static std::string getAssetsPath() { return "./../assets/"; }
-    inline static std::string getShaderPath() { return "./../assets/glsl_shaders/"; }
+    inline static std::string getAssetsPath()
+    {
+#ifdef XCODE_PROJECT
+        return "./../../assets/";
+#else
+        return "./../assets/";
+#endif
+    }
+    inline static std::string getShaderPath() { return getAssetsPath() + "glsl_shaders/"; }
     inline static GLenum getFormat(const int &components)
     {
         GLenum format = 0;

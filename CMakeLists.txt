@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.10)
 
 set(PROJECT_NAME CustomRenderer)
 
+message(STATUS "CMake Generator is: ${CMAKE_GENERATOR}")
+if ("${CMAKE_GENERATOR}" STREQUAL "Xcode")
+    set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+    set(CMAKE_C_COMPILER "/usr/bin/clang")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    set(CMAKE_CXX_FLAGS "-std=c++17")
+    add_definitions(-DXCODE_PROJECT=1)
+endif()
+
 project(${PROJECT_NAME})
 
 set(CMAKE_USE_RELATIVE_PATHS ON)
