@@ -17,7 +17,8 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Double Sided Rendering (Face Culling)
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
-- [x] Physically Based Rendering
+- [ ] Physically Based Rendering
+  - [ ] Kulla-Conty BRDF
 - [x] Gamma Correction
 - [x] HDR
 - [x] Skybox
@@ -35,7 +36,6 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [ ] FXAA
 - [ ] SSAO
 - [ ] TAA
-- [ ] Kulla-Conty BRDF
 
 ## References
 
