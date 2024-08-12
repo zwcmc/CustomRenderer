@@ -4,61 +4,52 @@ set(PROJECT_NAME CustomRenderer)
 
 project(${PROJECT_NAME})
 
+set(CMAKE_USE_RELATIVE_PATHS ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SOURCES
-    src/main.cpp
-    src/SceneRenderGraph.cpp
-    src/loader/AssetsLoader.cpp
-    ${PROJECT_SOURCE_DIR}/third_party/glad/src/glad.c
-    src/base/Shader.cpp
-    src/base/Texture.cpp
-    src/base/Material.cpp
-    src/base/Texture2D.cpp
-    src/base/TextureCube.cpp
-    src/cameras/ArcballCamera.cpp
-    src/renderer/CommandBuffer.cpp
-    src/renderer/MeshRender.cpp
-    src/renderer/RenderNode.cpp
-    src/renderer/RenderTarget.cpp
-    src/meshes/Mesh.cpp
-    src/meshes/Sphere.cpp
-    src/lights/BaseLight.cpp
-    src/lights/DirectionalLight.cpp
+# Helper function to create source groups
+function(create_source_groups base_dir)
+    file(GLOB_RECURSE ALL_FILES
+        "${base_dir}/*.cpp"
+        "${base_dir}/*.c"
+        "${base_dir}/*.h"
+    )
+
+    foreach(FILE_PATH ${ALL_FILES})
+        file(RELATIVE_PATH REL_PATH "${CMAKE_SOURCE_DIR}" "${FILE_PATH}")
+        get_filename_component(FILE_DIR "${REL_PATH}" PATH)
+        string(REPLACE "\\" "/" GROUP_PATH "${FILE_DIR}")
+        source_group("${GROUP_PATH}" FILES "${FILE_PATH}")
+    endforeach()
+endfunction()
+
+# Set the base directory for source files
+set(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+set(BASE_GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad")
+
+# Create source groups
+create_source_groups(${BASE_DIR})
+create_source_groups(${BASE_GLAD_DIR})
+
+# Collect all source files
+file(GLOB_RECURSE PROJECT_SOURCES
+    "${BASE_DIR}/*.cpp"
+    "${BASE_DIR}/*.h"
+    "${BASE_GLAD_DIR}/src/*.c"
+    "${BASE_GLAD_DIR}/include/*.h"
 )
 
-set(HEADERS
-    src/ptr.h
-    src/defines.h
-    src/SceneRenderGraph.h
-    src/loader/AssetsLoader.h
-    src/base/Shader.h
-    src/base/Texture.h
-    src/base/Material.h
-    src/base/Texture2D.h
-    src/base/TextureCube.h
-    src/cameras/ArcballCamera.h
-    src/renderer/RenderCommand.h
-    src/renderer/CommandBuffer.h
-    src/renderer/MeshRender.h
-    src/renderer/RenderNode.h
-    src/renderer/RenderTarget.h
-    src/meshes/Mesh.h
-    src/meshes/Sphere.h
-    src/lights/BaseLight.h
-    src/lights/DirectionalLight.h
-)
-
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} opengl32)
 elseif(APPLE)
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(OpenGL_LIBRARY OpenGL)
-    find_library(IOKit_LIBRARY IOKit)
-    find_library(CoreVideo_LIBRARY CoreVideo)
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    find_library(OpenGL_LIBRARY OpenGL REQUIRED)
+    find_library(IOKit_LIBRARY IOKit REQUIRED)
+    find_library(CoreVideo_LIBRARY CoreVideo REQUIRED)
     target_link_libraries(${PROJECT_NAME} ${COCOA_LIBRARY} ${IOKit_LIBRARY} ${OpenGL_LIBRARY} ${CoreVideo_LIBRARY})
 endif()
 
@@ -109,5 +100,3 @@ add_definitions(-DKTX_OPENGL=1)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
-
-# target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
