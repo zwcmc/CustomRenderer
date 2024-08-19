@@ -49,8 +49,8 @@ vec3 getNormalWS()
 
     vec3 N = normalize(fs_in.Normal);
     vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
-    vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
-    // vec3 B = normalize(cross(N, T));
+    // vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
+    vec3 B = normalize(cross(N, T));
 
     mat3 TBN = mat3(T, B, N);
 
