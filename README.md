@@ -32,8 +32,9 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [ ] Shadow Mapping
   - [ ] Cascaded Shadow Mapping
 - [ ] Bloom
-- [ ] MSAA
 - [ ] FXAA
+- [ ] MSAA
+- [ ] Deferred Rendering
 - [ ] SSAO
 - [ ] TAA
 
