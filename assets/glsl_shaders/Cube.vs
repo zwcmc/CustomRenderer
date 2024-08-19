@@ -2,7 +2,7 @@
 
 layout (location = 0) in vec3 vPosition;
 
-#include "common/Uniforms.glsl"
+#include "common/uniforms.glsl"
 
 out vec3 UVW;
 

@@ -11,3 +11,7 @@
 #ifndef M_TAU
 #define M_TAU 6.2831853071795862
 #endif
+
+#ifndef INV_PI
+#define INV_PI 0.3183098861837907
+#endif

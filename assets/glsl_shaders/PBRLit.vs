@@ -4,7 +4,7 @@ layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec2 vTexcoord0;
 layout (location = 2) in vec3 vNormal;
 
-#include "common/Uniforms.glsl"
+#include "common/uniforms.glsl"
 
 uniform mat4 uModelMatrix;
 uniform mat3 uModelMatrixInverse;

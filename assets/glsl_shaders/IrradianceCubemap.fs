@@ -1,34 +1,35 @@
 #version 410 core
 out vec4 FragColor;
 
-#include "common/Defines.glsl"
+#include "common/constants.glsl"
 
 in vec3 UVW;
 
 uniform samplerCube uEnvironmentCubemap;
 
-const float deltaPhi = 2.0 * M_PI / 180.0;
-const float deltaTheta = 0.5 * M_PI / 64.0;
-
 void main()
 {
     vec3 N = normalize(UVW);
     vec3 up = vec3(0.0, 1.0, 0.0);
-    vec3 right = normalize(cross(up, N));
+    vec3 right = cross(up, N);
     up = cross(N, right);
 
     vec3 irradiance = vec3(0.0);
-    uint sampleCount = 0u;
-    for (float phi = 0.0; phi < M_TAU; phi += deltaPhi)
+    float sampleDelta = 0.025;
+    float nrSamples = 0.0;
+    for (float phi = 0.0; phi < M_TAU; phi += sampleDelta)
     {
-        for (float theta = 0.0; theta < M_PI_2; theta += deltaTheta)
+        for (float theta = 0.0; theta < M_PI_2; theta += sampleDelta)
         {
-            vec3 tempVec = cos(phi) * right + sin(phi) * up;
-            vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
-            irradiance += texture(uEnvironmentCubemap, sampleVector).rgb * cos(theta) * sin(theta);
-            sampleCount++;
+            vec3 tangentSample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
+
+            irradiance += texture(uEnvironmentCubemap, sampleVec).rgb * cos(theta) * sin(theta);
+            nrSamples++;
         }
     }
 
-    FragColor = vec4(M_PI * irradiance / float(sampleCount), 1.0);
+    irradiance = M_PI * irradiance * (1.0 / nrSamples);
+
+    FragColor = vec4(irradiance, 1.0);
 }

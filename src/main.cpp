@@ -13,6 +13,8 @@
 
 #include "SceneRenderGraph.h"
 
+//#include <iomanip>
+
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
@@ -35,6 +37,10 @@ void checkOpenGLError();
 
 int main()
 {
+//    double p = 3.1415926535897932;
+//    std::cout << std::fixed << std::setprecision(16);
+//    std::cout << 1.0 / p << std::endl;
+
     glfwSetErrorCallback(errorCallback);
 
     // Init glfw

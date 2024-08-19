@@ -1,7 +1,7 @@
 #version 410 core
 out vec4 FragColor;
 
-#include "common/Functions.glsl"
+#include "common/functions.glsl"
 
 in vec2 UV0;
 

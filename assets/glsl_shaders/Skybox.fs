@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 uniform samplerCube uEnvironmentCubemap;
 
-#include "common/Functions.glsl"
+#include "common/functions.glsl"
 
 in vec3 UVW;
 
