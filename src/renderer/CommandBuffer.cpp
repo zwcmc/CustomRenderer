@@ -35,3 +35,23 @@ void CommandBuffer::pushCommand(Mesh::Ptr mesh, Material::Ptr mat, glm::mat4 tra
         }
     }
 }
+
+std::vector<RenderCommand::Ptr> CommandBuffer::getShadowCasterCommands()
+{
+    std::vector<RenderCommand::Ptr> commands;
+    for (size_t i = 0; i < m_OpaqueCommands.size(); ++i)
+    {
+        if (m_OpaqueCommands[i]->Material->getMaterialCastShadows())
+        {
+            commands.push_back(m_OpaqueCommands[i]);
+        }
+    }
+    for (size_t i = 0; i < m_TransparentCommands.size(); ++i)
+    {
+        if (m_TransparentCommands[i]->Material->getMaterialCastShadows())
+        {
+            commands.push_back(m_TransparentCommands[i]);
+        }
+    }
+    return commands;
+}

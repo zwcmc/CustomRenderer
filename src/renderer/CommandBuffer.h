@@ -18,6 +18,7 @@ public:
     std::vector<RenderCommand::Ptr>& getOpaqueCommands() { return m_OpaqueCommands; }
     std::vector<RenderCommand::Ptr>& getSkyboxCommands() { return m_SkyboxCommands; }
     std::vector<RenderCommand::Ptr>& getTransparentCommands() { return m_TransparentCommands; }
+    std::vector<RenderCommand::Ptr> getShadowCasterCommands();
 
 private:
     std::vector<RenderCommand::Ptr> m_OpaqueCommands;

@@ -41,6 +41,9 @@ public:
 
     bool isUsedForSkybox() { return m_UsedForSkybox; }
 
+    void setCastShadows(bool cast) { m_CastShadows  = cast; }
+    bool getMaterialCastShadows() { return m_CastShadows; }
+
     void use();
 private:
     Shader::Ptr m_Shader;
@@ -54,4 +57,6 @@ private:
     bool m_UsedForSkybox;
     bool m_DoubleSided;
     AlphaMode m_AlphaMode;
+
+    bool m_CastShadows;
 };

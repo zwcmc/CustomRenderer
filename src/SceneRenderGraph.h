@@ -72,7 +72,7 @@ private:
 
     Sphere::Ptr m_LightMesh;
 
-    RenderTarget::Ptr m_RenderTarget;
+    RenderTarget::Ptr m_IntermediateRT;
     Material::Ptr m_BlitMat;
 
     // Environments
@@ -82,16 +82,20 @@ private:
     TextureCube::Ptr m_EnvironmentCubemap;
     TextureCube::Ptr m_IrradianceCubemap;
     TextureCube::Ptr m_PrefilteredCubemap;
+    RenderTarget::Ptr m_BRDFLUTRT;
 
-    RenderTarget::Ptr m_RenderTargetBRDFLUT;
+    // Main light shadowmap
+    Material::Ptr m_ShadowCasterMat;
+    RenderTarget::Ptr m_ShadowmapRT;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
     // {
-    //     glm::mat4 view;        // 64 bytes;  byte offset = 0;
-    //     glm::mat4 projection;  // 64 bytes;  byte offset = 64;
-    //     vec3 lightDirection0;  // 16 bytes;  byte offset = 128;
-    //     vec3 lightColor0;      // 16 bytes;  byte offset = 144;
-    //     vec3 cameraPos;        // 16 bytes;  byte offset = 160;
-    // };                         // total bytes = 176
+    //     glm::mat4 view;              // 64 bytes;  byte offset = 0;
+    //     glm::mat4 projection;        // 64 bytes;  byte offset = 64;
+    //     vec3 lightDirection0;        // 16 bytes;  byte offset = 128;
+    //     vec3 lightColor0;            // 16 bytes;  byte offset = 144;
+    //     vec3 cameraPos;              // 16 bytes;  byte offset = 160;
+    //     glm::mat4 worldToMainLight;  // 64 bytes;  byte offset = 176;
+    // };                               // total bytes = 240
 };

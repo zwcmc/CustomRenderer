@@ -1,5 +1,7 @@
 #include "SceneRenderGraph.h"
 
+#include <glm/glm.hpp>
+
 #include "defines.h"
 #include "base/TextureCube.h"
 #include "loader/AssetsLoader.h"
@@ -39,7 +41,7 @@ void SceneRenderGraph::init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 176, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 240, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -47,15 +49,24 @@ void SceneRenderGraph::init()
     m_LightMesh = Sphere::New(2, 2, 0.02f);
 
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
-    m_RenderTarget = RenderTarget::New(1, 1, GL_HALF_FLOAT);
+    m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Load environment cubemaps
     loadEnvironment("textures/environments/ktx/papermill.ktx");
     // loadEnvironment("textures/environments/newport_loft.hdr");
-
     generateBRDFLUT();
-
     buildSkyboxRenderCommands();
+
+    // Main light shadowmap
+    m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_HALF_FLOAT, 1, true);
+    m_ShadowmapRT->getDepthTexture()->setFilterMode(GL_NEAREST, GL_NEAREST);
+    m_ShadowmapRT->getDepthTexture()->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+    m_ShadowmapRT->getDepthTexture()->bind();
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    m_ShadowmapRT->getDepthTexture()->unbind();
+
+    m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vs", "glsl_shaders/ShadowCaster.fs");
 }
 
 void SceneRenderGraph::setRenderSize(const int &width, const int &height)
@@ -65,7 +76,7 @@ void SceneRenderGraph::setRenderSize(const int &width, const int &height)
 
     m_Camera->setScreenSize(width, height);
 
-    m_RenderTarget->resize(glm::u32vec2(width, height)); 
+    m_IntermediateRT->resize(glm::u32vec2(width, height));
 }
 
 void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
@@ -78,7 +89,7 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
     m_Lights.push_back(light);
 
     // Add a new render command for render light
-    // addRenderLightCommand(light);
+    addRenderLightCommand(light);
 }
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
@@ -107,6 +118,7 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
 void SceneRenderGraph::buildSkyboxRenderCommands()
 {
     Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Cube.vs", "glsl_shaders/Skybox.fs", true);
+    skyboxMat->setCastShadows(false);
     skyboxMat->addOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->setOverrideMaterial(skyboxMat);
     buildRenderCommands(m_Cube);
@@ -210,10 +222,10 @@ void SceneRenderGraph::drawRenderNode(RenderNode::Ptr node)
 
 void SceneRenderGraph::generateBRDFLUT()
 {
-    m_RenderTargetBRDFLUT = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
-    m_RenderTargetBRDFLUT->getColorTexture(0)->setTextureName("uBRDFLUT");
+    m_BRDFLUTRT = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
+    m_BRDFLUTRT->getColorTexture(0)->setTextureName("uBRDFLUT");
     Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vs", "glsl_shaders/GenerateBRDFLUT.fs");
-    blit(nullptr, m_RenderTargetBRDFLUT, generateBRDFLUTFMat);
+    blit(nullptr, m_BRDFLUTRT, generateBRDFLUTFMat);
 }
 
 void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
@@ -306,12 +318,30 @@ void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
 
 void SceneRenderGraph::executeCommandBuffer()
 {
-    glm::mat4 v = m_Camera->getViewMatrix();
-    glm::mat4 p = m_Camera->getProjectionMatrix();
-    
     BaseLight::Ptr light0 = m_Lights[0];
     glm::vec3 lightDir0 = light0->getLightPosition();
     glm::vec3 lightColor0 = light0->getLightColor();
+
+    // Render shadowmap first
+    glCullFace(GL_FRONT);
+    m_ShadowmapRT->bind();
+    std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
+    m_ShadowCasterMat->use();
+    glm::mat4 light0Projection = glm::ortho(-5.0f, 5.0f, 5.0f, -5.0f, -15.0f, 20.0f);
+    glm::mat4 light0ViewMatrix = glm::lookAt(-lightDir0 * 10.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 worldToLight = light0Projection * light0ViewMatrix;
+    m_ShadowCasterMat->setMatrix("projection", light0Projection);
+    m_ShadowCasterMat->setMatrix("view", light0ViewMatrix);
+    for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
+    {
+        RenderCommand::Ptr command = shadowCasterCommands[i];
+        m_ShadowCasterMat->setMatrix("model", command->Transform);
+        renderMesh(command->Mesh);
+    }
+    glCullFace(GL_BACK);
+
+    glm::mat4 v = m_Camera->getViewMatrix();
+    glm::mat4 p = m_Camera->getProjectionMatrix();
     glm::vec3 cameraPos = m_Camera->getPosition();
 
     // Set global uniforms
@@ -321,10 +351,11 @@ void SceneRenderGraph::executeCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(lightDir0.x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(lightColor0.x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(worldToLight[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Bind framebuffer
-    m_RenderTarget->bind();
+    // Bind intermediate framebuffer
+    m_IntermediateRT->bind();
 
     // Opaque
     std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
@@ -363,7 +394,7 @@ void SceneRenderGraph::executeCommandBuffer()
        renderCommand(command);
     }
 
-    blit(m_RenderTarget->getColorTexture(0), nullptr, m_BlitMat);
+    blit(m_IntermediateRT->getColorTexture(0), nullptr, m_BlitMat);
 }
 
 void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
@@ -376,7 +407,12 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
 
     mat->addOrSetTextureCube(m_IrradianceCubemap);
     mat->addOrSetTextureCube(m_PrefilteredCubemap);
-    mat->addOrSetTexture(m_RenderTargetBRDFLUT->getColorTexture(0));
+    mat->addOrSetTexture(m_BRDFLUTRT->getColorTexture(0));
+
+    if (mat->getMaterialCastShadows())
+    {
+        mat->addOrSetTexture("uMainLightShadowmap", m_ShadowmapRT->getDepthTexture());
+    }
 
     mat->use();
     mat->setMatrix("uModelMatrix", command->Transform);

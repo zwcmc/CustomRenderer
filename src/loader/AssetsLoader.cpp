@@ -85,8 +85,8 @@ Texture2D::Ptr AssetsLoader::loadHDRTexture(const std::string &textureName, cons
                 format = GL_RGBA;
             }
 
-            texture->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
             texture->initTexture2D(glm::u32vec2(width, height), internalFormat, format, GL_FLOAT, data, useMipmap);
+            texture->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         }
         stbi_image_free(data);
     }

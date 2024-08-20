@@ -1,16 +1,29 @@
 #include "base/Texture2D.h"
 
 Texture2D::Texture2D(const std::string &name)
-    : m_WarpS(GL_REPEAT), m_WarpT(GL_REPEAT)
 {
     m_TextureName = name;
     m_Target = GL_TEXTURE_2D;
 }
 
+void Texture2D::setFilterMode(GLenum minFilter, GLenum magFilter)
+{
+    bind();
+
+    glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, magFilter);
+
+    unbind();
+}
+
 void Texture2D::setWrapMode(GLenum wrapS, GLenum wrapT)
 {
-    m_WarpS = wrapS;
-    m_WarpT = wrapT;
+    bind();
+
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, wrapS);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, wrapT);
+
+    unbind();
 }
 
 void Texture2D::resize(const glm::u32vec2 &size)
@@ -46,8 +59,8 @@ void Texture2D::initTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
     }
     glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, m_WarpS);
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, m_WarpT);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     unbind();
 }
@@ -82,8 +95,8 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
     }
     glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, m_WarpS);
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, m_WarpT);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     unbind();
 }

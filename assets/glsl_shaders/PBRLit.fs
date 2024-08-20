@@ -34,6 +34,8 @@ uniform samplerCube uIrradianceCubemap;
 uniform samplerCube uPrefilteredCubemap;
 uniform sampler2D uBRDFLUT;
 
+uniform sampler2D uMainLightShadowmap;
+
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
@@ -89,7 +91,16 @@ void main()
     float NdotH = max(dot(N, H), 0.0);
     float LdotH = max(dot(L, H), 0.0);
 
-    vec3 radiance = lightColor0;
+
+    // Main light
+    vec4 positionLS = worldToLight * vec4(fs_in.WorldPos, 1.0);
+    positionLS.xyz /= positionLS.w;
+    positionLS.xyz = positionLS.xyz * 0.5 + 0.5;
+    float depth = texture(uMainLightShadowmap, positionLS.xy).r;
+
+    // shadow bias
+    float shadow = positionLS.z - 0.005 > depth ? 1.0 : 0.0;
+    vec3 radiance = lightColor0 * shadow;
 
     vec3 Lo = vec3(0.0);
 
