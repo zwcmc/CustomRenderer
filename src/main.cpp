@@ -104,7 +104,7 @@ int main()
     glViewport(0, 0, width, height);
     m_SceneRenderGraph->setRenderSize(width, height);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(1.0f, 1.0f, 1.0f));
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(16.0f, 16.0f, 16.0f));
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))

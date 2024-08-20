@@ -3,9 +3,15 @@
 
 #include "common/constants.glsl"
 
-float sqr(float x) { return x * x; }
+float sqr(float x)
+{
+    return x * x;
+}
 
-float pow5(float x) { return sqr(x) * sqr(x) * x; }
+float pow5(float x)
+{
+    return sqr(x) * sqr(x) * x;
+}
 
 // The specific texture is not indicated when loading glTF, so the sRGB conversion for the texture can only be specified in the shader
 vec4 SRGBtoLINEAR(vec4 srgbIn)
@@ -14,21 +20,9 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
     return vec4(linOut, srgbIn.w);
 }
 
-vec3 GammaCorrection(vec3 color)
+vec4 GammaCorrection(vec4 color)
 {
-    return pow(color, vec3(INV_GAMMA));
-}
-
-// https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
-// http://filmicworlds.com/blog/filmic-tonemapping-operators/
-vec3 ACES(vec3 col)
-{
-    float a = 2.51f;
-    float b = 0.03f;
-    float c = 2.43f;
-    float d = 0.59f;
-    float e = 0.14f;
-    return clamp((col*(a*col+b))/(col*(c*col+d)+e), 0.0, 1.0);
+    return vec4(pow(color.rgb, vec3(INV_GAMMA)), color.a);
 }
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html

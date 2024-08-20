@@ -50,8 +50,8 @@ void SceneRenderGraph::init()
     m_RenderTarget = RenderTarget::New(1, 1, GL_HALF_FLOAT);
 
     // Load environment cubemaps
-//    loadEnvironment("textures/environments/ktx/papermill.ktx");
-     loadEnvironment("textures/environments/venice_sunset.hdr");
+    // loadEnvironment("textures/environments/ktx/papermill.ktx");
+    loadEnvironment("textures/environments/newport_loft.hdr");
 
     generateBRDFLUT();
 

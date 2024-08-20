@@ -18,6 +18,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
 - [ ] Physically Based Rendering
+  - [x] Disney BRDF
   - [ ] Kulla-Conty BRDF
 - [x] Gamma Correction
 - [x] HDR
