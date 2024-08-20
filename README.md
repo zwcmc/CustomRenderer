@@ -30,7 +30,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Irradiance Cubemap
   - [x] Pre-filterd Cubemap
   - [x] Pre-computing environment BRDF LUT
-- [ ] Shadow Mapping
+- [x] Main Light Shadow Mapping
   - [ ] Cascaded Shadow Mapping
 - [ ] Bloom
 - [ ] FXAA
