@@ -6,6 +6,7 @@ in VertexData
     vec2 UV0;
     vec3 Normal;
     vec3 WorldPos;
+    vec4 PosLightSpace;
 } fs_in;
 
 uniform sampler2D uAlbedoMap;
@@ -59,6 +60,12 @@ vec3 getNormalWS()
     return normalize(TBN * tangentNormal);
 }
 
+float sampleShadowmap(sampler2D shadowmap, vec4 shadowCoord)
+{
+    float depth = texture(shadowmap, shadowCoord.xy).r;
+    return depth < shadowCoord.z - 0.001 ? 0.0 : 1.0;
+}
+
 void main()
 {
     vec4 baseColor = uAlbedoMapSet > 0.0 ? SRGBtoLINEAR(texture(uAlbedoMap, fs_in.UV0)) * uBaseColor : uBaseColor;
@@ -83,7 +90,7 @@ void main()
 
     vec3 N = uNormalMapSet > 0.0 ? getNormalWS() : normalize(fs_in.Normal);
     vec3 V = normalize(cameraPos - fs_in.WorldPos);
-    vec3 L = normalize(lightDirection0);
+    vec3 L = normalize(lightPosition0);
     vec3 H = normalize(L + V);
 
     float NdotL = max(dot(N, L), 0.0);
@@ -93,14 +100,11 @@ void main()
 
 
     // Main light
-    vec4 positionLS = worldToLight * vec4(fs_in.WorldPos, 1.0);
-    positionLS.xyz /= positionLS.w;
-    positionLS.xyz = positionLS.xyz * 0.5 + 0.5;
-    float depth = texture(uMainLightShadowmap, positionLS.xy).r;
+    vec3 shadowCoord = fs_in.PosLightSpace.xyz / fs_in.PosLightSpace.w;
+    shadowCoord = shadowCoord * 0.5 + 0.5;
+    float shadowAtten = sampleShadowmap(uMainLightShadowmap, vec4(shadowCoord, 1.0));
 
-    // shadow bias
-    float shadow = positionLS.z - 0.005 > depth ? 1.0 : 0.0;
-    vec3 radiance = lightColor0 * shadow;
+    vec3 radiance = lightColor0 * shadowAtten;
 
     vec3 Lo = vec3(0.0);
 

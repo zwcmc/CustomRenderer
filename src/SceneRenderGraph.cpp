@@ -58,7 +58,7 @@ void SceneRenderGraph::init()
     buildSkyboxRenderCommands();
 
     // Main light shadowmap
-    m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_HALF_FLOAT, 1, true);
+    m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 1, true);
     m_ShadowmapRT->getDepthTexture()->setFilterMode(GL_NEAREST, GL_NEAREST);
     m_ShadowmapRT->getDepthTexture()->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
     m_ShadowmapRT->getDepthTexture()->bind();
@@ -234,7 +234,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     glGenFramebuffers(1, &m_FrameBufferID);
     glGenRenderbuffers(1, &m_CubemapDepthRenderBufferID);
 
-    m_Cube = AssetsLoader::load_glTF("models/Box/glTF-Embedded/Box.gltf");
+    m_Cube = AssetsLoader::load_glTF("models/Box/glTF-Binary/Box.glb");
     m_EnvironmentCubemap = TextureCube::New("uEnvironmentCubemap");
 
     std::string fileExt;
@@ -319,26 +319,22 @@ void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
 void SceneRenderGraph::executeCommandBuffer()
 {
     BaseLight::Ptr light0 = m_Lights[0];
-    glm::vec3 lightDir0 = light0->getLightPosition();
+    glm::vec3 lightPosition0 = light0->getLightPosition();
     glm::vec3 lightColor0 = light0->getLightColor();
 
     // Render shadowmap first
-    glCullFace(GL_FRONT);
     m_ShadowmapRT->bind();
     std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
     m_ShadowCasterMat->use();
-    glm::mat4 light0Projection = glm::ortho(-5.0f, 5.0f, 5.0f, -5.0f, -15.0f, 20.0f);
-    glm::mat4 light0ViewMatrix = glm::lookAt(-lightDir0 * 10.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 worldToLight = light0Projection * light0ViewMatrix;
-    m_ShadowCasterMat->setMatrix("projection", light0Projection);
-    m_ShadowCasterMat->setMatrix("view", light0ViewMatrix);
+    glm::mat4 light0Projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
+    glm::mat4 light0ViewMatrix = glm::lookAt(lightPosition0, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightVP = light0Projection * light0ViewMatrix;
     for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
     {
         RenderCommand::Ptr command = shadowCasterCommands[i];
-        m_ShadowCasterMat->setMatrix("model", command->Transform);
+        m_ShadowCasterMat->setMatrix("uLightMVP", lightVP * command->Transform);
         renderMesh(command->Mesh);
     }
-    glCullFace(GL_BACK);
 
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
@@ -348,10 +344,10 @@ void SceneRenderGraph::executeCommandBuffer()
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(v[0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(p[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(lightDir0.x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(lightPosition0.x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(lightColor0.x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(worldToLight[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightVP[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Bind intermediate framebuffer
@@ -395,6 +391,7 @@ void SceneRenderGraph::executeCommandBuffer()
     }
 
     blit(m_IntermediateRT->getColorTexture(0), nullptr, m_BlitMat);
+//    blit(m_ShadowmapRT->getDepthTexture(), nullptr, m_BlitMat);
 }
 
 void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)

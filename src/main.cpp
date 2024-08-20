@@ -90,13 +90,14 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/buster_drone/busterDrone.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/AnisotropyBarnLamp/glTF/AnisotropyBarnLamp.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/FlightHelmet/glTF/FlightHelmet.gltf");
+//    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+//     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/buster_drone/busterDrone.gltf");
+//     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/FlightHelmet/glTF/FlightHelmet.gltf");
+    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
+//    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/cube/cube2.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
-    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.1f, 1000.0f);
+    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.001f, 1000.0f);
     m_SceneRenderGraph->setCamera(camera);
 
     // Get the real size in pixels
@@ -105,7 +106,7 @@ int main()
     glViewport(0, 0, width, height);
     m_SceneRenderGraph->setRenderSize(width, height);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(0.74f, 0.64f, 0.2f), glm::vec3(16.0f, 16.0f, 16.0f));
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(2.0f, 4.0f, 1.0f), glm::vec3(16.0f, 16.0f, 16.0f));
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))
