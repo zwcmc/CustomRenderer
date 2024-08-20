@@ -62,12 +62,12 @@ vec3 NeutralTonemapping(vec3 color)
     float peak = max(color.r, max(color.g, color.b));
     if (peak < startCompression) return color;
 
-    const float d = 1. - startCompression;
-    float newPeak = 1. - d * d / (peak + d - startCompression);
+    const float d = 1.0 - startCompression;
+    float newPeak = 1.0 - d * d / (peak + d - startCompression);
     color *= newPeak / peak;
 
-    float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
-    return mix(color, newPeak * vec3(1, 1, 1), g);
+    float g = 1.0 - 1.0 / (desaturation * (peak - newPeak) + 1.0);
+    return mix(color, newPeak * vec3(1.0), g);
 }
 
 #endif

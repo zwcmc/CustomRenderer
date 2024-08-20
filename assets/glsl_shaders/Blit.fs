@@ -13,7 +13,7 @@ void main()
     vec4 color = texture(uSource, UV0);
 
     // HDR tonemapping
-    color.rgb = ACESFilm(color.rgb);
+    color.rgb = NeutralTonemapping(color.rgb);
 
     // Gamma correction in final blit
     color = GammaCorrection(color);
