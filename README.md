@@ -25,7 +25,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Skybox
   - [x] With Cubemap texture
   - [x] With Radiance HDR texture (Need rendered-to-cubemap first)
-- [ ] Tonemapping
+- [x] Tonemapping
 - [x] Image Based Lighting
   - [x] Irradiance Cubemap
   - [x] Pre-filterd Cubemap
