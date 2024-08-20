@@ -15,6 +15,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Alpha Blend
   - [x] Alpha Cutoff
   - [x] Double Sided Rendering (Face Culling)
+- [ ] Implement Assimp for loading OBJ files
 - [x] Arcball Camera
 - [x] Blinn-Phong Lighting
 - [ ] Physically Based Rendering
@@ -31,6 +32,8 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Pre-filterd Cubemap
   - [x] Pre-computing environment BRDF LUT
 - [x] Main Light Shadow Mapping
+  - [ ] PCF (Percentage Closer Filter)
+  - [ ] PCSS (Percentage Closer Soft Shadow)
   - [ ] Cascaded Shadow Mapping
 - [ ] Bloom
 - [ ] FXAA
