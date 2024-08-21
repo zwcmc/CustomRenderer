@@ -316,6 +316,8 @@ void SceneRenderGraph::executeCommandBuffer()
     glm::vec3 lightColor0 = light0->getLightColor();
 
     // Render shadowmap first
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(2.0f, 2.5f);
     m_ShadowmapRT->bind();
     std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
     m_ShadowCasterMat->use();
@@ -328,6 +330,7 @@ void SceneRenderGraph::executeCommandBuffer()
         m_ShadowCasterMat->setMatrix("uLightMVP", lightVP * command->Transform);
         renderMesh(command->Mesh);
     }
+    glDisable(GL_POLYGON_OFFSET_FILL);
 
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();

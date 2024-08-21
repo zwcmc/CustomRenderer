@@ -65,7 +65,6 @@ vec4 getShadowCoord(vec3 positionWS)
     vec4 shadowCoord = worldToShadow * vec4(positionWS, 1.0);
     shadowCoord.xyz /= shadowCoord.w;
     shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
-    shadowCoord.z -= 0.001; // shadow bias
     return shadowCoord;
 }
 
