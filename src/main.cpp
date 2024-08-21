@@ -90,18 +90,20 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-//     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/buster_drone/busterDrone.gltf");
+//     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+//    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/buster_drone/busterDrone.gltf");
 //     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
 //     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/cube/cube2.gltf");
-     m_SceneRenderGraph->pushRenderNode(renderNode);
+//     m_SceneRenderGraph->pushRenderNode(renderNode);
 
-//    RenderNode::Ptr marry = AssetsLoader::loadObj("models/obj/mary/Marry.obj");
-//    m_SceneRenderGraph->pushRenderNode(marry);
+    RenderNode::Ptr marry = AssetsLoader::loadObj("models/obj/mary/Marry.obj");
+    marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->pushRenderNode(marry);
 
-//    RenderNode::Ptr floor = AssetsLoader::loadObj("models/obj/floor/floor.obj");
-//    m_SceneRenderGraph->pushRenderNode(floor);
+    RenderNode::Ptr floor = AssetsLoader::loadObj("models/obj/floor/floor.obj");
+    floor->translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->pushRenderNode(floor);
 
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.001f, 1000.0f);
     m_SceneRenderGraph->setCamera(camera);
@@ -112,7 +114,7 @@ int main()
     glViewport(0, 0, width, height);
     m_SceneRenderGraph->setRenderSize(width, height);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(2.0f, 4.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(2.0f, 4.0f, 1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))

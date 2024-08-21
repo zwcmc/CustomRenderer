@@ -17,6 +17,10 @@ public:
     glm::mat4 getModelMatrix();
 
     void setOverrideMaterial(Material::Ptr mat);
+    
+    void translate(const glm::vec3 &p);
+    void rotate(const glm::vec3 &axis, const float &radians);
+    void scale(const glm::vec3 &scale);
 
     std::vector<MeshRender::Ptr> MeshRenders;
     glm::mat4 ModelMatrix;
@@ -27,4 +31,6 @@ public:
     std::vector<Texture2D::Ptr> NodeTextures;
 
     Material::Ptr OverrideMat;
+    
+    glm::mat4 Transform;
 };
