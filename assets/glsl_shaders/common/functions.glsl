@@ -2,6 +2,7 @@
 #define FUNCTIONS_GLSL
 
 #include "common/constants.glsl"
+#include "common/uniforms.glsl"
 
 float sqr(float x)
 {
@@ -58,6 +59,33 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 
     vec3 sampleVec = T * H.x + B * H.y + N * H.z;
     return normalize(sampleVec);
+}
+
+vec3 getNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
+{
+    vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
+
+    vec3 ddxPos = dFdx(positionWS);
+    vec3 ddyPos = dFdy(positionWS);
+    vec2 ddxUV = dFdx(uv);
+    vec2 ddyUV = dFdy(uv);
+
+    vec3 N = normalize(normalWS);
+    vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
+    // vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
+    vec3 B = normalize(cross(N, T));
+
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
+
+vec4 getShadowCoord(vec3 positionWS)
+{
+    vec4 shadowCoord = worldToShadow * vec4(positionWS, 1.0);
+    shadowCoord.xyz /= shadowCoord.w;
+    shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
+    return shadowCoord;
 }
 
 #endif

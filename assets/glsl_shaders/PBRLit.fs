@@ -8,8 +8,8 @@ in VertexData
     vec3 PositionWS;
 } fs_in;
 
-uniform sampler2D uAlbedoMap;
-uniform float uAlbedoMapSet;
+uniform sampler2D uBaseMap;
+uniform float uBaseMapSet;
 uniform vec4 uBaseColor;
 
 uniform sampler2D uNormalMap;
@@ -41,36 +41,9 @@ uniform sampler2DShadow uShadowmap;
 #include "common/functions.glsl"
 #include "shader_library/shadows.glsl"
 
-vec3 getNormalWS()
-{
-    vec3 tangentNormal = texture(uNormalMap, fs_in.UV0).xyz * 2.0 - 1.0;
-
-    vec3 ddxPos = dFdx(fs_in.PositionWS);
-    vec3 ddyPos = dFdy(fs_in.PositionWS);
-    vec2 ddxUV = dFdx(fs_in.UV0);
-    vec2 ddyUV = dFdy(fs_in.UV0);
-
-    vec3 N = normalize(fs_in.Normal);
-    vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
-    // vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
-    vec3 B = normalize(cross(N, T));
-
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
-}
-
-vec4 getShadowCoord(vec3 positionWS)
-{
-    vec4 shadowCoord = worldToShadow * vec4(positionWS, 1.0);
-    shadowCoord.xyz /= shadowCoord.w;
-    shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
-    return shadowCoord;
-}
-
 void main()
 {
-    vec4 baseColor = uAlbedoMapSet > 0.0 ? SRGBtoLINEAR(texture(uAlbedoMap, fs_in.UV0)) * uBaseColor : uBaseColor;
+    vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
 
     if (uAlphaTestSet > 0.0)
     {
@@ -90,7 +63,7 @@ void main()
         perceptualRoughness *= metallicRoughness.g;
     }
 
-    vec3 N = uNormalMapSet > 0.0 ? getNormalWS() : normalize(fs_in.Normal);
+    vec3 N = uNormalMapSet > 0.0 ? getNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
     vec3 V = normalize(cameraPos - fs_in.PositionWS);
     vec3 L = normalize(lightPosition0);
     vec3 H = normalize(L + V);

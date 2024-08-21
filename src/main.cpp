@@ -90,10 +90,10 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/buster_drone/busterDrone.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/FlightHelmet/glTF/FlightHelmet.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/cube/cube2.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
@@ -106,7 +106,7 @@ int main()
     glViewport(0, 0, width, height);
     m_SceneRenderGraph->setRenderSize(width, height);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(2.0f, 4.0f, 1.0f), glm::vec3(16.0f, 16.0f, 16.0f));
+    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(2.0f, 4.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))

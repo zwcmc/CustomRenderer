@@ -456,19 +456,19 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf
                 }
 
                 glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
-                Material::Ptr meshMat = Material::New("PBRLit", "glsl_shaders/PBRLit.vs", "glsl_shaders/PBRLit.fs");
+                Material::Ptr meshMat = Material::New("PBRLit", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
                 if (glTFMatData->baseColorTexture)
                 {
-                    meshMat->addOrSetTexture("uAlbedoMap", glTFMatData->baseColorTexture);
+                    meshMat->addOrSetTexture("uBaseMap", glTFMatData->baseColorTexture);
                 }
-                meshMat->addOrSetFloat("uAlbedoMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
+                meshMat->addOrSetFloat("uBaseMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
                 meshMat->addOrSetVector("uBaseColor", glTFMatData->baseColorFactor);
 
                 if (glTFMatData->normalTexture)
                     meshMat->addOrSetTexture("uNormalMap", glTFMatData->normalTexture);
                 meshMat->addOrSetFloat("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
 
-                if (glTFMatData->emissiveTexture)
+                /*if (glTFMatData->emissiveTexture)
                 {
                     meshMat->addOrSetTexture("uEmissiveMap", glTFMatData->emissiveTexture);
                     meshMat->addOrSetVector("uEmissiveColor", glTFMatData->emissiveFactor);
@@ -493,7 +493,7 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf
 
                 meshMat->setAlphaMode(glTFMatData->alphaMode);
                 meshMat->addOrSetFloat("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-                meshMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);
+                meshMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);*/
 
                 node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), meshMat));
             }
