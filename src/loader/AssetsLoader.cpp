@@ -6,6 +6,9 @@
 
 #include <ktx.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+
 #include "base/Material.h"
 
 std::vector<AssetsLoader::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
@@ -531,4 +534,170 @@ std::string AssetsLoader::readShader(std::ifstream &file, const std::string &nam
         }
     }
     return source;
+}
+
+RenderNode::Ptr AssetsLoader::loadObj(const std::string &filePath)
+{
+    std::string newPath = getAssetsPath() + filePath;
+
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(newPath, aiProcess_Triangulate);
+
+    if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+    {
+        std::cerr << "Assimp: load file error, error message: " << importer.GetErrorString() << std::endl;
+        return nullptr;
+    }
+
+    std::string directory = filePath.substr(0, filePath.find_last_of("/"));
+    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory);
+}
+
+RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory)
+{
+    RenderNode::Ptr node = RenderNode::New();
+
+    for (size_t i = 0; i < aNode->mNumMeshes; ++i)
+    {
+        aiMesh* assimpMesh = aScene->mMeshes[aNode->mMeshes[i]];
+        aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
+
+        Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene);
+        Material::Ptr mat = AssetsLoader::parseMaterial(assimpMat, aScene, directory);
+
+        node->MeshRenders.push_back(MeshRender::New(mesh, mat));
+    }
+
+    // also recursively parse this node's children 
+    for (unsigned int i = 0; i < aNode->mNumChildren; ++i)
+    {
+        node->Children.push_back(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory));
+    }
+
+    return node;
+}
+
+Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
+{
+    // Vertices
+    std::vector<vec3> vertices;
+    std::vector<vec2> texcoords;
+    std::vector<vec3> normals;
+    std::vector<unsigned int> indices;
+
+    vertices.resize(aMesh->mNumVertices);
+    texcoords.resize(aMesh->mNumVertices);
+    normals.resize(aMesh->mNumVertices);
+    // assume a constant of 3 vertex indices per face as we always "aiProcess_Triangulate" in Assimp's post-processing step
+    indices.resize(aMesh->mNumFaces * 3);
+
+    for (size_t i = 0; i < aMesh->mNumVertices; ++i)
+    {
+        vertices.push_back(glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z));
+        texcoords.push_back(aMesh->mTextureCoords[0] ? glm::vec2(aMesh->mTextureCoords[0][i].x, aMesh->mTextureCoords[0][i].y) : glm::vec2(0.0f));
+        normals.push_back(glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z));
+    }
+
+    for (size_t f = 0; f < aMesh->mNumFaces; ++f)
+    {
+        for (size_t i = 0; i < 3; ++i)
+        {
+            indices[f * 3 + i] = aMesh->mFaces[f].mIndices[i];
+        }
+    }
+
+    return Mesh::New(vertices, texcoords, normals, indices);
+}
+
+Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
+{
+    Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
+
+    aiString texturePath;
+    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
+    {
+        Texture2D::Ptr baseMapTexture = AssetsLoader::loadTexture("uBaseMap", directory + "/" + texturePath.C_Str(), true);
+        mat->addOrSetTexture(baseMapTexture);
+        mat->addOrSetFloat("uBaseMapSet", 1.0f);
+    }
+    else
+    {
+        mat->addOrSetFloat("uBaseMapSet", -1.0f);
+    }
+
+    aiColor4D color;
+    if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_DIFFUSE, &color))
+    {
+        mat->addOrSetVector("uBaseColor", glm::vec4(color.r, color.g, color.b, color.a));
+    }
+    else
+    {
+        mat->addOrSetVector("uBaseColor", glm::vec4(1.0f));
+    }
+
+    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
+    {
+        Texture2D::Ptr normalMapTexture = AssetsLoader::loadTexture("uNormalMap", directory + "/" + texturePath.C_Str(), true);
+        mat->addOrSetTexture(normalMapTexture);
+        mat->addOrSetFloat("uNormalMapSet", 1.0f);
+    }
+    else
+    {
+        mat->addOrSetFloat("uNormalMapSet", -1.0f);
+    }
+
+    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
+    {
+        std::cout << "emission: " << texturePath.C_Str() << std::endl;
+    }
+
+    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
+    {
+        std::cout << "metallic: " << texturePath.C_Str() << std::endl;
+    }
+
+    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath))
+    {
+        std::cout << "roughness: " << texturePath.C_Str() << std::endl;
+    }
+
+    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &texturePath))
+    {
+        std::cout << "ao: " << texturePath.C_Str() << std::endl;
+    }
+
+    /*if (aMaterial->GetTextureCount(aiTextureType_NORMALS) > 0)
+    {
+        aiString file;
+        aMaterial->GetTexture(aiTextureType_NORMALS, 0, &file);
+        std::cout << "normal: " << file.C_Str() << std::endl;
+    }
+
+    if (aMaterial->GetTextureCount(aiTextureType_EMISSIVE) > 0)
+    {
+        aiString file;
+        aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &file);
+        std::cout << "emission: " << file.C_Str() << std::endl;
+    }
+
+    if (aMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
+    {
+        aiString file;
+        aMaterial->GetTexture(aiTextureType_METALNESS, 0, &file);
+        std::cout << "metallic: " << file.C_Str() << std::endl;
+    }
+    if (aMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+    {
+        aiString file;
+        aMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &file);
+        std::cout << "roughness: " << file.C_Str() << std::endl;
+    }
+    if (aMaterial->GetTextureCount(aiTextureType_LIGHTMAP) > 0)
+    {
+        aiString file;
+        aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &file);
+        std::cout << "ao: " << file.C_Str() << std::endl;
+    }*/
+
+    return mat;
 }

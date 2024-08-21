@@ -82,7 +82,7 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
     m_Lights.push_back(light);
 
     // Add a new render command for render light
-    addRenderLightCommand(light);
+    // addRenderLightCommand(light);
 }
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
@@ -227,7 +227,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     glGenFramebuffers(1, &m_FrameBufferID);
     glGenRenderbuffers(1, &m_CubemapDepthRenderBufferID);
 
-    m_Cube = AssetsLoader::load_glTF("models/Box/glTF-Binary/Box.glb");
+    m_Cube = AssetsLoader::load_glTF("models/glTF/Box/glTF-Binary/Box.glb");
     m_EnvironmentCubemap = TextureCube::New("uEnvironmentCubemap");
 
     std::string fileExt;
@@ -408,8 +408,11 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
     }
 
     mat->use();
-    mat->setMatrix("uModelMatrix", command->Transform);
-    mat->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(command->Transform)));
+    glm::mat4 trans = glm::mat4(1.0);
+    trans = glm::translate(trans, glm::vec3(0.0f));
+    trans = glm::scale(trans, glm::vec3(10.0f));
+    mat->setMatrix("uModelMatrix", trans);
+    mat->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(trans)));
 
     renderMesh(mesh);
 }

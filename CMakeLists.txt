@@ -104,6 +104,10 @@ target_link_libraries(${PROJECT_NAME} ktx)
 # define KTX_OPENGL for ktx in glloader.c
 add_definitions(-DKTX_OPENGL=1)
 
+# assimp
+add_subdirectory(third_party/assimp)
+target_link_libraries(${PROJECT_NAME} assimp)
+
 # # imgui
 # add_subdirectory(third_party/imgui)
 # target_link_libraries(${PROJECT_NAME} imgui)

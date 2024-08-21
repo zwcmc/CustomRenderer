@@ -90,11 +90,15 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/buster_drone/busterDrone.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/FlightHelmet/glTF/FlightHelmet.gltf");
-    RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/cube/cube2.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/buster_drone/busterDrone.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/cube/cube2.gltf");
+    // m_SceneRenderGraph->pushRenderNode(renderNode);
+
+    //RenderNode::Ptr renderNode = AssetsLoader::loadObj("models/obj/mary/Marry.obj");
+    RenderNode::Ptr renderNode = AssetsLoader::loadObj("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
     m_SceneRenderGraph->pushRenderNode(renderNode);
 
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.001f, 1000.0f);
