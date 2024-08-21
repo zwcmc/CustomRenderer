@@ -60,6 +60,15 @@ vec3 getNormalWS()
     return normalize(TBN * tangentNormal);
 }
 
+vec4 getShadowCoord(vec3 positionWS)
+{
+    vec4 shadowCoord = worldToShadow * vec4(positionWS, 1.0);
+    shadowCoord.xyz /= shadowCoord.w;
+    shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
+    shadowCoord.z -= 0.001; // shadow bias
+    return shadowCoord;
+}
+
 void main()
 {
     vec4 baseColor = uAlbedoMapSet > 0.0 ? SRGBtoLINEAR(texture(uAlbedoMap, fs_in.UV0)) * uBaseColor : uBaseColor;
@@ -93,9 +102,9 @@ void main()
     float LdotH = max(dot(L, H), 0.0);
 
 
-    // Main light
-    vec4 shadowCoord = worldToShadow * vec4(fs_in.PositionWS, 1.0);
-    float shadowAtten = sampleShadowmap(uShadowmap, shadowCoord);
+    // Main light shadow
+    vec4 shadowCoord = getShadowCoord(fs_in.PositionWS);
+    float shadowAtten = sampleShadowmapTent5x5(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 
