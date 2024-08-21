@@ -32,7 +32,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Pre-filterd Cubemap
   - [x] Pre-computing environment BRDF LUT
 - [x] Main Light Shadow Mapping
-  - [ ] PCF (Percentage Closer Filter)
+  - [x] PCF (Percentage Closer Filter)
   - [ ] PCSS (Percentage Closer Soft Shadow)
   - [ ] Cascaded Shadow Mapping
 - [ ] Bloom
