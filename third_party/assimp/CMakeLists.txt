@@ -61,7 +61,7 @@ PROJECT(Assimp VERSION 5.4.1)
 
 OPTION( BUILD_SHARED_LIBS
   "Build package with shared libraries."
-  ON
+  OFF
 )
 OPTION( ASSIMP_BUILD_FRAMEWORK
   "Build package as Mac OS X Framework bundle."
@@ -105,7 +105,7 @@ OPTION( ASSIMP_INSTALL
 )
 OPTION ( ASSIMP_WARNINGS_AS_ERRORS
   "Treat all warnings as errors."
-  ON
+  OFF
 )
 OPTION ( ASSIMP_ASAN
   "Enable AddressSanitizer."
