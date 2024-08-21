@@ -11,11 +11,12 @@ class RenderTarget
     SHARED_PTR(RenderTarget)
 public:
     RenderTarget(const unsigned int &width, const unsigned int &height, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1,
-        bool depthAndStencil = false);
-    RenderTarget(const glm::u32vec2 &size, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1, bool depthAndStencil = false);
+        bool depthAndStencil = false, bool isShadowmap = false);
+    RenderTarget(const glm::u32vec2 &size, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1, bool depthAndStencil = false, bool isShadowmap = false);
 
     Texture2D::Ptr getColorTexture(const unsigned int &index);
-    Texture2D::Ptr getDepthTexture();
+    Texture2D::Ptr getDepthAndStencilTexture();
+    Texture2D::Ptr getShadowmapTexture();
 
     glm::u32vec2& getSize() { return m_Size; }
     void resize(const glm::u32vec2 &size);
@@ -27,6 +28,8 @@ private:
     glm::u32vec2 m_Size;
 
     bool m_HasDepthAndStencil;
+    bool m_IsShadowmap;
     std::vector<Texture2D::Ptr> m_ColorAttachments;
     Texture2D::Ptr m_DepthStencilAttachment;
+    Texture2D::Ptr m_ShadowmapAttachment;
 };

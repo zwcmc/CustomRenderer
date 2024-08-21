@@ -58,14 +58,7 @@ void SceneRenderGraph::init()
     buildSkyboxRenderCommands();
 
     // Main light shadowmap
-    m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 1, true);
-    m_ShadowmapRT->getDepthTexture()->setFilterMode(GL_NEAREST, GL_NEAREST);
-    m_ShadowmapRT->getDepthTexture()->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-    m_ShadowmapRT->getDepthTexture()->bind();
-    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    m_ShadowmapRT->getDepthTexture()->unbind();
-
+    m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
     m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vs", "glsl_shaders/ShadowCaster.fs");
 }
 
@@ -391,7 +384,7 @@ void SceneRenderGraph::executeCommandBuffer()
     }
 
     blit(m_IntermediateRT->getColorTexture(0), nullptr, m_BlitMat);
-//    blit(m_ShadowmapRT->getDepthTexture(), nullptr, m_BlitMat);
+//    blit(m_ShadowmapRT->getShadowmapTexture(), nullptr, m_BlitMat);
 }
 
 void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
@@ -408,7 +401,7 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
 
     if (mat->getMaterialCastShadows())
     {
-        mat->addOrSetTexture("uMainLightShadowmap", m_ShadowmapRT->getDepthTexture());
+        mat->addOrSetTexture(m_ShadowmapRT->getShadowmapTexture());
     }
 
     mat->use();

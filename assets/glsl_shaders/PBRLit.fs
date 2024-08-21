@@ -35,7 +35,7 @@ uniform samplerCube uIrradianceCubemap;
 uniform samplerCube uPrefilteredCubemap;
 uniform sampler2D uBRDFLUT;
 
-uniform sampler2D uMainLightShadowmap;
+uniform sampler2D uShadowmap;
 
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"
@@ -102,7 +102,7 @@ void main()
     // Main light
     vec3 shadowCoord = fs_in.PosLightSpace.xyz / fs_in.PosLightSpace.w;
     shadowCoord = shadowCoord * 0.5 + 0.5;
-    float shadowAtten = sampleShadowmap(uMainLightShadowmap, vec4(shadowCoord, 1.0));
+    float shadowAtten = sampleShadowmap(uShadowmap, vec4(shadowCoord, 1.0));
 
     vec3 radiance = lightColor0 * shadowAtten;
 
