@@ -61,7 +61,7 @@ private:
     static void load_glTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, RenderNode::Ptr parent);
     static std::string readShader(std::ifstream &file, const std::string &name);
 
-    static RenderNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory);
+    static RenderNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, RenderNode::Ptr parent);
     static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene);
     static Material::Ptr parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
 

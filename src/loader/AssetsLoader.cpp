@@ -8,6 +8,7 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include <assimp/GltfMaterial.h>
 
 #include "base/Material.h"
 
@@ -408,11 +409,14 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf
                         normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                     }
 
+                    vertices.resize(vertexCount);
+                    texcoords.resize(vertexCount);
+                    normals.resize(vertexCount);
                     for (size_t i = 0; i < vertexCount; ++i)
                     {
-                        vertices.push_back(glm::make_vec3(&vertexBuffer[i * 3]));
-                        texcoords.push_back(texcoordBuffer ? glm::make_vec2(&texcoordBuffer[i * 2]) : glm::vec2(0.0f));
-                        normals.push_back(glm::normalize(normalsBuffer ? glm::make_vec3(&normalsBuffer[i * 3]) : glm::vec3(0.0f)));
+                        vertices[i] = glm::make_vec3(&vertexBuffer[i * 3]);
+                        texcoords[i] = texcoordBuffer ? glm::make_vec2(&texcoordBuffer[i * 2]) : glm::vec2(0.0f);
+                        normals[i] = glm::normalize(normalsBuffer ? glm::make_vec3(&normalsBuffer[i * 3]) : glm::vec3(0.0f));
                     }
                 }
 
@@ -422,44 +426,46 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf
                     const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.indices];
                     const tinygltf::BufferView &bufferView = input.bufferViews[accessor.bufferView];
                     const tinygltf::Buffer &buffer = input.buffers[bufferView.buffer];
+                    
+                    indices.resize(accessor.count);
 
                     switch (accessor.componentType)
                     {
-                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
-                    {
-                        const unsigned int* buf = reinterpret_cast<const unsigned int*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                        for (size_t i = 0; i < accessor.count; ++i)
+                        case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
                         {
-                            indices.push_back(buf[i]);
+                            const unsigned int* buf = reinterpret_cast<const unsigned int*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                            for (size_t i = 0; i < accessor.count; ++i)
+                            {
+                                indices[i] = buf[i];
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
-                    {
-                        const unsigned short* buf = reinterpret_cast<const unsigned short*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                        for (size_t i = 0; i < accessor.count; ++i)
+                        case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                         {
-                            indices.push_back(buf[i]);
+                            const unsigned short* buf = reinterpret_cast<const unsigned short*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                            for (size_t i = 0; i < accessor.count; ++i)
+                            {
+                                indices[i] = buf[i];
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
-                    {
-                        const unsigned char* buf = reinterpret_cast<const unsigned char*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                        for (size_t i = 0; i < accessor.count; ++i)
+                        case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
                         {
-                            indices.push_back(buf[i]);
+                            const unsigned char* buf = reinterpret_cast<const unsigned char*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                            for (size_t i = 0; i < accessor.count; ++i)
+                            {
+                                indices[i] = buf[i];
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    default:
-                        std::cerr << "Index component type " << accessor.componentType << " is not supported!" << std::endl;
-                        break;
+                        default:
+                            std::cerr << "Index component type " << accessor.componentType << " is not supported!" << std::endl;
+                            break;
                     }
                 }
 
                 glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
-                Material::Ptr meshMat = Material::New("PBRLit", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
+                Material::Ptr meshMat = Material::New("PBRLit", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
                 if (glTFMatData->baseColorTexture)
                 {
                     meshMat->addOrSetTexture("uBaseMap", glTFMatData->baseColorTexture);
@@ -471,7 +477,7 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf
                     meshMat->addOrSetTexture("uNormalMap", glTFMatData->normalTexture);
                 meshMat->addOrSetFloat("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
 
-                /*if (glTFMatData->emissiveTexture)
+                if (glTFMatData->emissiveTexture)
                 {
                     meshMat->addOrSetTexture("uEmissiveMap", glTFMatData->emissiveTexture);
                     meshMat->addOrSetVector("uEmissiveColor", glTFMatData->emissiveFactor);
@@ -496,7 +502,7 @@ void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf
 
                 meshMat->setAlphaMode(glTFMatData->alphaMode);
                 meshMat->addOrSetFloat("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-                meshMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);*/
+                meshMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);
 
                 node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), meshMat));
             }
@@ -550,12 +556,13 @@ RenderNode::Ptr AssetsLoader::loadObj(const std::string &filePath)
     }
 
     std::string directory = filePath.substr(0, filePath.find_last_of("/"));
-    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory);
+    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory, nullptr);
 }
 
-RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory)
+RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory, RenderNode::Ptr parent)
 {
     RenderNode::Ptr node = RenderNode::New();
+    node->Parent = parent;
     
     node->ModelMatrix = AssetsLoader::aiMatrix4x4ToGlmMat4(aNode->mTransformation);
 
@@ -573,7 +580,7 @@ RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aS
     // also recursively parse this node's children 
     for (unsigned int i = 0; i < aNode->mNumChildren; ++i)
     {
-        node->Children.push_back(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory));
+        node->Children.push_back(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory, node));
     }
 
     return node;
@@ -615,8 +622,10 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
 
 Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
-    Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
+//    Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
+    Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
 
+    // Base map
     aiString texturePath;
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
     {
@@ -629,6 +638,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetFloat("uBaseMapSet", -1.0f);
     }
 
+    // Base color
     aiColor4D color;
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_DIFFUSE, &color))
     {
@@ -639,6 +649,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetVector("uBaseColor", glm::vec4(1.0f));
     }
 
+    // Normal map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
     {
         Texture2D::Ptr normalMapTexture = AssetsLoader::loadTexture("uNormalMap", directory + "/" + texturePath.C_Str(), true);
@@ -650,58 +661,111 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetFloat("uNormalMapSet", -1.0f);
     }
 
+    // Emission
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
     {
-        std::cout << "emission: " << texturePath.C_Str() << std::endl;
+        Texture2D::Ptr emissiveMapTexture = AssetsLoader::loadTexture("uEmissiveMap", directory + "/" + texturePath.C_Str(), true);
+        mat->addOrSetTexture(emissiveMapTexture);
+        mat->addOrSetFloat("uEmissiveMapSet", 1.0f);
+    }
+    else
+    {
+        mat->addOrSetFloat("uEmissiveMapSet", -1.0f);
+    }
+    
+    // Emission color
+    if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_EMISSIVE, &color))
+    {
+        mat->addOrSetVector("uEmissiveColor", glm::vec3(color.r, color.g, color.b));
+    }
+    else
+    {
+        mat->addOrSetVector("uEmissiveColor", glm::vec3(1.0f));
     }
 
+    // Metallic roughness texture
+    // aiTextureType_METALNESS or aiTextureType_DIFFUSE_ROUGHNESS
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
     {
-        std::cout << "metallic: " << texturePath.C_Str() << std::endl;
+        Texture2D::Ptr metallicRoughnessTexture = AssetsLoader::loadTexture("uMetallicRoughnessMap", directory + "/" + texturePath.C_Str(), true);
+        mat->addOrSetTexture(metallicRoughnessTexture);
+        mat->addOrSetFloat("uMetallicRoughnessMapSet", 1.0f);
     }
-
-    if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath))
+    else
     {
-        std::cout << "roughness: " << texturePath.C_Str() << std::endl;
+        mat->addOrSetFloat("uMetallicRoughnessMapSet", -1.0f);
+    }
+    
+    // Metallic factor
+    ai_real valueFactor;
+    if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_METALLIC_FACTOR, &valueFactor))
+    {
+        mat->addOrSetFloat("uMetallicFactor", valueFactor);
+    }
+    else
+    {
+        mat->addOrSetFloat("uMetallicFactor", 0.0f);
+    }
+    
+    // Roughness factor
+    if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_ROUGHNESS_FACTOR, &valueFactor))
+    {
+        mat->addOrSetFloat("uRoughnessFactor", valueFactor);
+    }
+    else
+    {
+        mat->addOrSetFloat("uRoughnessFactor", 0.8f);
     }
 
+    // Occlusion map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &texturePath))
     {
-        std::cout << "ao: " << texturePath.C_Str() << std::endl;
+        Texture2D::Ptr lightmap = AssetsLoader::loadTexture("uOcclusionMap", directory + "/" + texturePath.C_Str(), true);
+        mat->addOrSetTexture(lightmap);
+        mat->addOrSetFloat("uOcclusionMapSet", 1.0f);
     }
-
-    /*if (aMaterial->GetTextureCount(aiTextureType_NORMALS) > 0)
+    else
     {
-        aiString file;
-        aMaterial->GetTexture(aiTextureType_NORMALS, 0, &file);
-        std::cout << "normal: " << file.C_Str() << std::endl;
+        mat->addOrSetFloat("uOcclusionMapSet", -1.0f);
     }
-
-    if (aMaterial->GetTextureCount(aiTextureType_EMISSIVE) > 0)
+    
+    // Cull face
+    int two_sided;
+    if((AI_SUCCESS == aiGetMaterialInteger(aMaterial, AI_MATKEY_TWOSIDED, &two_sided)) && two_sided)
     {
-        aiString file;
-        aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &file);
-        std::cout << "emission: " << file.C_Str() << std::endl;
+        mat->setDoubleSided(true);
     }
-
-    if (aMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
+    else
     {
-        aiString file;
-        aMaterial->GetTexture(aiTextureType_METALNESS, 0, &file);
-        std::cout << "metallic: " << file.C_Str() << std::endl;
+        mat->setDoubleSided(false);
     }
-    if (aMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+    
+    aiString alphaMode("OPAQUE");
+    Material::AlphaMode mode = Material::AlphaMode::DEFAULT_OPAQUE;
+    if (AI_SUCCESS == aiGetMaterialString(aMaterial, AI_MATKEY_GLTF_ALPHAMODE, &alphaMode))
     {
-        aiString file;
-        aMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &file);
-        std::cout << "roughness: " << file.C_Str() << std::endl;
+        std::string m = alphaMode.C_Str();
+        if (m == "MASK")
+        {
+            mode = Material::AlphaMode::MASK;
+        }
+        else if (m == "BLEND")
+        {
+            mode = Material::AlphaMode::BLEND;
+        }
     }
-    if (aMaterial->GetTextureCount(aiTextureType_LIGHTMAP) > 0)
+    mat->setAlphaMode(mode);
+    mat->addOrSetFloat("uAlphaTestSet", mode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
+    
+    // Alpha cuteoff
+    if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_GLTF_ALPHACUTOFF, &valueFactor))
     {
-        aiString file;
-        aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &file);
-        std::cout << "ao: " << file.C_Str() << std::endl;
-    }*/
+        mat->addOrSetFloat("uAlphaCutoff", valueFactor);
+    }
+    else
+    {
+        mat->addOrSetFloat("uAlphaCutoff", 0.5f);
+    }
 
     return mat;
 }
