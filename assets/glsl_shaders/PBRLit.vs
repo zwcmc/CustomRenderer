@@ -13,8 +13,7 @@ out VertexData
 {
     vec2 UV0;
     vec3 Normal;
-    vec3 WorldPos;
-    vec4 PosLightSpace;
+    vec3 PositionWS;
 } vs_out;
 
 void main()
@@ -24,9 +23,7 @@ void main()
     // transpose(uModelMatrixInverse) * vNormal = vNormal * uModelMatrixInverse
     vs_out.Normal = vNormal * uModelMatrixInverse;
 
-    vs_out.WorldPos = vec3(uModelMatrix * vec4(vPosition, 1.0));
+    vs_out.PositionWS = vec3(uModelMatrix * vec4(vPosition, 1.0));
 
-    vs_out.PosLightSpace = mainLightVP * vec4(vs_out.WorldPos, 1.0);
-
-    gl_Position = projectionMatrix * viewMatrix * vec4(vs_out.WorldPos, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * vec4(vs_out.PositionWS, 1.0);
 }

@@ -2,7 +2,7 @@
 out vec4 FragColor;
 
 #include "common/functions.glsl"
-#include "common/tonemapping.glsl"
+#include "shader_library/tonemapping.glsl"
 
 in vec2 UV0;
 

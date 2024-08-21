@@ -8,7 +8,7 @@ layout (std140) uniform GlobalUniforms
     vec3 lightPosition0;
     vec3 lightColor0;
     vec3 cameraPos;
-    mat4 mainLightVP;
+    mat4 worldToShadow;
 };
 
 #endif

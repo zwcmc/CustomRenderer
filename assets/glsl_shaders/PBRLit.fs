@@ -5,8 +5,7 @@ in VertexData
 {
     vec2 UV0;
     vec3 Normal;
-    vec3 WorldPos;
-    vec4 PosLightSpace;
+    vec3 PositionWS;
 } fs_in;
 
 uniform sampler2D uAlbedoMap;
@@ -35,18 +34,19 @@ uniform samplerCube uIrradianceCubemap;
 uniform samplerCube uPrefilteredCubemap;
 uniform sampler2D uBRDFLUT;
 
-uniform sampler2D uShadowmap;
+uniform sampler2DShadow uShadowmap;
 
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
+#include "shader_library/shadows.glsl"
 
 vec3 getNormalWS()
 {
     vec3 tangentNormal = texture(uNormalMap, fs_in.UV0).xyz * 2.0 - 1.0;
 
-    vec3 ddxPos = dFdx(fs_in.WorldPos);
-    vec3 ddyPos = dFdy(fs_in.WorldPos);
+    vec3 ddxPos = dFdx(fs_in.PositionWS);
+    vec3 ddyPos = dFdy(fs_in.PositionWS);
     vec2 ddxUV = dFdx(fs_in.UV0);
     vec2 ddyUV = dFdy(fs_in.UV0);
 
@@ -58,12 +58,6 @@ vec3 getNormalWS()
     mat3 TBN = mat3(T, B, N);
 
     return normalize(TBN * tangentNormal);
-}
-
-float sampleShadowmap(sampler2D shadowmap, vec4 shadowCoord)
-{
-    float depth = texture(shadowmap, shadowCoord.xy).r;
-    return depth < shadowCoord.z - 0.001 ? 0.0 : 1.0;
 }
 
 void main()
@@ -89,7 +83,7 @@ void main()
     }
 
     vec3 N = uNormalMapSet > 0.0 ? getNormalWS() : normalize(fs_in.Normal);
-    vec3 V = normalize(cameraPos - fs_in.WorldPos);
+    vec3 V = normalize(cameraPos - fs_in.PositionWS);
     vec3 L = normalize(lightPosition0);
     vec3 H = normalize(L + V);
 
@@ -100,9 +94,8 @@ void main()
 
 
     // Main light
-    vec3 shadowCoord = fs_in.PosLightSpace.xyz / fs_in.PosLightSpace.w;
-    shadowCoord = shadowCoord * 0.5 + 0.5;
-    float shadowAtten = sampleShadowmap(uShadowmap, vec4(shadowCoord, 1.0));
+    vec4 shadowCoord = worldToShadow * vec4(fs_in.PositionWS, 1.0);
+    float shadowAtten = sampleShadowmap(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 

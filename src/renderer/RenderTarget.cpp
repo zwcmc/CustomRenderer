@@ -24,15 +24,14 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     if (isShadowmap)
     {
         m_ShadowmapAttachment = Texture2D::New("uShadowmap");
-        m_ShadowmapAttachment->initTexture2D(size, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-        m_ShadowmapAttachment->setFilterMode(GL_NEAREST, GL_NEAREST);
-        m_ShadowmapAttachment->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-        m_ShadowmapAttachment->bind();
-        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-        m_ShadowmapAttachment->unbind();
+        m_ShadowmapAttachment->initShadowmap(size);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_ShadowmapAttachment->getTextureID(), 0);
+
+        // Disable writes to the color buffer
+        glDrawBuffer(GL_NONE);
+        // Disable reads from the color buffer
+        glReadBuffer(GL_NONE);
     }
     else
     {

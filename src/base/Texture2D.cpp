@@ -100,3 +100,28 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
 
     unbind();
 }
+
+void Texture2D::initShadowmap(const glm::u32vec2 &size)
+{
+    m_Size = size;
+    m_InternalFormat = GL_DEPTH_COMPONENT32;
+    m_Format = GL_DEPTH_COMPONENT;
+    m_Type = GL_FLOAT;
+
+    glGenTextures(1, &m_TextureID);
+
+    bind();
+
+    glTexImage2D(m_Target, 0, m_InternalFormat, m_Size.x, m_Size.y, 0, m_Format, m_Type, nullptr);
+
+    glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(m_Target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    glTexParameteri(m_Target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+
+    unbind();
+}
