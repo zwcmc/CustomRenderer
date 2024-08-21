@@ -94,12 +94,14 @@ int main()
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/buster_drone/busterDrone.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    // RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/cube/cube2.gltf");
-    // m_SceneRenderGraph->pushRenderNode(renderNode);
+//     RenderNode::Ptr renderNode = AssetsLoader::load_glTF("models/glTF/cube/cube2.gltf");
+//     m_SceneRenderGraph->pushRenderNode(renderNode);
 
-    //RenderNode::Ptr renderNode = AssetsLoader::loadObj("models/obj/mary/Marry.obj");
-    RenderNode::Ptr renderNode = AssetsLoader::loadObj("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    m_SceneRenderGraph->pushRenderNode(renderNode);
+    RenderNode::Ptr marry = AssetsLoader::loadObj("models/obj/mary/Marry.obj");
+    m_SceneRenderGraph->pushRenderNode(marry);
+
+//    RenderNode::Ptr floor = AssetsLoader::loadObj("models/obj/floor/floor.obj");
+//    m_SceneRenderGraph->pushRenderNode(floor);
 
     ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.001f, 1000.0f);
     m_SceneRenderGraph->setCamera(camera);

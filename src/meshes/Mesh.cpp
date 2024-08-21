@@ -32,6 +32,14 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     initBuffers();
 }
 
+Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals)
+{
+    m_Vertices = vertices;
+    m_Texcoords = texcoords;
+    m_Normals = normals;
+    initBuffers();
+}
+
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices)
     : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
@@ -137,7 +145,7 @@ void Mesh::initBuffers()
     {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
-        offset += 3 * sizeof(float);
+        // offset += 3 * sizeof(float);
     }
 
     glBindVertexArray(0);

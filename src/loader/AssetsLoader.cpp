@@ -556,6 +556,8 @@ RenderNode::Ptr AssetsLoader::loadObj(const std::string &filePath)
 RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory)
 {
     RenderNode::Ptr node = RenderNode::New();
+    
+    node->ModelMatrix = AssetsLoader::aiMatrix4x4ToGlmMat4(aNode->mTransformation);
 
     for (size_t i = 0; i < aNode->mNumMeshes; ++i)
     {
@@ -584,25 +586,27 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
     std::vector<vec2> texcoords;
     std::vector<vec3> normals;
     std::vector<unsigned int> indices;
-
+    
     vertices.resize(aMesh->mNumVertices);
     texcoords.resize(aMesh->mNumVertices);
     normals.resize(aMesh->mNumVertices);
-    // assume a constant of 3 vertex indices per face as we always "aiProcess_Triangulate" in Assimp's post-processing step
+    
+    // Assume a constant of 3 vertex indices per face as always "aiProcess_Triangulate" in Assimp's post-processing step
     indices.resize(aMesh->mNumFaces * 3);
 
     for (size_t i = 0; i < aMesh->mNumVertices; ++i)
     {
-        vertices.push_back(glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z));
-        texcoords.push_back(aMesh->mTextureCoords[0] ? glm::vec2(aMesh->mTextureCoords[0][i].x, aMesh->mTextureCoords[0][i].y) : glm::vec2(0.0f));
-        normals.push_back(glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z));
+        vertices[i] = glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z);
+        texcoords[i] = aMesh->mTextureCoords[0] ? glm::vec2(aMesh->mTextureCoords[0][i].x, aMesh->mTextureCoords[0][i].y) : glm::vec2(0.0f);
+        normals[i] = glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z);
     }
 
     for (size_t f = 0; f < aMesh->mNumFaces; ++f)
     {
+        aiFace face = aMesh->mFaces[f];
         for (size_t i = 0; i < 3; ++i)
         {
-            indices[f * 3 + i] = aMesh->mFaces[f].mIndices[i];
+            indices[3 * f + i] = face.mIndices[i];
         }
     }
 

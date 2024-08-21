@@ -364,14 +364,12 @@ void SceneRenderGraph::executeCommandBuffer()
     glDepthFunc(GL_LEQUAL);
     // Depth write off
     glDepthMask(GL_FALSE);
-
     std::vector<RenderCommand::Ptr> skyboxCommands = m_CommandBuffer->getSkyboxCommands();
     for (size_t i = 0; i < skyboxCommands.size(); ++i)
     {
         RenderCommand::Ptr command = skyboxCommands[i];
         renderCommand(command);
     }
-
     // Depth write on
     glDepthMask(GL_TRUE);
     // Set back to less
@@ -408,11 +406,8 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
     }
 
     mat->use();
-    glm::mat4 trans = glm::mat4(1.0);
-    trans = glm::translate(trans, glm::vec3(0.0f));
-    trans = glm::scale(trans, glm::vec3(10.0f));
-    mat->setMatrix("uModelMatrix", trans);
-    mat->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(trans)));
+    mat->setMatrix("uModelMatrix", command->Transform);
+    mat->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(command->Transform)));
 
     renderMesh(mesh);
 }
