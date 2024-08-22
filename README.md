@@ -41,6 +41,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [ ] Deferred Rendering
 - [ ] SSAO
 - [ ] TAA
+- [ ] SSR
 
 ## References
 
