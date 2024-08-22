@@ -46,7 +46,7 @@ void SceneRenderGraph::init()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Mesh for rendering lights
-    m_LightMesh = Sphere::New(2, 2, 0.02f);
+    m_LightMesh = Sphere::New(16, 16, 0.02f);
 
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vert", "glsl_shaders/Blit.frag");
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
@@ -82,7 +82,7 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
     m_Lights.push_back(light);
 
     // Add a new render command for render light
-    // addRenderLightCommand(light);
+    addRenderLightCommand(light);
 }
 
 void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
