@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <map>
+
 #include <glm/glm.hpp>
 #include "tiny_gltf.h"
 #include <assimp/scene.h>
@@ -64,6 +67,7 @@ private:
     static RenderNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, RenderNode::Ptr parent);
     static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene);
     static Material::Ptr parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
+    static Texture2D::Ptr loadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
 
     inline static std::string getAssetsPath()
     {
@@ -105,4 +109,6 @@ private:
     }
 
     static std::vector<glTFMaterialData::Ptr> glTFMatDatas;
+
+    static std::map<std::string, Texture2D::Ptr> assimpTextures;
 };

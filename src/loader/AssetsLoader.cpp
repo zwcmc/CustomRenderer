@@ -13,6 +13,7 @@
 #include "base/Material.h"
 
 std::vector<AssetsLoader::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
+std::map<std::string, Texture2D::Ptr> AssetsLoader::assimpTextures = {};
 
 Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
 {
@@ -556,6 +557,9 @@ RenderNode::Ptr AssetsLoader::loadObj(const std::string &filePath)
     }
 
     std::string directory = filePath.substr(0, filePath.find_last_of("/"));
+
+
+    AssetsLoader::assimpTextures.clear();
     return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory, nullptr);
 }
 
@@ -563,7 +567,6 @@ RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aS
 {
     RenderNode::Ptr node = RenderNode::New();
     node->Parent = parent;
-    
     node->ModelMatrix = AssetsLoader::aiMatrix4x4ToGlmMat4(aNode->mTransformation);
 
     for (size_t i = 0; i < aNode->mNumMeshes; ++i)
@@ -629,8 +632,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     aiString texturePath;
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
     {
-        Texture2D::Ptr baseMapTexture = AssetsLoader::loadTexture("uBaseMap", directory + "/" + texturePath.C_Str(), true);
-        mat->addOrSetTexture(baseMapTexture);
+        mat->addOrSetTexture(AssetsLoader::loadAssimpTexture("uBaseMap", directory, texturePath.C_Str()));
         mat->addOrSetFloat("uBaseMapSet", 1.0f);
     }
     else
@@ -652,8 +654,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     // Normal map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
     {
-        Texture2D::Ptr normalMapTexture = AssetsLoader::loadTexture("uNormalMap", directory + "/" + texturePath.C_Str(), true);
-        mat->addOrSetTexture(normalMapTexture);
+        mat->addOrSetTexture(AssetsLoader::loadAssimpTexture("uNormalMap", directory, texturePath.C_Str()));
         mat->addOrSetFloat("uNormalMapSet", 1.0f);
     }
     else
@@ -664,8 +665,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     // Emission
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
     {
-        Texture2D::Ptr emissiveMapTexture = AssetsLoader::loadTexture("uEmissiveMap", directory + "/" + texturePath.C_Str(), true);
-        mat->addOrSetTexture(emissiveMapTexture);
+        mat->addOrSetTexture(AssetsLoader::loadAssimpTexture("uEmissiveMap", directory, texturePath.C_Str()));
         mat->addOrSetFloat("uEmissiveMapSet", 1.0f);
     }
     else
@@ -687,8 +687,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     // aiTextureType_METALNESS or aiTextureType_DIFFUSE_ROUGHNESS
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_METALNESS, 0, &texturePath))
     {
-        Texture2D::Ptr metallicRoughnessTexture = AssetsLoader::loadTexture("uMetallicRoughnessMap", directory + "/" + texturePath.C_Str(), true);
-        mat->addOrSetTexture(metallicRoughnessTexture);
+        mat->addOrSetTexture(AssetsLoader::loadAssimpTexture("uMetallicRoughnessMap", directory, texturePath.C_Str()));
         mat->addOrSetFloat("uMetallicRoughnessMapSet", 1.0f);
     }
     else
@@ -720,8 +719,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     // Occlusion map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &texturePath))
     {
-        Texture2D::Ptr lightmap = AssetsLoader::loadTexture("uOcclusionMap", directory + "/" + texturePath.C_Str(), true);
-        mat->addOrSetTexture(lightmap);
+        mat->addOrSetTexture(AssetsLoader::loadAssimpTexture("uOcclusionMap", directory, texturePath.C_Str()));
         mat->addOrSetFloat("uOcclusionMapSet", 1.0f);
     }
     else
@@ -768,4 +766,17 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     }
 
     return mat;
+}
+
+Texture2D::Ptr AssetsLoader::loadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath)
+{
+    auto it = AssetsLoader::assimpTextures.find(texturePath);
+    if (it != AssetsLoader::assimpTextures.end())
+    {
+        return it->second;
+    }
+
+    Texture2D::Ptr texture = AssetsLoader::loadTexture(textureName, directory + "/" + texturePath, true);
+    AssetsLoader::assimpTextures.insert(std::make_pair(texturePath, texture));
+    return texture;
 }
