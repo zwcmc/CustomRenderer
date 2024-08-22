@@ -48,7 +48,7 @@ void SceneRenderGraph::init()
     // Mesh for rendering lights
     m_LightMesh = Sphere::New(2, 2, 0.02f);
 
-    m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vs", "glsl_shaders/Blit.fs");
+    m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vert", "glsl_shaders/Blit.frag");
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Load environment cubemaps
@@ -59,7 +59,7 @@ void SceneRenderGraph::init()
 
     // Main light shadowmap
     m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
-    m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vs", "glsl_shaders/ShadowCaster.fs");
+    m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vert", "glsl_shaders/ShadowCaster.frag");
 }
 
 void SceneRenderGraph::setRenderSize(const int &width, const int &height)
@@ -96,7 +96,7 @@ void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
 void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
 {
     // TODO: All lights can share a single material
-    Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vs", "glsl_shaders/Emissive.fs");
+    Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vert", "glsl_shaders/Emissive.frag");
     lightMat->addOrSetVector("uEmissiveColor", light->getLightColor());
 
     // Only need to modify the translation column
@@ -110,7 +110,7 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
 
 void SceneRenderGraph::buildSkyboxRenderCommands()
 {
-    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Cube.vs", "glsl_shaders/Skybox.fs", true);
+    Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Cube.vert", "glsl_shaders/Skybox.frag", true);
     skyboxMat->setCastShadows(false);
     skyboxMat->addOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->setOverrideMaterial(skyboxMat);
@@ -217,7 +217,7 @@ void SceneRenderGraph::generateBRDFLUT()
 {
     m_BRDFLUTRT = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
     m_BRDFLUTRT->getColorTexture(0)->setTextureName("uBRDFLUT");
-    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vs", "glsl_shaders/GenerateBRDFLUT.fs");
+    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vert", "glsl_shaders/GenerateBRDFLUT.frag");
     blit(nullptr, m_BRDFLUTRT, generateBRDFLUTFMat);
 }
 
@@ -252,7 +252,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
         m_EnvironmentCubemap->defaultInit(environmentMap->getSize().y, environmentMap->getSize().y, GL_RGB32F, GL_RGB, GL_FLOAT);
 
         // Equirectangular map to a cubemap
-        Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Cube.vs", "glsl_shaders/HDRToCubemap.fs");
+        Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Cube.vert", "glsl_shaders/HDRToCubemap.frag");
         capMat->addOrSetTexture(environmentMap);
         m_Cube->setOverrideMaterial(capMat);
         renderToCubemap(m_EnvironmentCubemap, 0);
@@ -273,7 +273,7 @@ void SceneRenderGraph::generateCubemaps()
     m_IrradianceCubemap = TextureCube::New("uIrradianceCubemap");
     m_IrradianceCubemap->defaultInit(64, 64, GL_RGB32F, GL_RGB, GL_FLOAT);
 
-    Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "glsl_shaders/Cube.vs", "glsl_shaders/IrradianceCubemap.fs");
+    Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "glsl_shaders/Cube.vert", "glsl_shaders/IrradianceCubemap.frag");
     cubemapConvolutionMat->addOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->setOverrideMaterial(cubemapConvolutionMat);
     renderToCubemap(m_IrradianceCubemap, 0);
@@ -282,7 +282,7 @@ void SceneRenderGraph::generateCubemaps()
     m_PrefilteredCubemap = TextureCube::New("uPrefilteredCubemap");
     m_PrefilteredCubemap->defaultInit(512, 512, GL_RGBA32F, GL_RGB, GL_FLOAT, true);
 
-    Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "glsl_shaders/Cube.vs", "glsl_shaders/PrefilteredCubemap.fs");
+    Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "glsl_shaders/Cube.vert", "glsl_shaders/PrefilteredCubemap.frag");
     cubemapPrefilteredMat->addOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->setOverrideMaterial(cubemapPrefilteredMat);
 
