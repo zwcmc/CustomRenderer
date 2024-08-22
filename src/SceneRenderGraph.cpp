@@ -97,6 +97,7 @@ void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
 {
     // TODO: All lights can share a single material
     Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vert", "glsl_shaders/Emissive.frag");
+    lightMat->setCastShadows(false);
     lightMat->addOrSetVector("uEmissiveColor", light->getLightColor());
 
     // Only need to modify the translation column
