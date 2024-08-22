@@ -33,7 +33,7 @@ void main()
     float NdotL = max(dot(N, L), 0.0);
 
     vec4 shadowCoord = getShadowCoord(fs_in.PositionWS);
-    float shadowAtten = sampleShadowmapTent5x5(uShadowmap, shadowCoord);
+    float shadowAtten = sampleShadowmap(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 

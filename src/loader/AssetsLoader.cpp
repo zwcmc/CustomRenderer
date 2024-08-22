@@ -625,8 +625,8 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
 
 Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
-//    Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
-    Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
+    Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
+//    Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
 
     // Base map
     aiString texturePath;

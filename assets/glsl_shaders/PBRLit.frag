@@ -76,7 +76,7 @@ void main()
 
     // Main light shadow
     vec4 shadowCoord = getShadowCoord(fs_in.PositionWS);
-    float shadowAtten = sampleShadowmapTent5x5(uShadowmap, shadowCoord);
+    float shadowAtten = sampleShadowmap(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 
