@@ -318,7 +318,7 @@ void SceneRenderGraph::executeCommandBuffer()
 
     // Render shadowmap first
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(2.0f, 2.5f);
+    glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->bind();
     std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
     m_ShadowCasterMat->use();

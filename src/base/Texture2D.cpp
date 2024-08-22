@@ -104,7 +104,7 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
 void Texture2D::initShadowmap(const glm::u32vec2 &size)
 {
     m_Size = size;
-    m_InternalFormat = GL_DEPTH_COMPONENT32;
+    m_InternalFormat = GL_DEPTH_COMPONENT32; // Fixed-point format for range [0，1]
     m_Format = GL_DEPTH_COMPONENT;
     m_Type = GL_FLOAT;
 
