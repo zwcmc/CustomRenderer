@@ -12,7 +12,6 @@
 
 #include "base/Material.h"
 
-std::vector<AssetsLoader::glTFMaterialData::Ptr> AssetsLoader::glTFMatDatas = {};
 std::map<std::string, Texture2D::Ptr> AssetsLoader::assimpTextures = {};
 
 Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
@@ -122,44 +121,6 @@ Texture2D::Ptr AssetsLoader::loadTextureBuffer(const std::string &textureName, c
     return texture;
 }
 
-RenderNode::Ptr AssetsLoader::load_glTF(const std::string &filePath)
-{
-    bool binary = false;
-    size_t extPos = filePath.rfind('.', filePath.length());
-    if (extPos != std::string::npos)
-    {
-        binary = (filePath.substr(extPos + 1, filePath.length() - extPos) == "glb");
-    }
-
-    std::string newPath = getAssetsPath() + filePath;
-
-    tinygltf::Model glTFInput;
-    tinygltf::TinyGLTF glTFContext;
-    std::string error, warning;
-
-    RenderNode::Ptr rootNode = RenderNode::New();
-
-    bool fileLoaded = binary ? glTFContext.LoadBinaryFromFile(&glTFInput, &error, &warning, newPath) : glTFContext.LoadASCIIFromFile(&glTFInput, &error, &warning, newPath);
-    if (fileLoaded)
-    {
-        // Load texture and material data
-        load_glTFMaterials(glTFInput, rootNode);
-
-        const tinygltf::Scene &scene = glTFInput.scenes[0];
-        for (size_t i = 0; i < scene.nodes.size(); ++i)
-        {
-            const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            load_glTFNode(node, glTFInput, rootNode);
-        }
-    }
-    else
-    {
-        std::cerr << "Could not open the glTF file: " << newPath << ", error: " << error << std::endl;
-    }
-
-    return rootNode;
-}
-
 Texture2D::Ptr AssetsLoader::loadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap)
 {
     ktxTexture* kTexture;
@@ -215,304 +176,6 @@ void AssetsLoader::initCubemapKTX(TextureCube::Ptr cubemap, const std::string &f
     ktxTexture_Destroy(kTexture);
 }
 
-void AssetsLoader::load_glTFMaterials(const tinygltf::Model &input, RenderNode::Ptr rootNode)
-{
-    // Load texture indices
-    std::vector<int> textureIndices;
-    {
-        textureIndices.resize(input.textures.size());
-        for (size_t index = 0; index < input.textures.size(); ++index)
-        {
-            textureIndices[index] = input.textures[index].source;
-        }
-    }
-
-    // Create textures
-    rootNode->NodeTextures.clear();
-    {
-        rootNode->NodeTextures.resize(input.images.size());
-        for (size_t index = 0; index < input.images.size(); ++index)
-        {
-            const tinygltf::Image &glTFImage = input.images[index];
-            unsigned char *buffer = const_cast<unsigned char *>(&glTFImage.image[0]);
-            rootNode->NodeTextures[index] = loadTextureBuffer(glTFImage.name, glm::u32vec2(glTFImage.width, glTFImage.height), glTFImage.component,
-                glTFImage.pixel_type, reinterpret_cast<void *>(buffer), true);
-        }
-    }
-
-    // load glTF materials
-    AssetsLoader::glTFMatDatas.clear();
-    {
-        AssetsLoader::glTFMatDatas.resize(input.materials.size());
-        for (size_t index = 0; index < input.materials.size(); ++index)
-        {
-            AssetsLoader::glTFMatDatas[index] = glTFMaterialData::New();
-
-            tinygltf::Material mat = input.materials[index];
-
-            glTFMaterialData::Ptr matData = AssetsLoader::glTFMatDatas[index];
-
-            // Base map
-            if (mat.values.find("baseColorTexture") != mat.values.end())
-            {
-                int textureIndex = mat.values["baseColorTexture"].TextureIndex();
-                matData->baseColorTexture = rootNode->NodeTextures[textureIndices[textureIndex]];
-            }
-            // Base color
-            if (mat.values.find("baseColorFactor") != mat.values.end())
-            {
-                matData->baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
-            }
-            // Nomral map
-            if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
-            {
-                int normalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
-                matData->normalTexture = rootNode->NodeTextures[textureIndices[normalTextureIndex]];
-            }
-
-            // Emissive
-            if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
-            {
-                int emissiveTextureIndex = mat.additionalValues["emissiveTexture"].TextureIndex();
-                matData->emissiveTexture = rootNode->NodeTextures[textureIndices[emissiveTextureIndex]];
-            }
-            if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end())
-            {
-                matData->emissiveFactor = glm::make_vec3(mat.additionalValues["emissiveFactor"].ColorFactor().data());
-            }
-
-            // Metallic roughness
-            if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
-            {
-                int metallicRoughnessTextureIndex = mat.values["metallicRoughnessTexture"].TextureIndex();
-                matData->metallicRoughnessTexture = rootNode->NodeTextures[textureIndices[metallicRoughnessTextureIndex]];
-            }
-            if (mat.values.find("metallicFactor") != mat.values.end())
-            {
-                matData->metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
-            }
-            if (mat.values.find("roughnessFactor") != mat.values.end())
-            {
-                matData->roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
-            }
-
-            // Occlusion
-            if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
-            {
-                int occlusionTextureIndex = mat.additionalValues["occlusionTexture"].TextureIndex();
-                matData->occlusionTexture = rootNode->NodeTextures[textureIndices[occlusionTextureIndex]];
-            }
-
-            // Doublesided
-            matData->doubleSided = mat.doubleSided;
-
-            // Alpha blend and alpha test
-            if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
-            {
-                tinygltf::Parameter param = mat.additionalValues["alphaMode"];
-                if (param.string_value == "BLEND")
-                {
-                    matData->alphaMode = Material::AlphaMode::BLEND;
-                }
-                if (param.string_value == "MASK")
-                {
-                    matData->alphaMode = Material::AlphaMode::MASK;
-                    matData->alphaCutoff = 0.5f;
-                }
-            }
-            if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
-            {
-                matData->alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
-            }
-        }
-    }
-}
-
-void AssetsLoader::load_glTFNode(const tinygltf::Node &inputNode, const tinygltf::Model &input, RenderNode::Ptr parent)
-{
-    RenderNode::Ptr node = RenderNode::New();
-    node->Parent = parent;
-
-    // Model matrix
-    {
-        if (inputNode.translation.size() == 3)
-        {
-            glm::vec3 translation = glm::make_vec3(inputNode.translation.data());
-            node->ModelMatrix = glm::translate(node->ModelMatrix, translation);
-        }
-        if (inputNode.rotation.size() == 4)
-        {
-            glm::quat q = glm::make_quat(inputNode.rotation.data());
-            glm::mat4 m = glm::mat4(q);
-            node->ModelMatrix *= m;
-        }
-        if (inputNode.scale.size() == 3)
-        {
-            glm::vec3 scale = glm::make_vec3(inputNode.scale.data());
-            node->ModelMatrix = glm::scale(node->ModelMatrix, scale);
-        }
-        if (inputNode.matrix.size() == 16)
-        {
-            glm::mat4 m = glm::make_mat4x4(inputNode.matrix.data());
-            node->ModelMatrix = m;
-        };
-    }
-
-    // Load node's children
-    {
-        if (inputNode.children.size() > 0)
-        {
-            for (size_t i = 0; i < inputNode.children.size(); i++)
-            {
-                load_glTFNode(input.nodes[inputNode.children[i]], input, node);
-            }
-        }
-    }
-
-    // Create mesh render
-    {
-        if (inputNode.mesh > -1)
-        {
-            const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
-            for (size_t i = 0; i < mesh.primitives.size(); i++)
-            {
-                const tinygltf::Primitive &glTFPrimitive = mesh.primitives[i];
-
-                // Vertices
-                std::vector<vec3> vertices;
-                std::vector<vec2> texcoords;
-                std::vector<vec3> normals;
-                {
-                    const float* vertexBuffer = nullptr;
-                    const float* texcoordBuffer = nullptr;
-                    const float* normalsBuffer = nullptr;
-                    size_t vertexCount = 0;
-
-                    if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end())
-                    {
-                        const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
-                        const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
-                        vertexBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                        vertexCount = accessor.count;
-                    }
-
-                    if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end())
-                    {
-                        const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
-                        const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
-                        texcoordBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                    }
-
-                    if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end())
-                    {
-                        const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
-                        const tinygltf::BufferView &view = input.bufferViews[accessor.bufferView];
-                        normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                    }
-
-                    vertices.resize(vertexCount);
-                    texcoords.resize(vertexCount);
-                    normals.resize(vertexCount);
-                    for (size_t i = 0; i < vertexCount; ++i)
-                    {
-                        vertices[i] = glm::make_vec3(&vertexBuffer[i * 3]);
-                        texcoords[i] = texcoordBuffer ? glm::make_vec2(&texcoordBuffer[i * 2]) : glm::vec2(0.0f);
-                        normals[i] = glm::normalize(normalsBuffer ? glm::make_vec3(&normalsBuffer[i * 3]) : glm::vec3(0.0f));
-                    }
-                }
-
-                // Indices
-                std::vector<unsigned int> indices;
-                {
-                    const tinygltf::Accessor &accessor = input.accessors[glTFPrimitive.indices];
-                    const tinygltf::BufferView &bufferView = input.bufferViews[accessor.bufferView];
-                    const tinygltf::Buffer &buffer = input.buffers[bufferView.buffer];
-                    
-                    indices.resize(accessor.count);
-
-                    switch (accessor.componentType)
-                    {
-                        case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
-                        {
-                            const unsigned int* buf = reinterpret_cast<const unsigned int*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                            for (size_t i = 0; i < accessor.count; ++i)
-                            {
-                                indices[i] = buf[i];
-                            }
-                            break;
-                        }
-                        case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
-                        {
-                            const unsigned short* buf = reinterpret_cast<const unsigned short*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                            for (size_t i = 0; i < accessor.count; ++i)
-                            {
-                                indices[i] = buf[i];
-                            }
-                            break;
-                        }
-                        case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
-                        {
-                            const unsigned char* buf = reinterpret_cast<const unsigned char*>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
-                            for (size_t i = 0; i < accessor.count; ++i)
-                            {
-                                indices[i] = buf[i];
-                            }
-                            break;
-                        }
-                        default:
-                            std::cerr << "Index component type " << accessor.componentType << " is not supported!" << std::endl;
-                            break;
-                    }
-                }
-
-                glTFMaterialData::Ptr glTFMatData = AssetsLoader::glTFMatDatas[glTFPrimitive.material];
-                Material::Ptr meshMat = Material::New("PBRLit", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
-                if (glTFMatData->baseColorTexture)
-                {
-                    meshMat->addOrSetTexture("uBaseMap", glTFMatData->baseColorTexture);
-                }
-                meshMat->addOrSetFloat("uBaseMapSet", glTFMatData->baseColorTexture ? 1.0f : -1.0f);
-                meshMat->addOrSetVector("uBaseColor", glTFMatData->baseColorFactor);
-
-                if (glTFMatData->normalTexture)
-                    meshMat->addOrSetTexture("uNormalMap", glTFMatData->normalTexture);
-                meshMat->addOrSetFloat("uNormalMapSet", glTFMatData->normalTexture ? 1.0f : -1.0f);
-
-                if (glTFMatData->emissiveTexture)
-                {
-                    meshMat->addOrSetTexture("uEmissiveMap", glTFMatData->emissiveTexture);
-                    meshMat->addOrSetVector("uEmissiveColor", glTFMatData->emissiveFactor);
-                }
-                meshMat->addOrSetFloat("uEmissiveMapSet", glTFMatData->emissiveTexture ? 1.0f : -1.0f);
-
-                if (glTFMatData->metallicRoughnessTexture)
-                {
-                    meshMat->addOrSetTexture("uMetallicRoughnessMap", glTFMatData->metallicRoughnessTexture);
-                }
-                meshMat->addOrSetFloat("uMetallicRoughnessMapSet", glTFMatData->metallicRoughnessTexture ? 1.0f : -1.0f);
-                meshMat->addOrSetFloat("uMetallicFactor", glTFMatData->metallicFactor);
-                meshMat->addOrSetFloat("uRoughnessFactor", glTFMatData->roughnessFactor);
-
-                if (glTFMatData->occlusionTexture)
-                {
-                    meshMat->addOrSetTexture("uOcclusionMap", glTFMatData->occlusionTexture);
-                }
-                meshMat->addOrSetFloat("uOcclusionMapSet", glTFMatData->occlusionTexture ? 1.0f : -1.0f);
-
-                meshMat->setDoubleSided(glTFMatData->doubleSided);
-
-                meshMat->setAlphaMode(glTFMatData->alphaMode);
-                meshMat->addOrSetFloat("uAlphaTestSet", glTFMatData->alphaMode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-                meshMat->addOrSetFloat("uAlphaCutoff", glTFMatData->alphaCutoff);
-
-                node->MeshRenders.push_back(MeshRender::New(Mesh::New(vertices, texcoords, normals, indices), meshMat));
-            }
-        }
-    }
-
-    parent->Children.push_back(node);
-}
-
 std::string AssetsLoader::readShader(std::ifstream &file, const std::string &name)
 {
     std::string source, line;
@@ -543,7 +206,7 @@ std::string AssetsLoader::readShader(std::ifstream &file, const std::string &nam
     return source;
 }
 
-RenderNode::Ptr AssetsLoader::loadObj(const std::string &filePath)
+RenderNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -604,6 +267,9 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
     // Assume a constant of 3 vertex indices per face as always "aiProcess_Triangulate" in Assimp's post-processing step
     indices.resize(aMesh->mNumFaces * 3);
 
+    glm::vec3 vMin = glm::vec3(99999.0f);
+    glm::vec3 vMax = glm::vec3(-99999.0f);
+
     for (size_t i = 0; i < aMesh->mNumVertices; ++i)
     {
         vertices[i] = glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z);
@@ -626,7 +292,7 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
 Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
     Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
-//    Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
+    // Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
 
     // Base map
     aiString texturePath;
@@ -643,13 +309,9 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
     // Base color
     aiColor4D color;
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_DIFFUSE, &color))
-    {
         mat->addOrSetVector("uBaseColor", glm::vec4(color.r, color.g, color.b, color.a));
-    }
     else
-    {
         mat->addOrSetVector("uBaseColor", glm::vec4(1.0f));
-    }
 
     // Normal map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
@@ -658,9 +320,7 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetFloat("uNormalMapSet", 1.0f);
     }
     else
-    {
         mat->addOrSetFloat("uNormalMapSet", -1.0f);
-    }
 
     // Emission
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
@@ -669,19 +329,13 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetFloat("uEmissiveMapSet", 1.0f);
     }
     else
-    {
         mat->addOrSetFloat("uEmissiveMapSet", -1.0f);
-    }
     
     // Emission color
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_EMISSIVE, &color))
-    {
         mat->addOrSetVector("uEmissiveColor", glm::vec3(color.r, color.g, color.b));
-    }
     else
-    {
         mat->addOrSetVector("uEmissiveColor", glm::vec3(1.0f));
-    }
 
     // Metallic roughness texture
     // aiTextureType_METALNESS or aiTextureType_DIFFUSE_ROUGHNESS
@@ -691,30 +345,20 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetFloat("uMetallicRoughnessMapSet", 1.0f);
     }
     else
-    {
         mat->addOrSetFloat("uMetallicRoughnessMapSet", -1.0f);
-    }
     
     // Metallic factor
     ai_real valueFactor;
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_METALLIC_FACTOR, &valueFactor))
-    {
         mat->addOrSetFloat("uMetallicFactor", valueFactor);
-    }
     else
-    {
         mat->addOrSetFloat("uMetallicFactor", 0.0f);
-    }
     
     // Roughness factor
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_ROUGHNESS_FACTOR, &valueFactor))
-    {
         mat->addOrSetFloat("uRoughnessFactor", valueFactor);
-    }
     else
-    {
         mat->addOrSetFloat("uRoughnessFactor", 0.8f);
-    }
 
     // Occlusion map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &texturePath))
@@ -723,47 +367,34 @@ Material::Ptr AssetsLoader::parseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->addOrSetFloat("uOcclusionMapSet", 1.0f);
     }
     else
-    {
         mat->addOrSetFloat("uOcclusionMapSet", -1.0f);
-    }
-    
+
     // Cull face
     int two_sided;
     if((AI_SUCCESS == aiGetMaterialInteger(aMaterial, AI_MATKEY_TWOSIDED, &two_sided)) && two_sided)
-    {
         mat->setDoubleSided(true);
-    }
     else
-    {
         mat->setDoubleSided(false);
-    }
-    
+
     aiString alphaMode("OPAQUE");
     Material::AlphaMode mode = Material::AlphaMode::DEFAULT_OPAQUE;
     if (AI_SUCCESS == aiGetMaterialString(aMaterial, AI_MATKEY_GLTF_ALPHAMODE, &alphaMode))
     {
         std::string m = alphaMode.C_Str();
         if (m == "MASK")
-        {
             mode = Material::AlphaMode::MASK;
-        }
         else if (m == "BLEND")
-        {
             mode = Material::AlphaMode::BLEND;
-        }
     }
     mat->setAlphaMode(mode);
+    mat->addOrSetFloat("uAlphaBlendSet", mode == Material::AlphaMode::BLEND ? 1.0f : -1.0f);
     mat->addOrSetFloat("uAlphaTestSet", mode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
     
     // Alpha cuteoff
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_GLTF_ALPHACUTOFF, &valueFactor))
-    {
         mat->addOrSetFloat("uAlphaCutoff", valueFactor);
-    }
     else
-    {
         mat->addOrSetFloat("uAlphaCutoff", 0.5f);
-    }
 
     return mat;
 }

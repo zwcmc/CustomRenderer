@@ -28,8 +28,6 @@ public:
     std::vector<RenderNode::Ptr> Children;
     std::weak_ptr<RenderNode> Parent;
 
-    std::vector<Texture2D::Ptr> NodeTextures;
-
     Material::Ptr OverrideMat;
     
     glm::mat4 Transform;

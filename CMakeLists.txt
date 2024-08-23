@@ -38,17 +38,21 @@ endfunction()
 # Set the base directory for source files
 set(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(BASE_GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad")
+set(BASE_STB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb")
 
 # Create source groups
 create_source_groups(${BASE_DIR})
 create_source_groups(${BASE_GLAD_DIR})
+create_source_groups(${BASE_STB_DIR})
 
 # Collect all source files
 file(GLOB_RECURSE PROJECT_SOURCES
-    "${BASE_DIR}/*.cpp"
     "${BASE_DIR}/*.h"
-    "${BASE_GLAD_DIR}/src/*.c"
+    "${BASE_DIR}/*.cpp"
     "${BASE_GLAD_DIR}/include/*.h"
+    "${BASE_GLAD_DIR}/src/*.c"
+    "${BASE_STB_DIR}/*.h"
+    "${BASE_STB_DIR}/*.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
@@ -73,14 +77,6 @@ target_link_libraries(${PROJECT_NAME} glfw)
 # glm
 add_subdirectory(third_party/glm)
 target_link_libraries(${PROJECT_NAME} glm)
-
-# tinygltf
-set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF CACHE BOOL "" FORCE)
-set(TINYGLTF_BUILD_GL_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(TINYGLTF_BUILD_VALIDATOR_EXAMPLE OFF CACHE BOOL "" FORCE)
-set(TINYGLTF_BUILD_BUILDER_EXAMPLE OFF CACHE BOOL "" FORCE)
-add_subdirectory(third_party/tinygltf)
-target_link_libraries(${PROJECT_NAME} tinygltf)
 
 # ktx
 include_directories(third_party/glad/include)
@@ -114,3 +110,4 @@ target_link_libraries(${PROJECT_NAME} assimp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
+target_include_directories(${PROJECT_NAME} PRIVATE third_party/stb)

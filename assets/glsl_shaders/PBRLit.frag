@@ -27,6 +27,7 @@ uniform float uRoughnessFactor;
 uniform sampler2D uOcclusionMap;
 uniform float uOcclusionMapSet;
 
+uniform float uAlphaBlendSet;
 uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
 
@@ -76,7 +77,7 @@ void main()
 
     // Main light shadow
     vec4 shadowCoord = getShadowCoord(fs_in.PositionWS);
-    float shadowAtten = sampleShadowmap(uShadowmap, shadowCoord);
+    float shadowAtten = sampleShadowmapTent5x5(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 
@@ -130,5 +131,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
-    FragColor = vec4(Lo, baseColor.a);
+    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0);
 }

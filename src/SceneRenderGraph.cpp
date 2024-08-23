@@ -228,7 +228,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     glGenFramebuffers(1, &m_FrameBufferID);
     glGenRenderbuffers(1, &m_CubemapDepthRenderBufferID);
 
-    m_Cube = AssetsLoader::load_glTF("models/glTF/Box/glTF-Binary/Box.glb");
+    m_Cube = AssetsLoader::loadModel("models/glTF/Box/glTF-Binary/Box.glb");
     m_EnvironmentCubemap = TextureCube::New("uEnvironmentCubemap");
 
     std::string fileExt;
