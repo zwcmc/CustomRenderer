@@ -95,15 +95,15 @@ int main()
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/cube/cube2.gltf");
-//     m_SceneRenderGraph->pushRenderNode(sceneNode);
+//     m_SceneRenderGraph->addSceneNode(sceneNode);
 
     SceneNode::Ptr marry = AssetsLoader::loadModel("models/obj/mary/Marry.obj");
     marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->pushRenderNode(marry);
+    m_SceneRenderGraph->addSceneNode(marry);
 
     SceneNode::Ptr floor = AssetsLoader::loadModel("models/obj/floor/floor.obj");
     floor->translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->pushRenderNode(floor);
+    m_SceneRenderGraph->addSceneNode(floor);
 
     // Get the real size in pixels
     int realWidth, realHeight;

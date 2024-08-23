@@ -93,7 +93,7 @@ void SceneRenderGraph::addLight(Light::Ptr light)
     addRenderLightCommand(light);
 }
 
-void SceneRenderGraph::pushRenderNode(SceneNode::Ptr sceneNode)
+void SceneRenderGraph::addSceneNode(SceneNode::Ptr sceneNode)
 {
     m_Scene->addChild(sceneNode);
 
@@ -182,7 +182,7 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        drawRenderNode(m_Cube);
+        drawSceneNode(m_Cube);
     }
 
     // Unbind framebuffer
@@ -197,7 +197,7 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
 }
 
-void SceneRenderGraph::drawRenderNode(SceneNode::Ptr node)
+void SceneRenderGraph::drawSceneNode(SceneNode::Ptr node)
 {
     Material::Ptr overrideMat = node->OverrideMat;
     for (size_t i = 0; i < node->MeshRenders.size(); ++i)
@@ -216,7 +216,7 @@ void SceneRenderGraph::drawRenderNode(SceneNode::Ptr node)
 
     for (size_t i = 0; i < node->getChildrenCount(); ++i)
     {
-        drawRenderNode(node->getChildByIndex(i));
+        drawSceneNode(node->getChildByIndex(i));
     }
 }
 
@@ -306,18 +306,14 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
     glm::mat4 model = sceneNode->getModelMatrix();
     Material::Ptr overrideMat = sceneNode->OverrideMat;
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
-    {
         m_CommandBuffer->pushCommand(sceneNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->getMaterial(), model);
-    }
     
     // AABB debugging
     if (sceneNode->IsAABBCalculated)
         m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
 
     for (size_t i = 0; i < sceneNode->getChildrenCount(); ++i)
-    {
         buildRenderCommands(sceneNode->getChildByIndex(i));
-    }
 }
 
 void SceneRenderGraph::executeCommandBuffer()

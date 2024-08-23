@@ -33,14 +33,14 @@ public:
 
     void init();
 
-    void pushRenderNode(SceneNode::Ptr sceneNode);
+    void addSceneNode(SceneNode::Ptr sceneNode);
     void executeCommandBuffer();
     void renderCommand(RenderCommand::Ptr command);
     void renderMesh(Mesh::Ptr mesh);
 
 private:
 
-    void drawRenderNode(SceneNode::Ptr sceneNode);
+    void drawSceneNode(SceneNode::Ptr sceneNode);
 
     void addRenderLightCommand(Light::Ptr light);
     void buildSkyboxRenderCommands();
