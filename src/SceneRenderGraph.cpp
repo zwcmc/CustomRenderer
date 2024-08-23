@@ -13,6 +13,8 @@ SceneRenderGraph::SceneRenderGraph()
 
 SceneRenderGraph::~SceneRenderGraph()
 {
+    glDeleteVertexArrays(1, &m_BlitVAO);
+
     m_RenderNodes.clear();
     m_Lights.clear();
 }
@@ -49,6 +51,7 @@ void SceneRenderGraph::init()
     // Mesh for rendering lights
     m_LightMesh = Sphere::New(16, 16, 0.02f);
 
+    glGenVertexArrays(1, &m_BlitVAO);
     m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vert", "glsl_shaders/Blit.frag");
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
@@ -456,13 +459,9 @@ void SceneRenderGraph::setGLCull(bool enable)
     {
         m_CullFace = enable;
         if (enable)
-        {
             glEnable(GL_CULL_FACE);
-        }
         else
-        {
             glDisable(GL_CULL_FACE);
-        }
     }
 }
 
@@ -472,22 +471,16 @@ void SceneRenderGraph::setGLBlend(bool enable)
     {
         m_Blend = enable;
         if (enable)
-        {
             glEnable(GL_BLEND);
-        }
         else
-        {
             glDisable(GL_BLEND);
-        }
     }
 }
 
 void SceneRenderGraph::blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat)
 {
     if (destination)
-    {
         destination->bind();
-    }
     else
     {
         glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
@@ -496,9 +489,7 @@ void SceneRenderGraph::blit(Texture2D::Ptr source, RenderTarget::Ptr destination
     }
 
     if (blitMat == nullptr)
-    {
         blitMat = m_BlitMat;
-    }
 
     if (source)
     {
@@ -508,9 +499,7 @@ void SceneRenderGraph::blit(Texture2D::Ptr source, RenderTarget::Ptr destination
 
     blitMat->use();
 
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glBindVertexArray(m_BlitVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
 }

@@ -73,6 +73,8 @@ private:
     Sphere::Ptr m_LightMesh;
 
     RenderTarget::Ptr m_IntermediateRT;
+    
+    GLuint m_BlitVAO;
     Material::Ptr m_BlitMat;
 
     // Environments
