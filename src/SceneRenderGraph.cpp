@@ -234,7 +234,7 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     glGenFramebuffers(1, &m_FrameBufferID);
     glGenRenderbuffers(1, &m_CubemapDepthRenderBufferID);
 
-    m_Cube = AssetsLoader::loadModel("models/glTF/Box/glTF-Binary/Box.glb");
+    m_Cube = AssetsLoader::loadModel("models/glTF/Box/glTF-Binary/Box.glb", true);
     m_EnvironmentCubemap = TextureCube::New("uEnvironmentCubemap");
 
     std::string fileExt;
@@ -308,11 +308,11 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
     {
         m_CommandBuffer->pushCommand(sceneNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->getMaterial(), model);
-
-        // AABB debugging
-        if (sceneNode->IsAABBCalculated && true)
-            m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
     }
+    
+    // AABB debugging
+    if (sceneNode->IsAABBCalculated)
+        m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
 
     for (size_t i = 0; i < sceneNode->getChildrenCount(); ++i)
     {

@@ -206,7 +206,7 @@ std::string AssetsLoader::readShader(std::ifstream &file, const std::string &nam
     return source;
 }
 
-SceneNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
+SceneNode::Ptr AssetsLoader::loadModel(const std::string &filePath, const bool &ingoreAABBCalculation)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -223,10 +223,10 @@ SceneNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
 
 
     AssetsLoader::assimpTextures.clear();
-    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory);
+    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory, ingoreAABBCalculation);
 }
 
-SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory)
+SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory, const bool &ingoreAABBCalculation)
 {
     SceneNode::Ptr node = SceneNode::New();
     node->ModelMatrix = AssetsLoader::aiMatrix4x4ToGlmMat4(aNode->mTransformation);
@@ -238,25 +238,28 @@ SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aSc
 
         glm::vec3 aabbMin = glm::vec3(FLT_MAX);
         glm::vec3 aabbMax = glm::vec3(-FLT_MAX);
-        Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene, aabbMin, aabbMax);
+        Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene, aabbMin, aabbMax, ingoreAABBCalculation);
         Material::Ptr mat = AssetsLoader::parseMaterial(assimpMat, aScene, directory);
         
-        if (!node->IsAABBCalculated && assimpMesh->mNumVertices > 0)
-            node->IsAABBCalculated = true;
-        node->AABBMin = aabbMin;
-        node->AABBMax = aabbMax;
+        if (!ingoreAABBCalculation)
+        {
+            if (!node->IsAABBCalculated && assimpMesh->mNumVertices > 0)
+                node->IsAABBCalculated = true;
+            node->AABBMin = aabbMin;
+            node->AABBMax = aabbMax;
+        }
 
         node->MeshRenders.push_back(MeshRender::New(mesh, mat));
     }
 
     // also recursively parse this node's children
     for (unsigned int i = 0; i < aNode->mNumChildren; ++i)
-        node->addChild(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory));
+        node->addChild(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory, ingoreAABBCalculation));
 
     return node;
 }
 
-Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &outAABBMin, glm::vec3 &outAABBMax)
+Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &outAABBMin, glm::vec3 &outAABBMax, const bool &ingoreAABBCalculation)
 {
     // Vertices
     std::vector<vec3> vertices;
@@ -278,12 +281,15 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
         normals[i] = glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z);
 
         // Calculate AABB
-        if (vertices[i].x < outAABBMin.x) outAABBMin.x = vertices[i].x;
-        if (vertices[i].y < outAABBMin.y) outAABBMin.y = vertices[i].y;
-        if (vertices[i].z < outAABBMin.z) outAABBMin.z = vertices[i].z;
-        if (vertices[i].x > outAABBMax.x) outAABBMax.x = vertices[i].x;
-        if (vertices[i].y > outAABBMax.y) outAABBMax.y = vertices[i].y;
-        if (vertices[i].z > outAABBMax.z) outAABBMax.z = vertices[i].z;
+        if (!ingoreAABBCalculation)
+        {
+            if (vertices[i].x < outAABBMin.x) outAABBMin.x = vertices[i].x;
+            if (vertices[i].y < outAABBMin.y) outAABBMin.y = vertices[i].y;
+            if (vertices[i].z < outAABBMin.z) outAABBMin.z = vertices[i].z;
+            if (vertices[i].x > outAABBMax.x) outAABBMax.x = vertices[i].x;
+            if (vertices[i].y > outAABBMax.y) outAABBMax.y = vertices[i].y;
+            if (vertices[i].z > outAABBMax.z) outAABBMax.z = vertices[i].z;
+        }
     }
 
     for (size_t f = 0; f < aMesh->mNumFaces; ++f)

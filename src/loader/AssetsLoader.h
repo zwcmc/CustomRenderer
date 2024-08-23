@@ -24,14 +24,14 @@ public:
     static TextureCube::Ptr loadCubemapKTX(const std::string &textureName, const std::string &filePath);
     static void initCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath);
 
-    static SceneNode::Ptr loadModel(const std::string &filePath);
+    static SceneNode::Ptr loadModel(const std::string &filePath, const bool &ingoreAABBCalculation = false);
 
 private:
     AssetsLoader() = default;
 
     static std::string readShader(std::ifstream &file, const std::string &name);
-    static SceneNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory);
-    static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &aabbMin, glm::vec3 &aabbMax);
+    static SceneNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &ingoreAABBCalculation);
+    static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &aabbMin, glm::vec3 &aabbMax, const bool &ingoreAABBCalculation);
     static Material::Ptr parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
     static Texture2D::Ptr loadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
 
