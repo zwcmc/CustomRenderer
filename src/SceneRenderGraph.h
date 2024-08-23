@@ -33,14 +33,14 @@ public:
 
     void init();
 
-    void pushRenderNode(SceneNode::Ptr renderNode);
+    void pushRenderNode(SceneNode::Ptr sceneNode);
     void executeCommandBuffer();
     void renderCommand(RenderCommand::Ptr command);
     void renderMesh(Mesh::Ptr mesh);
 
 private:
 
-    void drawRenderNode(SceneNode::Ptr renderNode);
+    void drawRenderNode(SceneNode::Ptr sceneNode);
 
     void addRenderLightCommand(BaseLight::Ptr light);
     void buildSkyboxRenderCommands();
@@ -50,7 +50,7 @@ private:
     void generateCubemaps();
     void renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
 
-    void buildRenderCommands(SceneNode::Ptr renderNode, const bool &isDebuggingAABB = false);
+    void buildRenderCommands(SceneNode::Ptr sceneNode);
 
     void setGLCull(bool enable);
     void setGLBlend(bool enable);

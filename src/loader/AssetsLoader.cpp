@@ -223,13 +223,12 @@ SceneNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
 
 
     AssetsLoader::assimpTextures.clear();
-    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory, nullptr);
+    return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory);
 }
 
-SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory, SceneNode::Ptr parent)
+SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory)
 {
     SceneNode::Ptr node = SceneNode::New();
-    node->Parent = parent;
     node->ModelMatrix = AssetsLoader::aiMatrix4x4ToGlmMat4(aNode->mTransformation);
 
     for (size_t i = 0; i < aNode->mNumMeshes; ++i)
@@ -237,20 +236,22 @@ SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aSc
         aiMesh* assimpMesh = aScene->mMeshes[aNode->mMeshes[i]];
         aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
 
-        glm::vec3 aabbMin, aabbMax;
+        glm::vec3 aabbMin = glm::vec3(99999.0f);
+        glm::vec3 aabbMax = glm::vec3(-99999.0f);
         Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene, aabbMin, aabbMax);
         Material::Ptr mat = AssetsLoader::parseMaterial(assimpMat, aScene, directory);
-
+        
+        if (!node->IsAABBCalculated && assimpMesh->mNumVertices > 0)
+            node->IsAABBCalculated = true;
         node->AABBMin = aabbMin;
         node->AABBMax = aabbMax;
+
         node->MeshRenders.push_back(MeshRender::New(mesh, mat));
     }
 
-    // also recursively parse this node's children 
+    // also recursively parse this node's children
     for (unsigned int i = 0; i < aNode->mNumChildren; ++i)
-    {
-        node->Children.push_back(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory, node));
-    }
+        node->addChild(AssetsLoader::processAssimpNode(aNode->mChildren[i], aScene, directory));
 
     return node;
 }
@@ -270,9 +271,6 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
     // Assume a constant of 3 vertex indices per face as always "aiProcess_Triangulate" in Assimp's post-processing step
     indices.resize(aMesh->mNumFaces * 3);
 
-    glm::vec3 vMin = glm::vec3(99999.0f);
-    glm::vec3 vMax = glm::vec3(-99999.0f);
-
     for (size_t i = 0; i < aMesh->mNumVertices; ++i)
     {
         vertices[i] = glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z);
@@ -280,25 +278,20 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
         normals[i] = glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z);
 
         // Calculate AABB
-        if (vertices[i].x < vMin.x) vMin.x = vertices[i].x;
-        if (vertices[i].y < vMin.y) vMin.y = vertices[i].y;
-        if (vertices[i].z < vMin.z) vMin.z = vertices[i].z;
-        if (vertices[i].x > vMax.x) vMax.x = vertices[i].x;
-        if (vertices[i].y > vMax.y) vMax.y = vertices[i].y;
-        if (vertices[i].z > vMax.z) vMax.z = vertices[i].z;
+        if (vertices[i].x < outAABBMin.x) outAABBMin.x = vertices[i].x;
+        if (vertices[i].y < outAABBMin.y) outAABBMin.y = vertices[i].y;
+        if (vertices[i].z < outAABBMin.z) outAABBMin.z = vertices[i].z;
+        if (vertices[i].x > outAABBMax.x) outAABBMax.x = vertices[i].x;
+        if (vertices[i].y > outAABBMax.y) outAABBMax.y = vertices[i].y;
+        if (vertices[i].z > outAABBMax.z) outAABBMax.z = vertices[i].z;
     }
 
     for (size_t f = 0; f < aMesh->mNumFaces; ++f)
     {
         aiFace face = aMesh->mFaces[f];
         for (size_t i = 0; i < 3; ++i)
-        {
             indices[3 * f + i] = face.mIndices[i];
-        }
     }
-
-    outAABBMin = vMin;
-    outAABBMax = vMax;
 
     return Mesh::New(vertices, texcoords, normals, indices);
 }

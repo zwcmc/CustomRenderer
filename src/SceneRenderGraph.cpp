@@ -89,12 +89,12 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
     addRenderLightCommand(light);
 }
 
-void SceneRenderGraph::pushRenderNode(SceneNode::Ptr renderNode)
+void SceneRenderGraph::pushRenderNode(SceneNode::Ptr sceneNode)
 {
-    m_RenderNodes.push_back(renderNode);
+    m_RenderNodes.push_back(sceneNode);
 
     // Build render commands
-    buildRenderCommands(renderNode, true);
+    buildRenderCommands(sceneNode);
 }
 
 void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
@@ -212,9 +212,9 @@ void SceneRenderGraph::drawRenderNode(SceneNode::Ptr node)
         renderMesh(mr->getMesh());
     }
 
-    for (size_t i = 0; i < node->Children.size(); ++i)
+    for (size_t i = 0; i < node->getChildrenCount(); ++i)
     {
-        drawRenderNode(node->Children[i]);
+        drawRenderNode(node->getChildByIndex(i));
     }
 }
 
@@ -299,22 +299,22 @@ void SceneRenderGraph::generateCubemaps()
     }
 }
 
-void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr renderNode, const bool &isDebuggingAABB)
+void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
 {
-    glm::mat4 model = renderNode->getModelMatrix();
-    Material::Ptr overrideMat = renderNode->OverrideMat;
-    for (size_t i = 0; i < renderNode->MeshRenders.size(); ++i)
+    glm::mat4 model = sceneNode->getModelMatrix();
+    Material::Ptr overrideMat = sceneNode->OverrideMat;
+    for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
     {
-        m_CommandBuffer->pushCommand(renderNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : renderNode->MeshRenders[i]->getMaterial(), model);
+        m_CommandBuffer->pushCommand(sceneNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->getMaterial(), model);
 
         // AABB debugging
-        if (isDebuggingAABB)
-            m_CommandBuffer->pushDebuggingCommand(AABBCube::New(renderNode->AABBMin, renderNode->AABBMax), m_DebuggingAABBMat, model);
+        if (sceneNode->IsAABBCalculated && true)
+            m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
     }
 
-    for (size_t i = 0; i < renderNode->Children.size(); ++i)
+    for (size_t i = 0; i < sceneNode->getChildrenCount(); ++i)
     {
-        buildRenderCommands(renderNode->Children[i], isDebuggingAABB);
+        buildRenderCommands(sceneNode->getChildByIndex(i));
     }
 }
 
