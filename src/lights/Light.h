@@ -4,13 +4,12 @@
 
 #include "ptr.h"
 
-class BaseLight
+class Light
 {
-    SHARED_PTR(BaseLight)
+    SHARED_PTR(Light)
 public:
-    BaseLight();
-    BaseLight(const glm::vec3 &position, const glm::vec3 &color);
-    ~BaseLight() = default;
+    Light(const glm::vec3 &position, const glm::vec3 &color);
+    ~Light() = default;
 
     void setPosition(const glm::vec3 &position) { m_Position  = position; }
     glm::vec3& getLightPosition() { return m_Position; }

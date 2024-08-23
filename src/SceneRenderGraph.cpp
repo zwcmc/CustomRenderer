@@ -15,12 +15,13 @@ SceneRenderGraph::~SceneRenderGraph()
 {
     glDeleteVertexArrays(1, &m_BlitVAO);
 
-    m_RenderNodes.clear();
     m_Lights.clear();
 }
 
 void SceneRenderGraph::init()
 {
+    m_Scene = SceneNode::New();
+
     m_CommandBuffer = CommandBuffer::New();
 
     // No seams at cubemap edges
@@ -56,8 +57,8 @@ void SceneRenderGraph::init()
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Load environment cubemaps
-    loadEnvironment("textures/environments/ktx/papermill.ktx");
-    // loadEnvironment("textures/environments/newport_loft.hdr");
+//    loadEnvironment("textures/environments/ktx/papermill.ktx");
+     loadEnvironment("textures/environments/venice_sunset.hdr");
     generateBRDFLUT();
     buildSkyboxRenderCommands();
 
@@ -79,12 +80,12 @@ void SceneRenderGraph::setRenderSize(const int &width, const int &height)
     m_IntermediateRT->resize(glm::u32vec2(width, height));
 }
 
-void SceneRenderGraph::setCamera(ArcballCamera::Ptr camera)
+void SceneRenderGraph::setCamera(Camera::Ptr camera)
 {
     m_Camera = camera;
 }
 
-void SceneRenderGraph::addLight(BaseLight::Ptr light)
+void SceneRenderGraph::addLight(Light::Ptr light)
 {
     m_Lights.push_back(light);
 
@@ -94,13 +95,13 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
 
 void SceneRenderGraph::pushRenderNode(SceneNode::Ptr sceneNode)
 {
-    m_RenderNodes.push_back(sceneNode);
+    m_Scene->addChild(sceneNode);
 
     // Build render commands
     buildRenderCommands(sceneNode);
 }
 
-void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
+void SceneRenderGraph::addRenderLightCommand(Light::Ptr light)
 {
     // TODO: All lights can share a single material
     Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vert", "glsl_shaders/Emissive.frag");
@@ -142,14 +143,14 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glm::mat4 captureProjection = glm::perspective((float)M_PI / 2.0f, (float)width / height, 0.1f, 10.0f);
-    glm::mat4 captureViews[] =
+    Camera::Ptr faceCameras[6] =
     {
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+        Camera::New(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+        Camera::New(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+        Camera::New(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+        Camera::New(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+        Camera::New(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+        Camera::New(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
     };
 
     // Configure the viewport to the capture dimensions
@@ -172,14 +173,12 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     for (unsigned int i = 0; i < 6; ++i)
     {
         // Set global uniforms
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(captureViews[i][0].x));
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(faceCameras[i]->getViewMatrix()[0].x));
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), mipLevel);
         // Check framebuffer status
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        {
             std::cerr << "FrameBuffer is not complete in rendering 6 faces!" << mipLevel << std::endl;
-        }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -323,19 +322,21 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
 
 void SceneRenderGraph::executeCommandBuffer()
 {
-    BaseLight::Ptr light0 = m_Lights[0];
-    glm::vec3 lightPosition0 = light0->getLightPosition();
-    glm::vec3 lightColor0 = light0->getLightColor();
+    glm::vec3 lightPosition0 = m_Lights[0]->getLightPosition();
+    glm::vec3 lightColor0 = m_Lights[0]->getLightColor();
 
     // Render shadowmap first
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->bind();
-    std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
+
     m_ShadowCasterMat->use();
-    glm::mat4 light0Projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
-    glm::mat4 light0ViewMatrix = glm::lookAt(lightPosition0, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightVP = light0Projection * light0ViewMatrix;
+
+    Camera::Ptr lightCamera = Camera::New(lightPosition0, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    lightCamera->setOrthographic(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
+    glm::mat4 lightVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
+
+    std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
     for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
     {
         RenderCommand::Ptr command = shadowCasterCommands[i];
@@ -346,7 +347,7 @@ void SceneRenderGraph::executeCommandBuffer()
 
     glm::mat4 v = m_Camera->getViewMatrix();
     glm::mat4 p = m_Camera->getProjectionMatrix();
-    glm::vec3 cameraPos = m_Camera->getPosition();
+    glm::vec3 cameraPos = m_Camera->getEyePosition();
 
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);

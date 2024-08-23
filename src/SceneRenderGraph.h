@@ -7,8 +7,8 @@
 
 #include "ptr.h"
 
-#include "cameras/ArcballCamera.h"
-#include "lights/BaseLight.h"
+#include "cameras/Camera.h"
+#include "lights/Light.h"
 
 #include "renderer/RenderCommand.h"
 #include "renderer/CommandBuffer.h"
@@ -26,10 +26,10 @@ public:
     ~SceneRenderGraph();
 
     void setRenderSize(const int &width, const int &height);
-    void setCamera(ArcballCamera::Ptr camera);
-    ArcballCamera::Ptr getActiveCamera() { return m_Camera; }
+    void setCamera(Camera::Ptr camera);
+    Camera::Ptr getActiveCamera() { return m_Camera; }
 
-    void addLight(BaseLight::Ptr light);
+    void addLight(Light::Ptr light);
 
     void init();
 
@@ -42,7 +42,7 @@ private:
 
     void drawRenderNode(SceneNode::Ptr sceneNode);
 
-    void addRenderLightCommand(BaseLight::Ptr light);
+    void addRenderLightCommand(Light::Ptr light);
     void buildSkyboxRenderCommands();
 
     void loadEnvironment(const std::string &cubemapPath);
@@ -62,11 +62,11 @@ private:
 
     glm::u32vec2 m_RenderSize;
 
-    std::vector<SceneNode::Ptr> m_RenderNodes;
+    SceneNode::Ptr m_Scene;
 
     CommandBuffer::Ptr m_CommandBuffer;
-    ArcballCamera::Ptr m_Camera;
-    std::vector<BaseLight::Ptr> m_Lights;
+    Camera::Ptr m_Camera;
+    std::vector<Light::Ptr> m_Lights;
 
     GLuint m_GlobalUniformBufferID;
 

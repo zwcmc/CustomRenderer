@@ -5,7 +5,7 @@
 
 #include "cameras/ArcballCamera.h"
 
-#include "lights/DirectionalLight.h"
+#include "lights/Light.h"
 
 #include "loader/AssetsLoader.h"
 
@@ -91,11 +91,11 @@ int main()
     m_SceneRenderGraph->init();
 
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
+//     SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/cube/cube2.gltf");
-    // m_SceneRenderGraph->pushRenderNode(sceneNode);
+//     m_SceneRenderGraph->pushRenderNode(sceneNode);
 
     SceneNode::Ptr marry = AssetsLoader::loadModel("models/obj/mary/Marry.obj");
     marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));
@@ -103,18 +103,21 @@ int main()
 
     SceneNode::Ptr floor = AssetsLoader::loadModel("models/obj/floor/floor.obj");
     floor->translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    floor->scale(glm::vec3(0.2f));
     m_SceneRenderGraph->pushRenderNode(floor);
 
-    ArcballCamera::Ptr camera = ArcballCamera::perspectiveCamera(glm::radians(60.0f), WIDTH, HEIGHT, 0.001f, 1000.0f);
-    m_SceneRenderGraph->setCamera(camera);
-
     // Get the real size in pixels
-    int width, height;
-    glfwGetFramebufferSize(m_Window, &width, &height);
-    glViewport(0, 0, width, height);
-    m_SceneRenderGraph->setRenderSize(width, height);
+    int realWidth, realHeight;
+    glfwGetFramebufferSize(m_Window, &realWidth, &realHeight);
+    glViewport(0, 0, realWidth, realHeight);
+    
+    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    arcballCamera->setPerspective(glm::radians(60.0f), realWidth, realHeight, 0.001f, 100.0f);
+    m_SceneRenderGraph->setCamera(arcballCamera);
 
-    DirectionalLight::Ptr light = DirectionalLight::New(glm::vec3(2.0f, 1.5f, 0.0f), glm::vec3(2.0f, 2.0f, 2.0f));
+    m_SceneRenderGraph->setRenderSize(realWidth, realHeight);
+
+    Light::Ptr light = Light::New(glm::vec3(2.0f, 1.5f, 0.0f), glm::vec3(2.0f, 2.0f, 2.0f));
     m_SceneRenderGraph->addLight(light);
 
     while (!glfwWindowShouldClose(m_Window))
