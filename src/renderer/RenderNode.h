@@ -31,4 +31,7 @@ public:
     Material::Ptr OverrideMat;
     
     glm::mat4 Transform;
+
+    glm::vec3 AABBMin;
+    glm::vec3 AABBMax;
 };

@@ -5,6 +5,7 @@
 #include "defines.h"
 #include "base/TextureCube.h"
 #include "loader/AssetsLoader.h"
+#include "meshes/AABBCube.h"
 
 SceneRenderGraph::SceneRenderGraph()
     : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false), m_RenderSize(glm::u32vec2(1))
@@ -60,6 +61,9 @@ void SceneRenderGraph::init()
     // Main light shadowmap
     m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
     m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vert", "glsl_shaders/ShadowCaster.frag");
+
+    m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
+    m_DebuggingAABBMat->setDoubleSided(true);
 }
 
 void SceneRenderGraph::setRenderSize(const int &width, const int &height)
@@ -90,7 +94,7 @@ void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
     m_RenderNodes.push_back(renderNode);
 
     // Build render commands
-    buildRenderCommands(renderNode);
+    buildRenderCommands(renderNode, true);
 }
 
 void SceneRenderGraph::addRenderLightCommand(BaseLight::Ptr light)
@@ -295,18 +299,22 @@ void SceneRenderGraph::generateCubemaps()
     }
 }
 
-void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode)
+void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode, const bool &isDebuggingAABB)
 {
     glm::mat4 model = renderNode->getModelMatrix();
     Material::Ptr overrideMat = renderNode->OverrideMat;
     for (size_t i = 0; i < renderNode->MeshRenders.size(); ++i)
     {
         m_CommandBuffer->pushCommand(renderNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : renderNode->MeshRenders[i]->getMaterial(), model);
+
+        // AABB debugging
+        if (isDebuggingAABB)
+            m_CommandBuffer->pushDebuggingCommand(AABBCube::New(renderNode->AABBMin, renderNode->AABBMax), m_DebuggingAABBMat, model);
     }
 
     for (size_t i = 0; i < renderNode->Children.size(); ++i)
     {
-        buildRenderCommands(renderNode->Children[i]);
+        buildRenderCommands(renderNode->Children[i], isDebuggingAABB);
     }
 }
 
@@ -385,6 +393,18 @@ void SceneRenderGraph::executeCommandBuffer()
        renderCommand(command);
     }
 
+    // Debugging AABB
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    m_DebuggingAABBMat->use();
+    setGLCull(m_DebuggingAABBMat->getDoubleSided());
+    std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->getDebuggingCommands();
+    for (size_t i = 0; i < commands.size(); ++i)
+    {
+        m_DebuggingAABBMat->setMatrix("uModelMatrix", commands[i]->Transform);
+        renderMesh(commands[i]->Mesh);
+    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     blit(m_IntermediateRT->getColorTexture(0), nullptr, m_BlitMat);
 //    blit(m_ShadowmapRT->getShadowmapTexture(), nullptr, m_BlitMat);
 }
@@ -437,11 +457,11 @@ void SceneRenderGraph::setGLCull(bool enable)
         m_CullFace = enable;
         if (enable)
         {
-            glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
         }
         else
         {
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
         }
     }
 }

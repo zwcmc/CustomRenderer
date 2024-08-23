@@ -31,7 +31,7 @@ private:
 
     static std::string readShader(std::ifstream &file, const std::string &name);
     static RenderNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, RenderNode::Ptr parent);
-    static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene);
+    static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &aabbMin, glm::vec3 &aabbMax);
     static Material::Ptr parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
     static Texture2D::Ptr loadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
 

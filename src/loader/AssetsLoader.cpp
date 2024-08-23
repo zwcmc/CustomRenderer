@@ -237,9 +237,12 @@ RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aS
         aiMesh* assimpMesh = aScene->mMeshes[aNode->mMeshes[i]];
         aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
 
-        Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene);
+        glm::vec3 aabbMin, aabbMax;
+        Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene, aabbMin, aabbMax);
         Material::Ptr mat = AssetsLoader::parseMaterial(assimpMat, aScene, directory);
 
+        node->AABBMin = aabbMin;
+        node->AABBMax = aabbMax;
         node->MeshRenders.push_back(MeshRender::New(mesh, mat));
     }
 
@@ -252,7 +255,7 @@ RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aS
     return node;
 }
 
-Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
+Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &outAABBMin, glm::vec3 &outAABBMax)
 {
     // Vertices
     std::vector<vec3> vertices;
@@ -275,6 +278,14 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
         vertices[i] = glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z);
         texcoords[i] = aMesh->mTextureCoords[0] ? glm::vec2(aMesh->mTextureCoords[0][i].x, aMesh->mTextureCoords[0][i].y) : glm::vec2(0.0f);
         normals[i] = glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z);
+
+        // Calculate AABB
+        if (vertices[i].x < vMin.x) vMin.x = vertices[i].x;
+        if (vertices[i].y < vMin.y) vMin.y = vertices[i].y;
+        if (vertices[i].z < vMin.z) vMin.z = vertices[i].z;
+        if (vertices[i].x > vMax.x) vMax.x = vertices[i].x;
+        if (vertices[i].y > vMax.y) vMax.y = vertices[i].y;
+        if (vertices[i].z > vMax.z) vMax.z = vertices[i].z;
     }
 
     for (size_t f = 0; f < aMesh->mNumFaces; ++f)
@@ -285,6 +296,9 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene)
             indices[3 * f + i] = face.mIndices[i];
         }
     }
+
+    outAABBMin = vMin;
+    outAABBMax = vMax;
 
     return Mesh::New(vertices, texcoords, normals, indices);
 }

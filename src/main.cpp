@@ -90,15 +90,15 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->init();
 
-//     RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-//    RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
-//     RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
+    // RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
     // RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-//     RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/cube/cube2.gltf");
-//     m_SceneRenderGraph->pushRenderNode(renderNode);
+    // RenderNode::Ptr renderNode = AssetsLoader::loadModel("models/glTF/cube/cube2.gltf");
+    // m_SceneRenderGraph->pushRenderNode(renderNode);
 
     RenderNode::Ptr marry = AssetsLoader::loadModel("models/obj/mary/Marry.obj");
-     marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));
     m_SceneRenderGraph->pushRenderNode(marry);
 
     RenderNode::Ptr floor = AssetsLoader::loadModel("models/obj/floor/floor.obj");

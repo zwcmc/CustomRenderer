@@ -50,7 +50,7 @@ private:
     void generateCubemaps();
     void renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
 
-    void buildRenderCommands(RenderNode::Ptr renderNode);
+    void buildRenderCommands(RenderNode::Ptr renderNode, const bool &isDebuggingAABB = false);
 
     void setGLCull(bool enable);
     void setGLBlend(bool enable);
@@ -98,4 +98,6 @@ private:
     //     vec3 cameraPos;              // 16 bytes;  byte offset = 160;
     //     glm::mat4 worldToMainLight;  // 64 bytes;  byte offset = 176;
     // };                               // total bytes = 240
+
+    Material::Ptr m_DebuggingAABBMat;
 };
