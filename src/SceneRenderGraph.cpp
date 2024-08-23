@@ -89,7 +89,7 @@ void SceneRenderGraph::addLight(BaseLight::Ptr light)
     addRenderLightCommand(light);
 }
 
-void SceneRenderGraph::pushRenderNode(RenderNode::Ptr renderNode)
+void SceneRenderGraph::pushRenderNode(SceneNode::Ptr renderNode)
 {
     m_RenderNodes.push_back(renderNode);
 
@@ -195,7 +195,7 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
 }
 
-void SceneRenderGraph::drawRenderNode(RenderNode::Ptr node)
+void SceneRenderGraph::drawRenderNode(SceneNode::Ptr node)
 {
     Material::Ptr overrideMat = node->OverrideMat;
     for (size_t i = 0; i < node->MeshRenders.size(); ++i)
@@ -299,7 +299,7 @@ void SceneRenderGraph::generateCubemaps()
     }
 }
 
-void SceneRenderGraph::buildRenderCommands(RenderNode::Ptr renderNode, const bool &isDebuggingAABB)
+void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr renderNode, const bool &isDebuggingAABB)
 {
     glm::mat4 model = renderNode->getModelMatrix();
     Material::Ptr overrideMat = renderNode->OverrideMat;

@@ -12,7 +12,7 @@
 
 #include "renderer/RenderCommand.h"
 #include "renderer/CommandBuffer.h"
-#include "renderer/RenderNode.h"
+#include "renderer/SceneNode.h"
 
 #include "meshes/Sphere.h"
 
@@ -33,14 +33,14 @@ public:
 
     void init();
 
-    void pushRenderNode(RenderNode::Ptr renderNode);
+    void pushRenderNode(SceneNode::Ptr renderNode);
     void executeCommandBuffer();
     void renderCommand(RenderCommand::Ptr command);
     void renderMesh(Mesh::Ptr mesh);
 
 private:
 
-    void drawRenderNode(RenderNode::Ptr renderNode);
+    void drawRenderNode(SceneNode::Ptr renderNode);
 
     void addRenderLightCommand(BaseLight::Ptr light);
     void buildSkyboxRenderCommands();
@@ -50,7 +50,7 @@ private:
     void generateCubemaps();
     void renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
 
-    void buildRenderCommands(RenderNode::Ptr renderNode, const bool &isDebuggingAABB = false);
+    void buildRenderCommands(SceneNode::Ptr renderNode, const bool &isDebuggingAABB = false);
 
     void setGLCull(bool enable);
     void setGLBlend(bool enable);
@@ -62,7 +62,7 @@ private:
 
     glm::u32vec2 m_RenderSize;
 
-    std::vector<RenderNode::Ptr> m_RenderNodes;
+    std::vector<SceneNode::Ptr> m_RenderNodes;
 
     CommandBuffer::Ptr m_CommandBuffer;
     ArcballCamera::Ptr m_Camera;
@@ -78,7 +78,7 @@ private:
     // Environments
     GLuint m_FrameBufferID;
     GLuint m_CubemapDepthRenderBufferID;
-    RenderNode::Ptr m_Cube;
+    SceneNode::Ptr m_Cube;
     TextureCube::Ptr m_EnvironmentCubemap;
     TextureCube::Ptr m_IrradianceCubemap;
     TextureCube::Ptr m_PrefilteredCubemap;

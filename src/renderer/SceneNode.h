@@ -7,12 +7,12 @@
 #include "ptr.h"
 #include "renderer/MeshRender.h"
 
-class RenderNode
+class SceneNode
 {
-    SHARED_PTR(RenderNode)
+    SHARED_PTR(SceneNode)
 public:
-    RenderNode();
-    ~RenderNode();
+    SceneNode();
+    ~SceneNode();
 
     glm::mat4 getModelMatrix();
 
@@ -25,8 +25,8 @@ public:
     std::vector<MeshRender::Ptr> MeshRenders;
     glm::mat4 ModelMatrix;
 
-    std::vector<RenderNode::Ptr> Children;
-    std::weak_ptr<RenderNode> Parent;
+    std::vector<SceneNode::Ptr> Children;
+    std::weak_ptr<SceneNode> Parent;
 
     Material::Ptr OverrideMat;
     

@@ -206,7 +206,7 @@ std::string AssetsLoader::readShader(std::ifstream &file, const std::string &nam
     return source;
 }
 
-RenderNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
+SceneNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
 {
     std::string newPath = getAssetsPath() + filePath;
 
@@ -226,9 +226,9 @@ RenderNode::Ptr AssetsLoader::loadModel(const std::string &filePath)
     return AssetsLoader::processAssimpNode(scene->mRootNode, scene, directory, nullptr);
 }
 
-RenderNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory, RenderNode::Ptr parent)
+SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string& directory, SceneNode::Ptr parent)
 {
-    RenderNode::Ptr node = RenderNode::New();
+    SceneNode::Ptr node = SceneNode::New();
     node->Parent = parent;
     node->ModelMatrix = AssetsLoader::aiMatrix4x4ToGlmMat4(aNode->mTransformation);
 
