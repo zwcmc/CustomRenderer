@@ -322,20 +322,17 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
 
 void SceneRenderGraph::executeCommandBuffer()
 {
-    glm::vec3 lightPosition0 = m_Lights[0]->getLightPosition();
-    glm::vec3 lightColor0 = m_Lights[0]->getLightColor();
+    Light::Ptr mainLight = m_Lights[0];
+    
+    Camera::Ptr lightCamera = Camera::New(mainLight->getLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    lightCamera->setOrthographic(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
+    glm::mat4 lightVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
 
     // Render shadowmap first
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->bind();
-
     m_ShadowCasterMat->use();
-
-    Camera::Ptr lightCamera = Camera::New(lightPosition0, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    lightCamera->setOrthographic(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
-    glm::mat4 lightVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
-
     std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
     for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
     {
@@ -353,8 +350,8 @@ void SceneRenderGraph::executeCommandBuffer()
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(v[0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(p[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(lightPosition0.x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(lightColor0.x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->getLightPosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->getLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
     glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightVP[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);

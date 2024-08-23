@@ -103,7 +103,6 @@ int main()
 
     SceneNode::Ptr floor = AssetsLoader::loadModel("models/obj/floor/floor.obj");
     floor->translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    floor->scale(glm::vec3(0.2f));
     m_SceneRenderGraph->pushRenderNode(floor);
 
     // Get the real size in pixels

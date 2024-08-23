@@ -236,8 +236,8 @@ SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aSc
         aiMesh* assimpMesh = aScene->mMeshes[aNode->mMeshes[i]];
         aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
 
-        glm::vec3 aabbMin = glm::vec3(99999.0f);
-        glm::vec3 aabbMax = glm::vec3(-99999.0f);
+        glm::vec3 aabbMin = glm::vec3(FLT_MAX);
+        glm::vec3 aabbMax = glm::vec3(-FLT_MAX);
         Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene, aabbMin, aabbMax);
         Material::Ptr mat = AssetsLoader::parseMaterial(assimpMat, aScene, directory);
         

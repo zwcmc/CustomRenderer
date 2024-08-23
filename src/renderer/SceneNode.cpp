@@ -6,7 +6,7 @@
 #include <assert.h>
 
 SceneNode::SceneNode()
-    : ModelMatrix(glm::mat4(1.0f)), Transform(glm::mat4(1.0f)), AABBMin(glm::vec3(-99999.0f)), AABBMax(glm::vec3(99999.0f)), IsAABBCalculated(false)
+    : ModelMatrix(glm::mat4(1.0f)), Transform(glm::mat4(1.0f)), AABBMin(glm::vec3(-FLT_MAX)), AABBMax(glm::vec3(FLT_MAX)), IsAABBCalculated(false)
 { }
 
 SceneNode::~SceneNode()
