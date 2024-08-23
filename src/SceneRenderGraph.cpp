@@ -396,7 +396,7 @@ void SceneRenderGraph::executeCommandBuffer()
     // Debugging AABB
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_DebuggingAABBMat->use();
-    setGLCull(m_DebuggingAABBMat->getDoubleSided());
+    setGLCull(!m_DebuggingAABBMat->getDoubleSided());
     std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->getDebuggingCommands();
     for (size_t i = 0; i < commands.size(); ++i)
     {
@@ -414,7 +414,7 @@ void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
     Mesh::Ptr mesh = command->Mesh;
     Material::Ptr mat = command->Material;
 
-    setGLCull(mat->getDoubleSided());
+    setGLCull(!mat->getDoubleSided());
     setGLBlend(mat->getAlphaMode() == Material::AlphaMode::BLEND);
 
     mat->addOrSetTextureCube(m_IrradianceCubemap);
@@ -457,11 +457,11 @@ void SceneRenderGraph::setGLCull(bool enable)
         m_CullFace = enable;
         if (enable)
         {
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
         }
         else
         {
-            glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
         }
     }
 }

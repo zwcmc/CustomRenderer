@@ -6,6 +6,9 @@ Material::Material(const std::string &shaderName, const std::string &vsPath, con
     : m_DoubleSided(false), m_AlphaMode(AlphaMode::DEFAULT_OPAQUE), m_UsedForSkybox(usedForSkybox), m_CastShadows(true)
 {
     m_Shader = AssetsLoader::loadShader(shaderName, vsPath, fsPath);
+    
+    if (m_UsedForSkybox)
+        m_DoubleSided = true;
 }
 
 Material::~Material()
