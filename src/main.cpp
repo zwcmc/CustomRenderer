@@ -91,11 +91,12 @@ int main()
     m_SceneRenderGraph->init();
 
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-//     SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
+    // sceneNode->translate(glm::vec3(3.0f, 0.0f, 0.0f));
+     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
 //     SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
-     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
+      // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/cube/cube2.gltf");
-//     m_SceneRenderGraph->addSceneNode(sceneNode);
+    // m_SceneRenderGraph->addSceneNode(sceneNode);
 
     SceneNode::Ptr marry = AssetsLoader::loadModel("models/obj/mary/Marry.obj");
     marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));

@@ -7,6 +7,10 @@
 #include "loader/AssetsLoader.h"
 #include "meshes/AABBCube.h"
 
+#include "utility/Collision.h"
+
+using namespace Collision;
+
 SceneRenderGraph::SceneRenderGraph()
     : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false), m_RenderSize(glm::u32vec2(1))
 { }
@@ -308,9 +312,9 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
         m_CommandBuffer->pushCommand(sceneNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->getMaterial(), model);
     
-//    // AABB debugging
-//    if (sceneNode->IsAABBCalculated)
-//        m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
+    // Debugging AABB
+    if (sceneNode->IsAABBCalculated && false)
+        m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABB.GetCorners()), m_DebuggingAABBMat, model);
 
     for (size_t i = 0; i < sceneNode->getChildrenCount(); ++i)
         buildRenderCommands(sceneNode->getChildByIndex(i));
@@ -318,17 +322,11 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
 
 void SceneRenderGraph::calculateSceneAABB()
 {
-    // Calculate the AABB for the scene
-    glm::vec3 sceneAABBMin = glm::vec3(FLT_MAX);
-    glm::vec3 sceneAABBMax = glm::vec3(-FLT_MAX);
-    m_Scene->mergeChildrenAABBs(sceneAABBMin, sceneAABBMax);
-    
+    m_Scene->mergeChildrenAABBs(m_Scene->AABB);
     m_Scene->IsAABBCalculated = true;
-    m_Scene->AABBMin = sceneAABBMin;
-    m_Scene->AABBMax = sceneAABBMax;
 
     // Debugging AABB
-    // m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneAABBMin, sceneAABBMax), m_DebuggingAABBMat, glm::mat4(1.0f));
+    // m_CommandBuffer->pushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, glm::mat4(1.0f));
 }
 
 void SceneRenderGraph::executeCommandBuffer()
@@ -339,7 +337,8 @@ void SceneRenderGraph::executeCommandBuffer()
     lightCamera->setOrthographic(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
     glm::mat4 lightVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
     
-     glm::mat4 viewCameraProjection = m_Camera->getProjectionMatrix();
+    glm::mat4 viewCameraProjection = m_Camera->getProjectionMatrix();
+
     // 1. Calculate 8 points of camera's frustum
     
     // 2. Transform 8 points to light space

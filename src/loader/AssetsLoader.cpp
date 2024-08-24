@@ -12,6 +12,10 @@
 
 #include "base/Material.h"
 
+#include "utility/Collision.h"
+
+using namespace Collision;
+
 std::map<std::string, Texture2D::Ptr> AssetsLoader::assimpTextures = {};
 
 Shader::Ptr AssetsLoader::loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
@@ -238,6 +242,7 @@ SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aSc
 
         glm::vec3 aabbMin = glm::vec3(FLT_MAX);
         glm::vec3 aabbMax = glm::vec3(-FLT_MAX);
+
         Mesh::Ptr mesh = AssetsLoader::parseMesh(assimpMesh, aScene, aabbMin, aabbMax, ingoreAABBCalculation);
         Material::Ptr mat = AssetsLoader::parseMaterial(assimpMat, aScene, directory);
         
@@ -245,8 +250,8 @@ SceneNode::Ptr AssetsLoader::processAssimpNode(aiNode* aNode, const aiScene* aSc
         {
             if (!node->IsAABBCalculated && assimpMesh->mNumVertices > 0)
                 node->IsAABBCalculated = true;
-            node->AABBMin = aabbMin;
-            node->AABBMax = aabbMax;
+
+            BoundingBox::CreateFromPoints(node->AABB, aabbMin, aabbMax);
         }
 
         node->MeshRenders.push_back(MeshRender::New(mesh, mat));
@@ -283,12 +288,14 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
         // Calculate AABB
         if (!ingoreAABBCalculation)
         {
-            if (vertices[i].x < outAABBMin.x) outAABBMin.x = vertices[i].x;
-            if (vertices[i].y < outAABBMin.y) outAABBMin.y = vertices[i].y;
-            if (vertices[i].z < outAABBMin.z) outAABBMin.z = vertices[i].z;
-            if (vertices[i].x > outAABBMax.x) outAABBMax.x = vertices[i].x;
-            if (vertices[i].y > outAABBMax.y) outAABBMax.y = vertices[i].y;
-            if (vertices[i].z > outAABBMax.z) outAABBMax.z = vertices[i].z;
+            outAABBMin = glm::min(outAABBMin, vertices[i]);
+            outAABBMax = glm::max(outAABBMax, vertices[i]);
+//            if (vertices[i].x < outAABBMin.x) outAABBMin.x = vertices[i].x;
+//            if (vertices[i].y < outAABBMin.y) outAABBMin.y = vertices[i].y;
+//            if (vertices[i].z < outAABBMin.z) outAABBMin.z = vertices[i].z;
+//            if (vertices[i].x > outAABBMax.x) outAABBMax.x = vertices[i].x;
+//            if (vertices[i].y > outAABBMax.y) outAABBMax.y = vertices[i].y;
+//            if (vertices[i].z > outAABBMax.z) outAABBMax.z = vertices[i].z;
         }
     }
 

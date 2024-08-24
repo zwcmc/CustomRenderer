@@ -6,7 +6,7 @@
 #include <assert.h>
 
 SceneNode::SceneNode()
-    : ModelMatrix(glm::mat4(1.0f)), Transform(glm::mat4(1.0f)), AABBMin(glm::vec3(-FLT_MAX)), AABBMax(glm::vec3(FLT_MAX)), IsAABBCalculated(false)
+    : ModelMatrix(glm::mat4(1.0f)), Transform(glm::mat4(1.0f)), IsAABBCalculated(false)
 { }
 
 SceneNode::~SceneNode()
@@ -58,22 +58,13 @@ void SceneNode::addChild(SceneNode::Ptr node)
     m_Children.push_back(node);
 }
 
-void SceneNode::mergeChildrenAABBs(glm::vec3 &min, glm::vec3 &max)
+void SceneNode::mergeChildrenAABBs(BoundingBox &boundingBox)
 {
     if (IsAABBCalculated)
-    {
-        glm::vec4 aabbMin = getModelMatrix() * glm::vec4(AABBMin, 1.0f);
-        glm::vec4 aabbMax = getModelMatrix() * glm::vec4(AABBMax, 1.0f);
-        if (aabbMin.x < min.x) min.x = aabbMin.x;
-        if (aabbMin.y < min.y) min.y = aabbMin.y;
-        if (aabbMin.z < min.z) min.z = aabbMin.z;
-        if (aabbMax.x > max.x) max.x = aabbMax.x;
-        if (aabbMax.y > max.y) max.y = aabbMax.y;
-        if (aabbMax.z > max.z) max.z = aabbMax.z;
-    }
+        boundingBox.MergeBoundingBox(AABB, getModelMatrix());
 
     for (size_t i = 0; i < m_Children.size(); ++i)
-        m_Children[i]->mergeChildrenAABBs(min, max);
+        m_Children[i]->mergeChildrenAABBs(boundingBox);
 }
 
 size_t SceneNode::getChildrenCount()
