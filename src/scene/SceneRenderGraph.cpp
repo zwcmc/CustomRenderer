@@ -62,10 +62,7 @@ void SceneRenderGraph::Init()
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Load environment cubemaps
-//    LoadEnvironment("textures/environments/ktx/papermill.ktx");
-     LoadEnvironment("textures/environments/venice_sunset.hdr");
-    GenerateBRDFLUT();
-    BuildSkyboxRenderCommands();
+    LoadEnvironment("textures/environments/ktx/papermill.ktx");
 
     // Main light shadowmap
     m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
@@ -277,6 +274,10 @@ void SceneRenderGraph::LoadEnvironment(const std::string &cubemapPath)
 
     // Generate irradiance cubemap and pre-filtered cuebmap
     GenerateCubemaps();
+    // Generate environment BRDF look-up table
+    GenerateBRDFLUT();
+    // Add render the skybox commands
+    BuildSkyboxRenderCommands();
 }
 
 void SceneRenderGraph::GenerateCubemaps()
