@@ -290,12 +290,6 @@ Mesh::Ptr AssetsLoader::parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
         {
             outAABBMin = glm::min(outAABBMin, vertices[i]);
             outAABBMax = glm::max(outAABBMax, vertices[i]);
-//            if (vertices[i].x < outAABBMin.x) outAABBMin.x = vertices[i].x;
-//            if (vertices[i].y < outAABBMin.y) outAABBMin.y = vertices[i].y;
-//            if (vertices[i].z < outAABBMin.z) outAABBMin.z = vertices[i].z;
-//            if (vertices[i].x > outAABBMax.x) outAABBMax.x = vertices[i].x;
-//            if (vertices[i].y > outAABBMax.y) outAABBMax.y = vertices[i].y;
-//            if (vertices[i].z > outAABBMax.z) outAABBMax.z = vertices[i].z;
         }
     }
 

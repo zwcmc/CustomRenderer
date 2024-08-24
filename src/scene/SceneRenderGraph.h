@@ -53,6 +53,8 @@ private:
     void renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
 
     void buildRenderCommands(SceneNode::Ptr sceneNode);
+    
+    void ComputeShadowProjectionFitViewFrustum(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
 
     void setGLCull(bool enable);
     void setGLBlend(bool enable);

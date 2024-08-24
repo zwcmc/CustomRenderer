@@ -1,6 +1,7 @@
 #include "scene/SceneRenderGraph.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "defines.h"
 #include "base/TextureCube.h"
@@ -325,8 +326,36 @@ void SceneRenderGraph::calculateSceneAABB()
     m_Scene->mergeChildrenAABBs(m_Scene->AABB);
     m_Scene->IsAABBCalculated = true;
 
+    // Debugging camera's frustum
+//    BoundingFrustum bf;
+//    BoundingFrustum::CreateFromMatrix(bf, m_Camera->getProjectionMatrix());
+//    glm::mat4 tr = glm::mat4(1.0f);
+//    tr = glm::translate(tr, m_Camera->getEyePosition());
+//    m_CommandBuffer->pushDebuggingCommand(AABBCube::New(bf.GetCorners()), m_DebuggingAABBMat, tr);
+
     // Debugging AABB
     // m_CommandBuffer->pushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, glm::mat4(1.0f));
+}
+
+void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
+{
+    glm::mat4 inverseCameraView = glm::inverse(cameraView);
+
+    // Calculate 8 corner points of view frustum
+    BoundingFrustum viewFrustum(cameraProjection);
+    std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
+    
+    vec3 tempTranslatedPoint;
+    for (size_t i = 0; i < 8; ++i)
+    {
+        // Transform the frustum from camera view space to world space
+        frustumPoints[i] = glm::make_vec3(inverseCameraView * glm::vec4(frustumPoints[i], 1.0f));
+        // Transform the frustum from world space to light view space
+        tempTranslatedPoint = glm::make_vec3(lightView * glm::vec4(frustumPoints[i], 1.0f));
+        // Find the min and max
+        lightCameraOrthographicMin = glm::min(tempTranslatedPoint, lightCameraOrthographicMin);
+        lightCameraOrthographicMax = glm::max(tempTranslatedPoint, lightCameraOrthographicMax);
+    }
 }
 
 void SceneRenderGraph::executeCommandBuffer()
@@ -334,19 +363,17 @@ void SceneRenderGraph::executeCommandBuffer()
     Light::Ptr mainLight = m_Lights[0];
     
     Camera::Ptr lightCamera = Camera::New(mainLight->getLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    lightCamera->setOrthographic(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
-    glm::mat4 lightVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
     
     glm::mat4 viewCameraProjection = m_Camera->getProjectionMatrix();
+    glm::mat4 viewCameraView = m_Camera->getViewMatrix();
 
-    // 1. Calculate 8 points of camera's frustum
-    
-    // 2. Transform 8 points to light space
-    
-    // 3. find minimum X, maximum X, minimum Y and maximum Y for the light's projection (left, right, bottom and top)
-    
-    // 4. Moving the Light in Texel-Sized Increments
-    
+    // Calculate a tight light camera projection to fit the camera view frustum
+    vec3 orthographicMin = vec3(FLT_MAX);
+    vec3 orthographicMax = vec3(-FLT_MAX);
+    ComputeShadowProjectionFitViewFrustum(viewCameraProjection, viewCameraView, lightCamera->getViewMatrix(), orthographicMin, orthographicMax);
+
+    lightCamera->setOrthographic(orthographicMin.x, orthographicMax.x, orthographicMin.y, orthographicMax.y, 0.001f, 100.0f);
+    glm::mat4 lightCameraVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
 
     // Render shadowmap first
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -357,22 +384,19 @@ void SceneRenderGraph::executeCommandBuffer()
     for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
     {
         RenderCommand::Ptr command = shadowCasterCommands[i];
-        m_ShadowCasterMat->setMatrix("uLightMVP", lightVP * command->Transform);
+        m_ShadowCasterMat->setMatrix("uLightMVP", lightCameraVP * command->Transform);
         renderMesh(command->Mesh);
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
-    glm::mat4 v = m_Camera->getViewMatrix();
-    glm::vec3 cameraPos = m_Camera->getEyePosition();
-
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(v[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(viewCameraView[0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(viewCameraProjection[0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->getLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->getLightColor().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightVP[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->getEyePosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightCameraVP[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Bind intermediate framebuffer

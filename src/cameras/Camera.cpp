@@ -63,3 +63,13 @@ glm::vec3& Camera::getEyePosition()
 {
     return m_EyePosition;
 }
+
+float& Camera::GetNear()
+{
+    return m_ZNear;
+}
+
+float& Camera::GetFar()
+{
+    return m_ZFar;
+}

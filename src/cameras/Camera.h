@@ -19,6 +19,8 @@ public:
     glm::mat4& getViewMatrix();
     glm::mat4& getProjectionMatrix();
     glm::vec3& getEyePosition();
+    float& GetNear();
+    float& GetFar();
 
     virtual void zooming(const float &yoffset) { }
     virtual void panning(const float &xoffset, const float &yoffset) { }
