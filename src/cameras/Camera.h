@@ -11,20 +11,20 @@ public:
     Camera(const glm::vec3 &eye, const glm::vec3 &lookAt, const glm::vec3 &upVector);
     virtual ~Camera() = default;
     
-    void setPerspective(const float &fov, const int &width, const int &height, const float &zNear, const float &zFar);
-    void setOrthographic(const float &left, const float &right, const float &bottom, const float &top, const float &zNear, const float &zFar);
+    void SetPerspective(const float &fov, const int &width, const int &height, const float &zNear, const float &zFar);
+    void SetOrthographic(const float &left, const float &right, const float &bottom, const float &top, const float &zNear, const float &zFar);
 
-    void setScreenSize(const int &width, const int &height);
+    void SetScreenSize(const int &width, const int &height);
     
-    glm::mat4& getViewMatrix();
-    glm::mat4& getProjectionMatrix();
-    glm::vec3& getEyePosition();
+    glm::mat4& GetViewMatrix();
+    glm::mat4& GetProjectionMatrix();
+    glm::vec3& GetEyePosition();
     float& GetNear();
     float& GetFar();
 
-    virtual void zooming(const float &yoffset) { }
-    virtual void panning(const float &xoffset, const float &yoffset) { }
-    virtual void arcballing(const float &xoffset, const float &yoffset) { }
+    virtual void Zooming(const float &yoffset) { }
+    virtual void Panning(const float &xoffset, const float &yoffset) { }
+    virtual void Arcballing(const float &xoffset, const float &yoffset) { }
 
 protected:
     bool m_IsPerspective;

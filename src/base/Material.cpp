@@ -5,7 +5,7 @@
 Material::Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath, bool usedForSkybox)
     : m_DoubleSided(false), m_AlphaMode(AlphaMode::DEFAULT_OPAQUE), m_UsedForSkybox(usedForSkybox), m_CastShadows(true)
 {
-    m_Shader = AssetsLoader::loadShader(shaderName, vsPath, fsPath);
+    m_Shader = AssetsLoader::LoadShader(shaderName, vsPath, fsPath);
     
     if (m_UsedForSkybox)
         m_DoubleSided = true;
@@ -20,66 +20,66 @@ Material::~Material()
     m_UniformFloats.clear();
 }
 
-void Material::addOrSetTexture(Texture2D::Ptr texture)
+void Material::AddOrSetTexture(Texture2D::Ptr texture)
 {
-    m_Textures.insert_or_assign(texture->getTextureName(), texture);
+    m_Textures.insert_or_assign(texture->GetTextureName(), texture);
 }
 
-void Material::addOrSetTextureCube(TextureCube::Ptr textureCube)
+void Material::AddOrSetTextureCube(TextureCube::Ptr textureCube)
 {
-    m_TextureCubes.insert_or_assign(textureCube->getTextureName(), textureCube);
+    m_TextureCubes.insert_or_assign(textureCube->GetTextureName(), textureCube);
 }
 
-void Material::addOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture)
+void Material::AddOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture)
 {
-    texture->setTextureName(propertyName);
+    texture->SetTextureName(propertyName);
     m_Textures.insert_or_assign(propertyName, texture);
 }
 
-void Material::addOrSetVector(const std::string &propertyName, const glm::vec3 &value)
+void Material::AddOrSetVector(const std::string &propertyName, const glm::vec3 &value)
 {
     m_UniformVec3.insert_or_assign(propertyName, value);
 }
 
-void Material::addOrSetVector(const std::string &propertyName, const glm::vec4 &value)
+void Material::AddOrSetVector(const std::string &propertyName, const glm::vec4 &value)
 {
     m_UniformVec4.insert_or_assign(propertyName, value);
 }
 
-void Material::addOrSetFloat(const std::string &propertyName, const float &value)
+void Material::AddOrSetFloat(const std::string &propertyName, const float &value)
 {
     m_UniformFloats.insert_or_assign(propertyName, value);
 }
 
-void Material::setMatrix(const std::string &propertyName, const glm::mat3x3 &value)
+void Material::SetMatrix(const std::string &propertyName, const glm::mat3x3 &value)
 {
-    m_Shader->setUniformMatrix(propertyName, value);
+    m_Shader->SetUniformMatrix(propertyName, value);
 }
 
-void Material::setMatrix(const std::string &propertyName, const glm::mat4x4 &value)
+void Material::SetMatrix(const std::string &propertyName, const glm::mat4x4 &value)
 {
-    m_Shader->setUniformMatrix(propertyName, value);
+    m_Shader->SetUniformMatrix(propertyName, value);
 }
 
-void Material::setDoubleSided(bool bDoubleSided)
+void Material::SetDoubleSided(bool bDoubleSided)
 {
     m_DoubleSided = bDoubleSided;
 }
 
-void Material::setAlphaMode(AlphaMode mode)
+void Material::SetAlphaMode(AlphaMode mode)
 {
     m_AlphaMode = mode;
 }
 
-void Material::use()
+void Material::Use()
 {
-    m_Shader->use();
+    m_Shader->Use();
 
     if (m_UniformVec3.size() > 0)
     {
         for (auto &pair : m_UniformVec3)
         {
-            m_Shader->setUniformVector(pair.first, pair.second);
+            m_Shader->SetUniformVector(pair.first, pair.second);
         }
     }
 
@@ -87,7 +87,7 @@ void Material::use()
     {
         for (auto &pair : m_UniformVec4)
         {
-            m_Shader->setUniformVector(pair.first, pair.second);
+            m_Shader->SetUniformVector(pair.first, pair.second);
         }
     }
 
@@ -95,7 +95,7 @@ void Material::use()
     {
         for (auto &pair : m_UniformFloats)
         {
-            m_Shader->setUniformFloat(pair.first, pair.second);
+            m_Shader->SetUniformFloat(pair.first, pair.second);
         }
     }
 
@@ -104,14 +104,14 @@ void Material::use()
         int unit = 0;
         for (auto &pair : m_Textures)
         {
-            m_Shader->setUniformInt(pair.first, unit);
-            pair.second->bind(unit);
+            m_Shader->SetUniformInt(pair.first, unit);
+            pair.second->Bind(unit);
             ++unit;
         }
         for (auto &pair : m_TextureCubes)
         {
-            m_Shader->setUniformInt(pair.first, unit);
-            pair.second->bind(unit);
+            m_Shader->SetUniformInt(pair.first, unit);
+            pair.second->Bind(unit);
             ++unit;
         }
     }

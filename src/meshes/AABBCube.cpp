@@ -13,5 +13,5 @@ AABBCube::AABBCube(const std::vector<glm::vec3> &vertices)
         1,2,6,  6,5,1  // Face 6
     };
 
-    initMesh(vertices, indices);
+    InitMesh(vertices, indices);
 }

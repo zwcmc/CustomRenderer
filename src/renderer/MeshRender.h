@@ -11,8 +11,8 @@ public:
     MeshRender(Mesh::Ptr mesh, Material::Ptr mat);
     ~MeshRender() = default;
 
-    Mesh::Ptr getMesh() { return m_Mesh; }
-    Material::Ptr getMaterial() { return m_Material; }
+    Mesh::Ptr GetMesh() { return m_Mesh; }
+    Material::Ptr GetMaterial() { return m_Material; }
 private:
     Mesh::Ptr m_Mesh;
     Material::Ptr m_Material;

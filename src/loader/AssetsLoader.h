@@ -17,26 +17,24 @@
 class AssetsLoader
 {
 public:
-    static Shader::Ptr loadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
-    static Texture2D::Ptr loadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static Texture2D::Ptr loadHDRTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static Texture2D::Ptr loadTextureBuffer(const std::string &textureName, const glm::u32vec2 &size, const int &components, GLenum type, void* buffer, bool useMipmap = false);
-    static Texture2D::Ptr loadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static TextureCube::Ptr loadCubemapKTX(const std::string &textureName, const std::string &filePath);
-    static void initCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath);
-
-    static SceneNode::Ptr loadModel(const std::string &filePath, const bool &ingoreAABBCalculation = false);
+    static Shader::Ptr LoadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
+    static Texture2D::Ptr LoadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
+    static Texture2D::Ptr LoadHDRTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
+    static Texture2D::Ptr LoadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
+    static TextureCube::Ptr LoadCubemapKTX(const std::string &textureName, const std::string &filePath);
+    static void InitCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath);
+    static SceneNode::Ptr LoadModel(const std::string &filePath, const bool &ingoreAABBCalculation = false);
 
 private:
     AssetsLoader() = default;
 
-    static std::string readShader(std::ifstream &file, const std::string &name);
-    static SceneNode::Ptr processAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &ingoreAABBCalculation);
-    static Mesh::Ptr parseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &aabbMin, glm::vec3 &aabbMax, const bool &ingoreAABBCalculation);
-    static Material::Ptr parseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
-    static Texture2D::Ptr loadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
+    static std::string ReadShader(std::ifstream &file, const std::string &name);
+    static SceneNode::Ptr ProcessAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &ingoreAABBCalculation);
+    static Mesh::Ptr ParseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &aabbMin, glm::vec3 &aabbMax, const bool &ingoreAABBCalculation);
+    static Material::Ptr ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
+    static Texture2D::Ptr LoadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
 
-    inline static std::string getAssetsPath()
+    inline static std::string GetAssetsPath()
     {
 #ifdef XCODE_PROJECT
         return "./../../assets/";
@@ -45,8 +43,8 @@ private:
 #endif
     }
 
-    inline static std::string getShaderPath() { return getAssetsPath() + "glsl_shaders/"; }
-    inline static GLenum getFormat(const int &components)
+    inline static std::string GetShaderPath() { return GetAssetsPath() + "glsl_shaders/"; }
+    inline static GLenum GetFormat(const int &components)
     {
         GLenum format = 0;
         switch (components)

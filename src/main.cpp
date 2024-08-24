@@ -55,7 +55,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // cannot use any features that have been marked as deprecated
+    // cannot Use any features that have been marked as deprecated
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #ifdef __APPLE__
     // Retina support on macOS
@@ -88,24 +88,24 @@ int main()
 
     // SceneRenderGraph
     m_SceneRenderGraph = SceneRenderGraph::New();
-    m_SceneRenderGraph->init();
+    m_SceneRenderGraph->Init();
 
-    // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    // sceneNode->translate(glm::vec3(3.0f, 0.0f, 0.0f));
-     // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/buster_drone/busterDrone.gltf");
-//     SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
-      // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    // SceneNode::Ptr sceneNode = AssetsLoader::loadModel("models/glTF/cube/cube2.gltf");
-    // m_SceneRenderGraph->addSceneNode(sceneNode);
+    // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    // sceneNode->Translate(glm::vec3(3.0f, 0.0f, 0.0f));
+    // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
+    //     SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
+    // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
+    // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/cube/cube2.gltf");
+    // m_SceneRenderGraph->AddSceneNode(sceneNode);
 
-    SceneNode::Ptr marry = AssetsLoader::loadModel("models/obj/mary/Marry.obj");
-    marry->translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->addSceneNode(marry);
+    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(marry);
 
-    SceneNode::Ptr floor = AssetsLoader::loadModel("models/obj/floor/floor.obj");
-    floor->translate(glm::vec3(floor->AABB.Center.x, -1.5f, floor->AABB.Center.z));
-    floor->scale(glm::vec3(0.2f));
-    m_SceneRenderGraph->addSceneNode(floor);
+    SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    floor->Translate(glm::vec3(floor->AABB.Center.x, -1.5f, floor->AABB.Center.z));
+    floor->Scale(glm::vec3(0.2f));
+    m_SceneRenderGraph->AddSceneNode(floor);
 
     // Get the real size in pixels
     int realWidth, realHeight;
@@ -113,21 +113,21 @@ int main()
     glViewport(0, 0, realWidth, realHeight);
     
     ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    arcballCamera->setPerspective(glm::radians(45.0f), realWidth, realHeight, 0.001f, 20.0f);
-    m_SceneRenderGraph->setCamera(arcballCamera);
+    arcballCamera->SetPerspective(glm::radians(45.0f), realWidth, realHeight, 0.001f, 20.0f);
+    m_SceneRenderGraph->SetCamera(arcballCamera);
 
-    m_SceneRenderGraph->setRenderSize(realWidth, realHeight);
+    m_SceneRenderGraph->SetRenderSize(realWidth, realHeight);
 
     Light::Ptr light = Light::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(2.0f, 2.0f, 2.0f));
-    m_SceneRenderGraph->addLight(light);
+    m_SceneRenderGraph->AddLight(light);
     
-    m_SceneRenderGraph->calculateSceneAABB();
+    m_SceneRenderGraph->CalculateSceneAABB();
 
     while (!glfwWindowShouldClose(m_Window))
     {
         processWindowInput(m_Window);
 
-        m_SceneRenderGraph->executeCommandBuffer();
+        m_SceneRenderGraph->ExecuteCommandBuffer();
 
         checkOpenGLError();
 
@@ -168,7 +168,7 @@ void resizeCallback(GLFWwindow* window, int width, int height)
 {
     if (width > 0.0f && height > 0.0f)
     {
-        m_SceneRenderGraph->setRenderSize(width, height);
+        m_SceneRenderGraph->SetRenderSize(width, height);
     }
 
     glViewport(0, 0, width, height);
@@ -184,7 +184,7 @@ void processWindowInput(GLFWwindow* window)
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    m_SceneRenderGraph->getActiveCamera()->zooming(static_cast<float>(yoffset));
+    m_SceneRenderGraph->GetActiveCamera()->Zooming(static_cast<float>(yoffset));
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -223,11 +223,11 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
 
     if (m_LeftMouseButtonPressed)
     {
-        m_SceneRenderGraph->getActiveCamera()->arcballing(dx, dy);
+        m_SceneRenderGraph->GetActiveCamera()->Arcballing(dx, dy);
     }
 
     if (m_RightMouseButtonPressed)
     {
-        m_SceneRenderGraph->getActiveCamera()->panning(dx, -dy);
+        m_SceneRenderGraph->GetActiveCamera()->Panning(dx, -dy);
     }
 }

@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 FragColor;
+out vec4 OutColor;
 
 uniform sampler2D uHDRMap;
 
@@ -24,5 +24,5 @@ void main()
 {
     vec2 uv = SampleSphericalMap(normalize(UVW));
     vec3 color = texture(uHDRMap, uv).rgb;
-    FragColor = vec4(vec3(color), 1.0);
+    OutColor = vec4(vec3(color), 1.0);
 }

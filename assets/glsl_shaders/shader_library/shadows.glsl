@@ -9,7 +9,7 @@
 
 #define POISSON_SAMPLE_NUM 20
 
-float rand_2to1(vec2 uv)
+float Rand_2to1(vec2 uv)
 { 
     // 0 - 1
     const float a = 12.9898, b = 78.233, c = 43758.5453;
@@ -17,11 +17,11 @@ float rand_2to1(vec2 uv)
     return fract(sin(sn) * c);
 }
 
-void poissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_SAMPLE_NUM])
+void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_SAMPLE_NUM])
 {
     float angleStep = M_TAU * float(POISSON_SAMPLE_NUM * 0.5) / float(POISSON_SAMPLE_NUM);
 
-    float angle = rand_2to1(randomSeed) * M_TAU;
+    float angle = Rand_2to1(randomSeed) * M_TAU;
     float radius = 1.0 / float(POISSON_SAMPLE_NUM);
     float radiusStep = radius;
 
@@ -33,15 +33,15 @@ void poissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_S
     }
 }
 
-float sampleShadowmap(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowmap(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     return texture(shadowmap, vec3(shadowCoord.xy, shadowCoord.z));
 }
 
-float sampleShadowmapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowmapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     vec2 poissonUV[POISSON_SAMPLE_NUM];
-    poissonDiskSamples(shadowCoord.xy, poissonUV);
+    PoissonDiskSamples(shadowCoord.xy, poissonUV);
 
     float shadow = 0.0;
     for (int i = 0; i < POISSON_SAMPLE_NUM; ++i)
@@ -51,7 +51,7 @@ float sampleShadowmapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     return shadow / float(POISSON_SAMPLE_NUM);
 }
 
-float sampleShadowmapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowmapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     float fetchesWeights[4];
     vec2 fetchesUV[4];
@@ -64,7 +64,7 @@ float sampleShadowmapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
             + fetchesWeights[3] * texture(shadowmap, vec3(fetchesUV[3], shadowCoord.z));
 }
 
-float sampleShadowmapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowmapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     float fetchesWeights[9];
     vec2 fetchesUV[9];
@@ -82,7 +82,7 @@ float sampleShadowmapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
             + fetchesWeights[8] * texture(shadowmap, vec3(fetchesUV[8], shadowCoord.z));
 }
 
-float sampleShadowmapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowmapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     float fetchesWeights[16];
     vec2 fetchesUV[16];

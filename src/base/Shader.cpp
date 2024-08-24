@@ -10,7 +10,7 @@ Shader::Shader(const std::string &name, const std::string &vsSource, const std::
     : m_ShaderID(0)
 {
     m_ShaderName = name;
-    createShadersAndCompile(vsSource, fsSource);
+    CreateShadersAndCompile(vsSource, fsSource);
 }
 
 Shader::~Shader()
@@ -19,47 +19,47 @@ Shader::~Shader()
     m_ShaderID = 0;
 }
 
-void Shader::use()
+void Shader::Use()
 {
     glUseProgram(m_ShaderID);
 }
 
-void Shader::setUniformInt(const std::string &uniformName, const int &value)
+void Shader::SetUniformInt(const std::string &uniformName, const int &value)
 {
-    glUniform1i(getUniformLocation(uniformName), value);
+    glUniform1i(GetUniformLocation(uniformName), value);
 }
 
-void Shader::setUniformFloat(const std::string &uniformName, const float &value)
+void Shader::SetUniformFloat(const std::string &uniformName, const float &value)
 {
-    glUniform1f(getUniformLocation(uniformName), value);
+    glUniform1f(GetUniformLocation(uniformName), value);
 }
 
-void Shader::setUniformVector(const std::string &uniformName, const glm::vec3 &value)
+void Shader::SetUniformVector(const std::string &uniformName, const glm::vec3 &value)
 {
-    glUniform3fv(getUniformLocation(uniformName), 1, &value[0]);
+    glUniform3fv(GetUniformLocation(uniformName), 1, &value[0]);
 }
 
-void Shader::setUniformVector(const std::string &uniformName, const glm::vec4 &value)
+void Shader::SetUniformVector(const std::string &uniformName, const glm::vec4 &value)
 {
-    glUniform4fv(getUniformLocation(uniformName), 1, &value[0]);
+    glUniform4fv(GetUniformLocation(uniformName), 1, &value[0]);
 }
 
-void Shader::setUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value)
+void Shader::SetUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value)
 {
-    glUniformMatrix3fv(getUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
+    glUniformMatrix3fv(GetUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
 }
 
-void Shader::setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value)
+void Shader::SetUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value)
 {
-    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
+    glUniformMatrix4fv(GetUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
 }
 
-GLuint Shader::getUniformLocation(const std::string &uniformName)
+GLuint Shader::GetUniformLocation(const std::string &uniformName)
 {
     return glGetUniformLocation(m_ShaderID, uniformName.c_str());
 }
 
-void Shader::createShadersAndCompile(const std::string &vsSource, const std::string &fsSource)
+void Shader::CreateShadersAndCompile(const std::string &vsSource, const std::string &fsSource)
 {
     GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
     GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);

@@ -35,5 +35,5 @@ Sphere::Sphere(const unsigned int &xSegments, const unsigned int &ySegments, con
         }
     }
 
-    initMesh(sphereVertices, sphereIndices);
+    InitMesh(sphereVertices, sphereIndices);
 }

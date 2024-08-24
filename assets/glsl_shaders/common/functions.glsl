@@ -4,14 +4,14 @@
 #include "common/constants.glsl"
 #include "common/uniforms.glsl"
 
-float sqr(float x)
+float Sqr(float x)
 {
     return x * x;
 }
 
-float pow5(float x)
+float Pow5(float x)
 {
-    return sqr(x) * sqr(x) * x;
+    return Sqr(x) * Sqr(x) * x;
 }
 
 // The specific texture is not indicated when loading glTF, so the sRGB conversion for the texture can only be specified in the shader
@@ -41,7 +41,7 @@ vec2 Hammersley2d(uint i, uint N)
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 {
-    float a = sqr(roughness);
+    float a = Sqr(roughness);
 
     float phi = M_TAU * Xi.x;
     // float theta = atan(a * sqrt(Xi.y) / sqrt(1.0 - Xi.y));
@@ -61,7 +61,7 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     return normalize(sampleVec);
 }
 
-vec3 getNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
+vec3 GetNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
 {
     vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
 
@@ -80,7 +80,7 @@ vec3 getNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
     return normalize(TBN * tangentNormal);
 }
 
-vec4 getShadowCoord(vec3 positionWS)
+vec4 GetShadowCoord(vec3 positionWS)
 {
     vec4 shadowCoord = worldToShadow * vec4(positionWS, 1.0);
     shadowCoord.xyz /= shadowCoord.w;

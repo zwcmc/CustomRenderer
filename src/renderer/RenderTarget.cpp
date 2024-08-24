@@ -24,9 +24,9 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     if (isShadowmap)
     {
         m_ShadowmapAttachment = Texture2D::New("uShadowmap");
-        m_ShadowmapAttachment->initShadowmap(size);
+        m_ShadowmapAttachment->InitShadowmap(size);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_ShadowmapAttachment->getTextureID(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_ShadowmapAttachment->GetTextureID(), 0);
 
         // Disable writes to the color buffer
         glDrawBuffer(GL_NONE);
@@ -38,10 +38,10 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
         for (size_t i = 0; i < colorAttachmentsNum; i++)
         {
             Texture2D::Ptr colorAttachment = Texture2D::New("_ColorAttachment" + std::to_string(i));
-            colorAttachment->initTexture2D(size, internalFormat, GL_RGBA, type, nullptr);
-            colorAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+            colorAttachment->InitTexture2D(size, internalFormat, GL_RGBA, type, nullptr);
+            colorAttachment->SetWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + static_cast<int>(i), GL_TEXTURE_2D, colorAttachment->getTextureID(), 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + static_cast<int>(i), GL_TEXTURE_2D, colorAttachment->GetTextureID(), 0);
             m_ColorAttachments.push_back(colorAttachment);
         }
 
@@ -50,10 +50,10 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
         if (depthAndStencil)
         {
             m_DepthStencilAttachment = Texture2D::New("_DepthStencilAttachment");
-            m_DepthStencilAttachment->initTexture2D(size, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
-            m_DepthStencilAttachment->setWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+            m_DepthStencilAttachment->InitTexture2D(size, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+            m_DepthStencilAttachment->SetWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilAttachment->getTextureID(), 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilAttachment->GetTextureID(), 0);
         }
     }
 
@@ -65,7 +65,7 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Texture2D::Ptr RenderTarget::getColorTexture(const unsigned int &index)
+Texture2D::Ptr RenderTarget::GetColorTexture(const unsigned int &index)
 {
     if (index < m_ColorAttachments.size())
     {
@@ -78,32 +78,32 @@ Texture2D::Ptr RenderTarget::getColorTexture(const unsigned int &index)
     }
 }
 
-Texture2D::Ptr RenderTarget::getDepthAndStencilTexture()
+Texture2D::Ptr RenderTarget::GetDepthAndStencilTexture()
 {
     return m_HasDepthAndStencil ? m_DepthStencilAttachment : nullptr;
 }
 
-Texture2D::Ptr RenderTarget::getShadowmapTexture()
+Texture2D::Ptr RenderTarget::GetShadowmapTexture()
 {
     return m_IsShadowmap ? m_ShadowmapAttachment : nullptr;
 }
 
-void RenderTarget::resize(const glm::u32vec2 &size)
+void RenderTarget::SetSize(const glm::u32vec2 &size)
 {
     m_Size = size;
 
     for (unsigned int i = 0; i < m_ColorAttachments.size(); ++i)
     {
-        m_ColorAttachments[i]->resize(size);
+        m_ColorAttachments[i]->SetSize(size);
     }
 
     if (m_HasDepthAndStencil)
     {
-        m_DepthStencilAttachment->resize(size);
+        m_DepthStencilAttachment->SetSize(size);
     }
 }
 
-void RenderTarget::bind()
+void RenderTarget::Bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
     glViewport(0, 0, m_Size.x, m_Size.y);

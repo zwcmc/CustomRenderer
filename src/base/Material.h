@@ -23,28 +23,28 @@ public:
     Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath, bool usedForSkybox = false);
     ~Material();
 
-    void addOrSetTexture(Texture2D::Ptr texture);
-    void addOrSetTextureCube(TextureCube::Ptr textureCube);
-    void addOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture);
-    void addOrSetVector(const std::string &propertyName, const glm::vec3 &value);
-    void addOrSetVector(const std::string &propertyName, const glm::vec4 &value);
-    void addOrSetFloat(const std::string &propertyName, const float &value);
+    void AddOrSetTexture(Texture2D::Ptr texture);
+    void AddOrSetTextureCube(TextureCube::Ptr textureCube);
+    void AddOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture);
+    void AddOrSetVector(const std::string &propertyName, const glm::vec3 &value);
+    void AddOrSetVector(const std::string &propertyName, const glm::vec4 &value);
+    void AddOrSetFloat(const std::string &propertyName, const float &value);
 
-    void setMatrix(const std::string &propertyName, const glm::mat3x3 &value);
-    void setMatrix(const std::string &propertyName, const glm::mat4x4& value);
+    void SetMatrix(const std::string &propertyName, const glm::mat3x3 &value);
+    void SetMatrix(const std::string &propertyName, const glm::mat4x4& value);
 
-    void setDoubleSided(bool bDoubleSided);
-    bool getDoubleSided() { return m_DoubleSided; }
+    void SetDoubleSided(bool bDoubleSided);
+    bool GetDoubleSided() { return m_DoubleSided; }
 
-    void setAlphaMode(AlphaMode mode);
-    AlphaMode getAlphaMode() { return m_AlphaMode; }
+    void SetAlphaMode(AlphaMode mode);
+    AlphaMode GetAlphaMode() { return m_AlphaMode; }
 
-    bool isUsedForSkybox() { return m_UsedForSkybox; }
+    bool IsUsedForSkybox() { return m_UsedForSkybox; }
 
-    void setCastShadows(bool cast) { m_CastShadows  = cast; }
-    bool getMaterialCastShadows() { return m_CastShadows; }
+    void SetCastShadows(bool cast) { m_CastShadows  = cast; }
+    bool GetMaterialCastShadows() { return m_CastShadows; }
 
-    void use();
+    void Use();
 private:
     Shader::Ptr m_Shader;
 

@@ -16,22 +16,19 @@ public:
     Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource);
     ~Shader();
 
-    void use();
+    void Use();
 
-    void setUniformInt(const std::string &uniformName, const int &value);
-    void setUniformFloat(const std::string &uniformName, const float &value);
-    void setUniformVector(const std::string &uniformName, const glm::vec3 &value);
-    void setUniformVector(const std::string &uniformName, const glm::vec4 &value);
-    void setUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value);
-    void setUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value);
+    void SetUniformInt(const std::string &uniformName, const int &value);
+    void SetUniformFloat(const std::string &uniformName, const float &value);
+    void SetUniformVector(const std::string &uniformName, const glm::vec3 &value);
+    void SetUniformVector(const std::string &uniformName, const glm::vec4 &value);
+    void SetUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value);
+    void SetUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value);
 
-    std::string getShaderName() { return m_ShaderName; }
+private:
+    void CreateShadersAndCompile(const std::string &vsSource, const std::string &fsSource);
+    GLuint GetUniformLocation(const std::string &uniformName);
 
     GLuint m_ShaderID;
-private:
-    void createShadersAndCompile(const std::string &vsSource, const std::string &fsSource);
-
-    GLuint getUniformLocation(const std::string &uniformName);
-
     std::string m_ShaderName;
 };

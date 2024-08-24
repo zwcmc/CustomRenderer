@@ -96,7 +96,7 @@ namespace Collision
         
         std::vector<vec3> vCorners;
         vCorners.resize(CORNER_COUNT);
-        
+
         // Returns 8 corners position of bounding frustum.
         //     Near    Far
         //    0----1  4----5

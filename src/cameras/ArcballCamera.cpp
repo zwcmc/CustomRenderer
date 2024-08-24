@@ -6,7 +6,7 @@ ArcballCamera::ArcballCamera(const glm::vec3 &eye, const glm::vec3 &lookAt, cons
     : Camera(eye, lookAt, upVector)
 { }
 
-void ArcballCamera::zooming(const float &yoffset)
+void ArcballCamera::Zooming(const float &yoffset)
 {
     if (m_IsPerspective)
     {
@@ -16,7 +16,7 @@ void ArcballCamera::zooming(const float &yoffset)
     }
 }
 
-void ArcballCamera::panning(const float &xoffset, const float &yoffset)
+void ArcballCamera::Panning(const float &xoffset, const float &yoffset)
 {
     glm::vec3 cameraFront = glm::normalize(m_LookAt - m_EyePosition);
     glm::vec3 right = glm::normalize(glm::cross(cameraFront, m_UpVector));
@@ -28,7 +28,7 @@ void ArcballCamera::panning(const float &xoffset, const float &yoffset)
     m_View = glm::lookAt(m_EyePosition, m_LookAt, m_UpVector);
 }
 
-void ArcballCamera::arcballing(const float &xoffset, const float &yoffset)
+void ArcballCamera::Arcballing(const float &xoffset, const float &yoffset)
 {
     glm::vec4 position = glm::vec4(m_EyePosition, 1.0f);
     glm::vec4 pivot = glm::vec4(m_LookAt, 1.0f);
@@ -39,7 +39,7 @@ void ArcballCamera::arcballing(const float &xoffset, const float &yoffset)
     float xAngle = CAMERA_ARCBALLING_SPEED * xoffset * deltaAngleX;
     float yAngle = CAMERA_ARCBALLING_SPEED * yoffset * deltaAngleY;
 
-    float cosAngle = glm::dot(getViewDir(), m_UpVector);
+    float cosAngle = glm::dot(GetViewDir(), m_UpVector);
     if (cosAngle * glm::sign(yAngle) > 0.99f)
         yAngle = 0.0f;
 
@@ -50,7 +50,7 @@ void ArcballCamera::arcballing(const float &xoffset, const float &yoffset)
 
     // Rotate the camera around the target point on the right vector
     glm::mat4x4 rotationMatrixY(1.0f);
-    rotationMatrixY = glm::rotate(rotationMatrixY, yAngle, getRightVector());
+    rotationMatrixY = glm::rotate(rotationMatrixY, yAngle, GetRightVector());
     glm::vec3 finalPosition = (rotationMatrixY * (position - pivot)) + pivot;
 
     m_EyePosition = finalPosition;
@@ -58,12 +58,12 @@ void ArcballCamera::arcballing(const float &xoffset, const float &yoffset)
     m_View = glm::lookAt(m_EyePosition, m_LookAt, m_UpVector);
 }
 
-glm::vec3 ArcballCamera::getRightVector() const
+glm::vec3 ArcballCamera::GetRightVector() const
 {
     return glm::transpose(m_View)[0];
 }
 
-glm::vec3 ArcballCamera::getViewDir() const
+glm::vec3 ArcballCamera::GetViewDir() const
 {
     return -glm::transpose(m_View)[2];
 };

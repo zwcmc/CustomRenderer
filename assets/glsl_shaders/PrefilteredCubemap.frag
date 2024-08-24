@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 FragColor;
+out vec4 OutColor;
 
 in vec3 UVW;
 
@@ -39,5 +39,5 @@ void main()
 
     prefilteredColor = prefilteredColor / totalWeight;
 
-    FragColor = vec4(vec3(prefilteredColor), 1.0);
+    OutColor = vec4(vec3(prefilteredColor), 1.0);
 }

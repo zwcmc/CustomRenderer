@@ -15,7 +15,7 @@ Camera::Camera(const glm::vec3 &eye, const glm::vec3 &lookAt, const glm::vec3 &u
     m_View = glm::lookAt(eye, lookAt, upVector);
 }
 
-void Camera::setPerspective(const float &fov, const int &width, const int &height, const float &zNear, const float &zFar)
+void Camera::SetPerspective(const float &fov, const int &width, const int &height, const float &zNear, const float &zFar)
 {
     m_Fov = fov;
     m_ScreenSize.x = width;
@@ -27,7 +27,7 @@ void Camera::setPerspective(const float &fov, const int &width, const int &heigh
     m_Projection = glm::perspective(m_Fov, m_Aspect, m_ZNear, m_ZFar);
 }
 
-void Camera::setOrthographic(const float &left, const float &right, const float &bottom, const float &top, const float &zNear, const float &zFar)
+void Camera::SetOrthographic(const float &left, const float &right, const float &bottom, const float &top, const float &zNear, const float &zFar)
 {
     m_IsPerspective = false;
 
@@ -37,7 +37,7 @@ void Camera::setOrthographic(const float &left, const float &right, const float 
     m_Projection = glm::ortho(left, right, bottom, top, zNear, zFar);
 }
 
-void Camera::setScreenSize(const int &width, const int &height)
+void Camera::SetScreenSize(const int &width, const int &height)
 {
     m_ScreenSize.x = width;
     m_ScreenSize.y = height;
@@ -49,17 +49,17 @@ void Camera::setScreenSize(const int &width, const int &height)
     }
 }
 
-glm::mat4& Camera::getViewMatrix()
+glm::mat4& Camera::GetViewMatrix()
 {
     return m_View;
 }
 
-glm::mat4& Camera::getProjectionMatrix()
+glm::mat4& Camera::GetProjectionMatrix()
 {
     return m_Projection;
 }
 
-glm::vec3& Camera::getEyePosition()
+glm::vec3& Camera::GetEyePosition()
 {
     return m_EyePosition;
 }

@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 FragColor;
+out vec4 OutColor;
 
 in VertexData
 {
@@ -64,7 +64,7 @@ void main()
         perceptualRoughness *= metallicRoughness.g;
     }
 
-    vec3 N = uNormalMapSet > 0.0 ? getNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
+    vec3 N = uNormalMapSet > 0.0 ? GetNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
     vec3 V = normalize(cameraPos - fs_in.PositionWS);
     vec3 L = normalize(lightPosition0);
     vec3 H = normalize(L + V);
@@ -76,8 +76,8 @@ void main()
 
 
     // Main light shadow
-    vec4 shadowCoord = getShadowCoord(fs_in.PositionWS);
-    float shadowAtten = sampleShadowmapTent5x5(uShadowmap, shadowCoord);
+    vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS);
+    float shadowAtten = SampleShadowmapTent5x5(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 
@@ -98,7 +98,7 @@ void main()
     vec3 Fs = mix(F0, vec3(1.0), FH);
 
     // Specular G
-    float alphaG = sqr(perceptualRoughness * 0.5 + 0.5);
+    float alphaG = Sqr(perceptualRoughness * 0.5 + 0.5);
     float Gs = SmithG_GGX(NdotL, alphaG);
     Gs *= SmithG_GGX(NdotV, alphaG);
 
@@ -131,5 +131,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
-    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0);
+    OutColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0);
 }

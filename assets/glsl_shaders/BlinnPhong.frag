@@ -25,15 +25,15 @@ void main()
 {
     vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
 
-    vec3 N = uNormalMapSet > 0.0 ? getNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
+    vec3 N = uNormalMapSet > 0.0 ? GetNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
     vec3 V = normalize(cameraPos - fs_in.PositionWS);
     vec3 L = normalize(lightPosition0);
     vec3 H = normalize(L + V);
 
     float NdotL = max(dot(N, L), 0.0);
 
-    vec4 shadowCoord = getShadowCoord(fs_in.PositionWS);
-    float shadowAtten = sampleShadowmap(uShadowmap, shadowCoord);
+    vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS);
+    float shadowAtten = SampleShadowmap(uShadowmap, shadowCoord);
 
     vec3 radiance = lightColor0 * shadowAtten;
 

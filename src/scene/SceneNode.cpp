@@ -14,7 +14,7 @@ SceneNode::~SceneNode()
     m_Children.clear();
 }
 
-glm::mat4 SceneNode::getModelMatrix()
+glm::mat4 SceneNode::GetModelMatrix()
 {
     glm::mat4 model = ModelMatrix;
     SceneNode::Ptr currentParent = m_Parent.lock();
@@ -27,29 +27,29 @@ glm::mat4 SceneNode::getModelMatrix()
     return model;
 }
 
-void SceneNode::setOverrideMaterial(Material::Ptr mat)
+void SceneNode::SetOverrideMaterial(Material::Ptr mat)
 {
     OverrideMat = mat;
     for (size_t i = 0; i < m_Children.size(); ++i)
-        m_Children[i]->setOverrideMaterial(mat);
+        m_Children[i]->SetOverrideMaterial(mat);
 }
 
-void SceneNode::translate(const glm::vec3 &p)
+void SceneNode::Translate(const glm::vec3 &p)
 {
     ModelMatrix = glm::translate(ModelMatrix, p);
 }
 
-void SceneNode::rotate(const glm::vec3 &axis, const float &radians)
+void SceneNode::Rotate(const glm::vec3 &axis, const float &radians)
 {
     ModelMatrix = glm::rotate(ModelMatrix, radians, axis);
 }
 
-void SceneNode::scale(const glm::vec3 &scale)
+void SceneNode::Scale(const glm::vec3 &scale)
 {
     ModelMatrix = glm::scale(ModelMatrix, scale);
 }
 
-void SceneNode::addChild(SceneNode::Ptr node)
+void SceneNode::AddChild(SceneNode::Ptr node)
 {
     // Check if node already has a parent
     if (node->m_Parent.lock()) return;
@@ -58,22 +58,22 @@ void SceneNode::addChild(SceneNode::Ptr node)
     m_Children.push_back(node);
 }
 
-void SceneNode::mergeChildrenAABBs(BoundingBox &boundingBox)
+void SceneNode::MergeChildrenAABBs(BoundingBox &boundingBox)
 {
     if (IsAABBCalculated)
-        boundingBox.MergeBoundingBox(AABB, getModelMatrix());
+        boundingBox.MergeBoundingBox(AABB, GetModelMatrix());
 
     for (size_t i = 0; i < m_Children.size(); ++i)
-        m_Children[i]->mergeChildrenAABBs(boundingBox);
+        m_Children[i]->MergeChildrenAABBs(boundingBox);
 }
 
-size_t SceneNode::getChildrenCount()
+size_t SceneNode::GetChildrenCount()
 {
     return m_Children.size();
 }
 
-SceneNode::Ptr SceneNode::getChildByIndex(size_t index)
+SceneNode::Ptr SceneNode::GetChildByIndex(size_t index)
 {
-    assert(index < getChildrenCount());
+    assert(index < GetChildrenCount());
     return m_Children[index];
 }

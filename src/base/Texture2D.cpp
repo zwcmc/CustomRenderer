@@ -6,36 +6,36 @@ Texture2D::Texture2D(const std::string &name)
     m_Target = GL_TEXTURE_2D;
 }
 
-void Texture2D::setFilterMode(GLenum minFilter, GLenum magFilter)
+void Texture2D::SetFilterMode(GLenum minFilter, GLenum magFilter)
 {
-    bind();
+    Bind();
 
     glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, minFilter);
     glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, magFilter);
 
-    unbind();
+    Unbind();
 }
 
-void Texture2D::setWrapMode(GLenum wrapS, GLenum wrapT)
+void Texture2D::SetWrapMode(GLenum wrapS, GLenum wrapT)
 {
-    bind();
+    Bind();
 
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, wrapS);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, wrapT);
 
-    unbind();
+    Unbind();
 }
 
-void Texture2D::resize(const glm::u32vec2 &size)
+void Texture2D::SetSize(const glm::u32vec2 &size)
 {
-    bind();
+    Bind();
     if (m_Target == GL_TEXTURE_2D)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, size.x, size.y, 0, m_Format, m_Type, 0);
     }
 }
 
-void Texture2D::initTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
+void Texture2D::InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap)
 {
     m_Size = size;
     m_InternalFormat = internalFormat;
@@ -44,7 +44,7 @@ void Texture2D::initTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
 
     glGenTextures(1, &m_TextureID);
 
-    bind();
+    Bind();
 
     glTexImage2D(m_Target, 0, m_InternalFormat, size.x, size.y, 0, format, type, data);
 
@@ -62,10 +62,10 @@ void Texture2D::initTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    unbind();
+    Unbind();
 }
 
-void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
+void Texture2D::InitTexture2D(ktxTexture* kTexture, bool useMipmap)
 {
     m_Size = glm::u32vec2(kTexture->baseWidth, kTexture->baseHeight);
     m_InternalFormat = kTexture->glInternalformat;
@@ -74,7 +74,7 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
 
     glGenTextures(1, &m_TextureID);
 
-    bind();
+    Bind();
 
     GLenum glerror;
     KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
@@ -98,10 +98,10 @@ void Texture2D::initTexture2D(ktxTexture* kTexture, bool useMipmap)
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    unbind();
+    Unbind();
 }
 
-void Texture2D::initShadowmap(const glm::u32vec2 &size)
+void Texture2D::InitShadowmap(const glm::u32vec2 &size)
 {
     m_Size = size;
     m_InternalFormat = GL_DEPTH_COMPONENT32; // Fixed-point format for range [0, 1]
@@ -110,7 +110,7 @@ void Texture2D::initShadowmap(const glm::u32vec2 &size)
 
     glGenTextures(1, &m_TextureID);
 
-    bind();
+    Bind();
 
     glTexImage2D(m_Target, 0, m_InternalFormat, m_Size.x, m_Size.y, 0, m_Format, m_Type, nullptr);
 
@@ -123,5 +123,5 @@ void Texture2D::initShadowmap(const glm::u32vec2 &size)
     glTexParameteri(m_Target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     glTexParameteri(m_Target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
-    unbind();
+    Unbind();
 }

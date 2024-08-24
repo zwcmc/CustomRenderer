@@ -25,41 +25,41 @@ public:
     SceneRenderGraph();
     ~SceneRenderGraph();
 
-    void setRenderSize(const int &width, const int &height);
-    void setCamera(Camera::Ptr camera);
-    Camera::Ptr getActiveCamera() { return m_Camera; }
+    void SetRenderSize(const int &width, const int &height);
+    void SetCamera(Camera::Ptr camera);
+    Camera::Ptr GetActiveCamera() { return m_Camera; }
 
-    void addLight(Light::Ptr light);
+    void AddLight(Light::Ptr light);
 
-    void init();
+    void Init();
 
-    void addSceneNode(SceneNode::Ptr sceneNode);
-    void executeCommandBuffer();
-    void renderCommand(RenderCommand::Ptr command);
-    void renderMesh(Mesh::Ptr mesh);
+    void AddSceneNode(SceneNode::Ptr sceneNode);
+    void ExecuteCommandBuffer();
+    void RenderCommand(RenderCommand::Ptr command);
+    void RenderMesh(Mesh::Ptr mesh);
     
-    void calculateSceneAABB();
+    void CalculateSceneAABB();
 
 private:
 
-    void drawSceneNode(SceneNode::Ptr sceneNode);
+    void DrawSceneNode(SceneNode::Ptr sceneNode);
 
-    void addRenderLightCommand(Light::Ptr light);
-    void buildSkyboxRenderCommands();
+    void AddRenderLightCommand(Light::Ptr light);
+    void BuildSkyboxRenderCommands();
 
-    void loadEnvironment(const std::string &cubemapPath);
-    void generateBRDFLUT();
-    void generateCubemaps();
-    void renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
+    void LoadEnvironment(const std::string &cubemapPath);
+    void GenerateBRDFLUT();
+    void GenerateCubemaps();
+    void RenderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
 
-    void buildRenderCommands(SceneNode::Ptr sceneNode);
+    void BuildRenderCommands(SceneNode::Ptr sceneNode);
     
     void ComputeShadowProjectionFitViewFrustum(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
 
-    void setGLCull(bool enable);
-    void setGLBlend(bool enable);
+    void SetGLCull(bool enable);
+    void SetGLBlend(bool enable);
 
-    void blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat);
+    void Blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat);
 
     bool m_CullFace;
     bool m_Blend;

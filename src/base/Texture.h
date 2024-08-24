@@ -14,13 +14,13 @@ public:
     Texture();
     ~Texture();
 
-    void setTextureName(const std::string &name) { m_TextureName = name; }
-    std::string& getTextureName() { return m_TextureName; }
-    GLuint& getTextureID() { return m_TextureID; }
-    glm::u32vec2& getSize() { return m_Size; }
+    void SetTextureName(const std::string &name) { m_TextureName = name; }
+    std::string& GetTextureName() { return m_TextureName; }
+    GLuint& GetTextureID() { return m_TextureID; }
+    glm::u32vec2& GetSize() { return m_Size; }
 
-    void bind(const int &unit = -1);
-    void unbind();
+    void Bind(const int &unit = -1);
+    void Unbind();
 
 protected:
     std::string m_TextureName;

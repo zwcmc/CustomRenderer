@@ -23,7 +23,7 @@ SceneRenderGraph::~SceneRenderGraph()
     m_Lights.clear();
 }
 
-void SceneRenderGraph::init()
+void SceneRenderGraph::Init()
 {
     m_Scene = SceneNode::New();
 
@@ -62,79 +62,79 @@ void SceneRenderGraph::init()
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Load environment cubemaps
-//    loadEnvironment("textures/environments/ktx/papermill.ktx");
-     loadEnvironment("textures/environments/venice_sunset.hdr");
-    generateBRDFLUT();
-    buildSkyboxRenderCommands();
+//    LoadEnvironment("textures/environments/ktx/papermill.ktx");
+     LoadEnvironment("textures/environments/venice_sunset.hdr");
+    GenerateBRDFLUT();
+    BuildSkyboxRenderCommands();
 
     // Main light shadowmap
     m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
     m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vert", "glsl_shaders/ShadowCaster.frag");
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
-    m_DebuggingAABBMat->setDoubleSided(true);
+    m_DebuggingAABBMat->SetDoubleSided(true);
 }
 
-void SceneRenderGraph::setRenderSize(const int &width, const int &height)
+void SceneRenderGraph::SetRenderSize(const int &width, const int &height)
 {
     m_RenderSize.x = width;
     m_RenderSize.y = height;
 
-    m_Camera->setScreenSize(width, height);
+    m_Camera->SetScreenSize(width, height);
 
-    m_IntermediateRT->resize(glm::u32vec2(width, height));
+    m_IntermediateRT->SetSize(glm::u32vec2(width, height));
 }
 
-void SceneRenderGraph::setCamera(Camera::Ptr camera)
+void SceneRenderGraph::SetCamera(Camera::Ptr camera)
 {
     m_Camera = camera;
 }
 
-void SceneRenderGraph::addLight(Light::Ptr light)
+void SceneRenderGraph::AddLight(Light::Ptr light)
 {
     m_Lights.push_back(light);
 
     // Add a new render command for render light
-    addRenderLightCommand(light);
+    AddRenderLightCommand(light);
 }
 
-void SceneRenderGraph::addSceneNode(SceneNode::Ptr sceneNode)
+void SceneRenderGraph::AddSceneNode(SceneNode::Ptr sceneNode)
 {
-    m_Scene->addChild(sceneNode);
+    m_Scene->AddChild(sceneNode);
 
     // Build render commands
-    buildRenderCommands(sceneNode);
+    BuildRenderCommands(sceneNode);
 }
 
-void SceneRenderGraph::addRenderLightCommand(Light::Ptr light)
+void SceneRenderGraph::AddRenderLightCommand(Light::Ptr light)
 {
     // TODO: All lights can share a single material
     Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vert", "glsl_shaders/Emissive.frag");
-    lightMat->setCastShadows(false);
-    lightMat->addOrSetVector("uEmissiveColor", light->getLightColor());
+    lightMat->SetCastShadows(false);
+    lightMat->AddOrSetVector("uEmissiveColor", light->GetLightColor());
 
     // Only need to modify the translation column
     glm::mat4 transform = glm::mat4(1.0f);
-    glm::vec3 lightPos = light->getLightPosition();
+    glm::vec3 lightPos = light->GetLightPosition();
     transform[3][0] = lightPos.x;
     transform[3][1] = lightPos.y;
     transform[3][2] = lightPos.z;
-    m_CommandBuffer->pushCommand(m_LightMesh, lightMat, transform);
+    m_CommandBuffer->PushCommand(m_LightMesh, lightMat, transform);
 }
 
-void SceneRenderGraph::buildSkyboxRenderCommands()
+void SceneRenderGraph::BuildSkyboxRenderCommands()
 {
     Material::Ptr skyboxMat = Material::New("Skybox", "glsl_shaders/Cube.vert", "glsl_shaders/Skybox.frag", true);
-    skyboxMat->setCastShadows(false);
-    skyboxMat->addOrSetTextureCube(m_EnvironmentCubemap);
-    m_Cube->setOverrideMaterial(skyboxMat);
-    buildRenderCommands(m_Cube);
+    skyboxMat->SetCastShadows(false);
+    skyboxMat->AddOrSetTextureCube(m_EnvironmentCubemap);
+    m_Cube->SetOverrideMaterial(skyboxMat);
+    BuildRenderCommands(m_Cube);
 }
 
-void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel)
+void SceneRenderGraph::RenderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel)
 {
-    int width = cubemap->getSize().x >> mipLevel;
-    int height = cubemap->getSize().y >> mipLevel;
+    int width = cubemap->GetSize().x >> mipLevel;
+    int height = cubemap->GetSize().y >> mipLevel;
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, m_CubemapDepthRenderBufferID);
@@ -164,7 +164,7 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     // Bind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
 
-    // Vertex shader output gl_Postion = clipPos.xyww, depth is maximum 1.0, so use less&equal depth func
+    // Vertex shader output gl_Postion = clipPos.xyww, depth is maximum 1.0, so Use less&equal depth func
     glDepthFunc(GL_LEQUAL);
 
     // Importent: Render the spherical position to the cube position inside the inner cube box; cull face must be disabled
@@ -178,16 +178,16 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     for (unsigned int i = 0; i < 6; ++i)
     {
         // Set global uniforms
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(faceCameras[i]->getViewMatrix()[0].x));
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(faceCameras[i]->GetViewMatrix()[0].x));
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->getTextureID(), mipLevel);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap->GetTextureID(), mipLevel);
         // Check framebuffer status
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cerr << "FrameBuffer is not complete in rendering 6 faces!" << mipLevel << std::endl;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        drawSceneNode(m_Cube);
+        DrawSceneNode(m_Cube);
     }
 
     // Unbind framebuffer
@@ -202,7 +202,7 @@ void SceneRenderGraph::renderToCubemap(TextureCube::Ptr cubemap, unsigned int mi
     glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
 }
 
-void SceneRenderGraph::drawSceneNode(SceneNode::Ptr node)
+void SceneRenderGraph::DrawSceneNode(SceneNode::Ptr node)
 {
     Material::Ptr overrideMat = node->OverrideMat;
     for (size_t i = 0; i < node->MeshRenders.size(); ++i)
@@ -210,36 +210,36 @@ void SceneRenderGraph::drawSceneNode(SceneNode::Ptr node)
         MeshRender::Ptr mr = node->MeshRenders[i];
         if (overrideMat)
         {
-            overrideMat->use();
+            overrideMat->Use();
         }
         else
         {
-            mr->getMaterial()->use();
+            mr->GetMaterial()->Use();
         }
-        renderMesh(mr->getMesh());
+        RenderMesh(mr->GetMesh());
     }
 
-    for (size_t i = 0; i < node->getChildrenCount(); ++i)
+    for (size_t i = 0; i < node->GetChildrenCount(); ++i)
     {
-        drawSceneNode(node->getChildByIndex(i));
+        DrawSceneNode(node->GetChildByIndex(i));
     }
 }
 
-void SceneRenderGraph::generateBRDFLUT()
+void SceneRenderGraph::GenerateBRDFLUT()
 {
     m_BRDFLUTRT = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
-    m_BRDFLUTRT->getColorTexture(0)->setTextureName("uBRDFLUT");
+    m_BRDFLUTRT->GetColorTexture(0)->SetTextureName("uBRDFLUT");
     Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vert", "glsl_shaders/GenerateBRDFLUT.frag");
-    blit(nullptr, m_BRDFLUTRT, generateBRDFLUTFMat);
+    Blit(nullptr, m_BRDFLUTRT, generateBRDFLUTFMat);
 }
 
-void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
+void SceneRenderGraph::LoadEnvironment(const std::string &cubemapPath)
 {
     // Framebuffer and render buffer for off-screen rendering cubemaps
     glGenFramebuffers(1, &m_FrameBufferID);
     glGenRenderbuffers(1, &m_CubemapDepthRenderBufferID);
 
-    m_Cube = AssetsLoader::loadModel("models/glTF/Box/glTF-Binary/Box.glb", true);
+    m_Cube = AssetsLoader::LoadModel("models/glTF/Box/glTF-Binary/Box.glb", true);
     m_EnvironmentCubemap = TextureCube::New("uEnvironmentCubemap");
 
     std::string fileExt;
@@ -256,18 +256,18 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
 
     if (fileExt == "ktx")
     {
-        AssetsLoader::initCubemapKTX(m_EnvironmentCubemap, cubemapPath);
+        AssetsLoader::InitCubemapKTX(m_EnvironmentCubemap, cubemapPath);
     }
     else if (fileExt == "hdr")
     {
-        Texture2D::Ptr environmentMap = AssetsLoader::loadHDRTexture("uHDRMap", cubemapPath);
-        m_EnvironmentCubemap->defaultInit(environmentMap->getSize().y, environmentMap->getSize().y, GL_RGB32F, GL_RGB, GL_FLOAT);
+        Texture2D::Ptr environmentMap = AssetsLoader::LoadHDRTexture("uHDRMap", cubemapPath);
+        m_EnvironmentCubemap->DefaultInit(environmentMap->GetSize().y, environmentMap->GetSize().y, GL_RGB32F, GL_RGB, GL_FLOAT);
 
         // Equirectangular map to a cubemap
         Material::Ptr capMat = Material::New("HDR_to_Cubemap", "glsl_shaders/Cube.vert", "glsl_shaders/HDRToCubemap.frag");
-        capMat->addOrSetTexture(environmentMap);
-        m_Cube->setOverrideMaterial(capMat);
-        renderToCubemap(m_EnvironmentCubemap, 0);
+        capMat->AddOrSetTexture(environmentMap);
+        m_Cube->SetOverrideMaterial(capMat);
+        RenderToCubemap(m_EnvironmentCubemap, 0);
     }
     else
     {
@@ -276,65 +276,65 @@ void SceneRenderGraph::loadEnvironment(const std::string &cubemapPath)
     }
 
     // Generate irradiance cubemap and pre-filtered cuebmap
-    generateCubemaps();
+    GenerateCubemaps();
 }
 
-void SceneRenderGraph::generateCubemaps()
+void SceneRenderGraph::GenerateCubemaps()
 {
     // Diffuse irradiance
     m_IrradianceCubemap = TextureCube::New("uIrradianceCubemap");
-    m_IrradianceCubemap->defaultInit(64, 64, GL_RGB32F, GL_RGB, GL_FLOAT);
+    m_IrradianceCubemap->DefaultInit(64, 64, GL_RGB32F, GL_RGB, GL_FLOAT);
 
     Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "glsl_shaders/Cube.vert", "glsl_shaders/IrradianceCubemap.frag");
-    cubemapConvolutionMat->addOrSetTextureCube(m_EnvironmentCubemap);
-    m_Cube->setOverrideMaterial(cubemapConvolutionMat);
-    renderToCubemap(m_IrradianceCubemap, 0);
+    cubemapConvolutionMat->AddOrSetTextureCube(m_EnvironmentCubemap);
+    m_Cube->SetOverrideMaterial(cubemapConvolutionMat);
+    RenderToCubemap(m_IrradianceCubemap, 0);
 
     // Specular IBL
     m_PrefilteredCubemap = TextureCube::New("uPrefilteredCubemap");
-    m_PrefilteredCubemap->defaultInit(512, 512, GL_RGBA32F, GL_RGB, GL_FLOAT, true);
+    m_PrefilteredCubemap->DefaultInit(512, 512, GL_RGBA32F, GL_RGB, GL_FLOAT, true);
 
     Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "glsl_shaders/Cube.vert", "glsl_shaders/PrefilteredCubemap.frag");
-    cubemapPrefilteredMat->addOrSetTextureCube(m_EnvironmentCubemap);
-    m_Cube->setOverrideMaterial(cubemapPrefilteredMat);
+    cubemapPrefilteredMat->AddOrSetTextureCube(m_EnvironmentCubemap);
+    m_Cube->SetOverrideMaterial(cubemapPrefilteredMat);
 
     const uint32_t numMips = static_cast<uint32_t>(floor(std::log2(512))) + 1;
     for (unsigned int mip = 0; mip < numMips; ++mip)
     {
-        cubemapPrefilteredMat->addOrSetFloat("uRoughness", (float)(mip) / (numMips - 1));
-        renderToCubemap(m_PrefilteredCubemap, mip);
+        cubemapPrefilteredMat->AddOrSetFloat("uRoughness", (float)(mip) / (numMips - 1));
+        RenderToCubemap(m_PrefilteredCubemap, mip);
     }
 }
 
-void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
+void SceneRenderGraph::BuildRenderCommands(SceneNode::Ptr sceneNode)
 {
-    glm::mat4 model = sceneNode->getModelMatrix();
+    glm::mat4 model = sceneNode->GetModelMatrix();
     Material::Ptr overrideMat = sceneNode->OverrideMat;
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
-        m_CommandBuffer->pushCommand(sceneNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->getMaterial(), model);
+        m_CommandBuffer->PushCommand(sceneNode->MeshRenders[i]->GetMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->GetMaterial(), model);
     
     // Debugging AABB
     if (sceneNode->IsAABBCalculated && false)
-        m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABB.GetCorners()), m_DebuggingAABBMat, model);
+        m_CommandBuffer->PushDebuggingCommand(AABBCube::New(sceneNode->AABB.GetCorners()), m_DebuggingAABBMat, model);
 
-    for (size_t i = 0; i < sceneNode->getChildrenCount(); ++i)
-        buildRenderCommands(sceneNode->getChildByIndex(i));
+    for (size_t i = 0; i < sceneNode->GetChildrenCount(); ++i)
+        BuildRenderCommands(sceneNode->GetChildByIndex(i));
 }
 
-void SceneRenderGraph::calculateSceneAABB()
+void SceneRenderGraph::CalculateSceneAABB()
 {
-    m_Scene->mergeChildrenAABBs(m_Scene->AABB);
+    m_Scene->MergeChildrenAABBs(m_Scene->AABB);
     m_Scene->IsAABBCalculated = true;
 
     // Debugging camera's frustum
 //    BoundingFrustum bf;
-//    BoundingFrustum::CreateFromMatrix(bf, m_Camera->getProjectionMatrix());
+//    BoundingFrustum::CreateFromMatrix(bf, m_Camera->GetProjectionMatrix());
 //    glm::mat4 tr = glm::mat4(1.0f);
-//    tr = glm::translate(tr, m_Camera->getEyePosition());
-//    m_CommandBuffer->pushDebuggingCommand(AABBCube::New(bf.GetCorners()), m_DebuggingAABBMat, tr);
+//    tr = glm::Translate(tr, m_Camera->GetEyePosition());
+//    m_CommandBuffer->PushDebuggingCommand(AABBCube::New(bf.GetCorners()), m_DebuggingAABBMat, tr);
 
     // Debugging AABB
-    // m_CommandBuffer->pushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, glm::mat4(1.0f));
+    // m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, glm::mat4(1.0f));
 }
 
 void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
@@ -358,34 +358,34 @@ void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(const glm::mat4 &ca
     }
 }
 
-void SceneRenderGraph::executeCommandBuffer()
+void SceneRenderGraph::ExecuteCommandBuffer()
 {
     Light::Ptr mainLight = m_Lights[0];
     
-    Camera::Ptr lightCamera = Camera::New(mainLight->getLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    Camera::Ptr lightCamera = Camera::New(mainLight->GetLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     
-    glm::mat4 viewCameraProjection = m_Camera->getProjectionMatrix();
-    glm::mat4 viewCameraView = m_Camera->getViewMatrix();
+    glm::mat4 viewCameraProjection = m_Camera->GetProjectionMatrix();
+    glm::mat4 viewCameraView = m_Camera->GetViewMatrix();
 
     // Calculate a tight light camera projection to fit the camera view frustum
     vec3 orthographicMin = vec3(FLT_MAX);
     vec3 orthographicMax = vec3(-FLT_MAX);
-    ComputeShadowProjectionFitViewFrustum(viewCameraProjection, viewCameraView, lightCamera->getViewMatrix(), orthographicMin, orthographicMax);
+    ComputeShadowProjectionFitViewFrustum(viewCameraProjection, viewCameraView, lightCamera->GetViewMatrix(), orthographicMin, orthographicMax);
 
-    lightCamera->setOrthographic(orthographicMin.x, orthographicMax.x, orthographicMin.y, orthographicMax.y, 0.001f, 100.0f);
-    glm::mat4 lightCameraVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
+    lightCamera->SetOrthographic(orthographicMin.x, orthographicMax.x, orthographicMin.y, orthographicMax.y, 0.001f, 100.0f);
+    glm::mat4 lightCameraVP = lightCamera->GetProjectionMatrix() * lightCamera->GetViewMatrix();
 
     // Render shadowmap first
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
-    m_ShadowmapRT->bind();
-    m_ShadowCasterMat->use();
-    std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->getShadowCasterCommands();
+    m_ShadowmapRT->Bind();
+    m_ShadowCasterMat->Use();
+    std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->GetShadowCasterCommands();
     for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
     {
         RenderCommand::Ptr command = shadowCasterCommands[i];
-        m_ShadowCasterMat->setMatrix("uLightMVP", lightCameraVP * command->Transform);
-        renderMesh(command->Mesh);
+        m_ShadowCasterMat->SetMatrix("uLightMVP", lightCameraVP * command->Transform);
+        RenderMesh(command->Mesh);
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -393,21 +393,21 @@ void SceneRenderGraph::executeCommandBuffer()
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(viewCameraView[0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(viewCameraProjection[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->getLightPosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->getLightColor().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->getEyePosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->GetLightPosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->GetLightColor().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->GetEyePosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightCameraVP[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Bind intermediate framebuffer
-    m_IntermediateRT->bind();
+    m_IntermediateRT->Bind();
 
     // Opaque
-    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->getOpaqueCommands();
+    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->GetOpaqueCommands();
     for (size_t i = 0; i < opaqueCommands.size(); ++i)
     {
        RenderCommand::Ptr command = opaqueCommands[i];
-       renderCommand(command);
+       RenderCommand(command);
     }
 
     // Skybox start ----------------
@@ -417,11 +417,11 @@ void SceneRenderGraph::executeCommandBuffer()
     glDepthFunc(GL_LEQUAL);
     // Depth write off
     glDepthMask(GL_FALSE);
-    std::vector<RenderCommand::Ptr> skyboxCommands = m_CommandBuffer->getSkyboxCommands();
+    std::vector<RenderCommand::Ptr> skyboxCommands = m_CommandBuffer->GetSkyboxCommands();
     for (size_t i = 0; i < skyboxCommands.size(); ++i)
     {
         RenderCommand::Ptr command = skyboxCommands[i];
-        renderCommand(command);
+        RenderCommand(command);
     }
     // Depth write on
     glDepthMask(GL_TRUE);
@@ -430,71 +430,71 @@ void SceneRenderGraph::executeCommandBuffer()
     // Skybox end ----------------
 
     // Transparent
-    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->getTransparentCommands();
+    std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->GetTransparentCommands();
     for (size_t i = 0; i < transparentCommands.size(); ++i)
     {
        RenderCommand::Ptr command = transparentCommands[i];
-       renderCommand(command);
+       RenderCommand(command);
     }
 
     // Debugging AABB
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    m_DebuggingAABBMat->use();
-    setGLCull(!m_DebuggingAABBMat->getDoubleSided());
-    std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->getDebuggingCommands();
+    m_DebuggingAABBMat->Use();
+    SetGLCull(!m_DebuggingAABBMat->GetDoubleSided());
+    std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->GetDebuggingCommands();
     for (size_t i = 0; i < commands.size(); ++i)
     {
-        m_DebuggingAABBMat->setMatrix("uModelMatrix", commands[i]->Transform);
-        renderMesh(commands[i]->Mesh);
+        m_DebuggingAABBMat->SetMatrix("uModelMatrix", commands[i]->Transform);
+        RenderMesh(commands[i]->Mesh);
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    blit(m_IntermediateRT->getColorTexture(0), nullptr, m_BlitMat);
-//    blit(m_ShadowmapRT->getShadowmapTexture(), nullptr, m_BlitMat);
+    Blit(m_IntermediateRT->GetColorTexture(0), nullptr, m_BlitMat);
+//    Blit(m_ShadowmapRT->GetShadowmapTexture(), nullptr, m_BlitMat);
 }
 
-void SceneRenderGraph::renderCommand(RenderCommand::Ptr command)
+void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command)
 {
     Mesh::Ptr mesh = command->Mesh;
     Material::Ptr mat = command->Material;
 
-    setGLCull(!mat->getDoubleSided());
-    setGLBlend(mat->getAlphaMode() == Material::AlphaMode::BLEND);
+    SetGLCull(!mat->GetDoubleSided());
+    SetGLBlend(mat->GetAlphaMode() == Material::AlphaMode::BLEND);
 
-    mat->addOrSetTextureCube(m_IrradianceCubemap);
-    mat->addOrSetTextureCube(m_PrefilteredCubemap);
-    mat->addOrSetTexture(m_BRDFLUTRT->getColorTexture(0));
+    mat->AddOrSetTextureCube(m_IrradianceCubemap);
+    mat->AddOrSetTextureCube(m_PrefilteredCubemap);
+    mat->AddOrSetTexture(m_BRDFLUTRT->GetColorTexture(0));
 
-    if (mat->getMaterialCastShadows())
+    if (mat->GetMaterialCastShadows())
     {
-        mat->addOrSetTexture(m_ShadowmapRT->getShadowmapTexture());
+        mat->AddOrSetTexture(m_ShadowmapRT->GetShadowmapTexture());
     }
 
-    mat->use();
-    mat->setMatrix("uModelMatrix", command->Transform);
-    mat->setMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(command->Transform)));
+    mat->Use();
+    mat->SetMatrix("uModelMatrix", command->Transform);
+    mat->SetMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(command->Transform)));
 
-    renderMesh(mesh);
+    RenderMesh(mesh);
 }
 
-void SceneRenderGraph::renderMesh(Mesh::Ptr mesh)
+void SceneRenderGraph::RenderMesh(Mesh::Ptr mesh)
 {
-    glBindVertexArray(mesh->getVertexArrayID());
+    glBindVertexArray(mesh->GetVertexArrayID());
 
-    if (mesh->getIndicesCount() > 0)
+    if (mesh->GetIndicesCount() > 0)
     {
-        glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, mesh->GetIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
     else
     {
-        glDrawArrays(GL_TRIANGLES, 0, mesh->getVerticesCount());
+        glDrawArrays(GL_TRIANGLES, 0, mesh->GetVerticesCount());
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 }
 
-void SceneRenderGraph::setGLCull(bool enable)
+void SceneRenderGraph::SetGLCull(bool enable)
 {
     if (m_CullFace != enable)
     {
@@ -506,7 +506,7 @@ void SceneRenderGraph::setGLCull(bool enable)
     }
 }
 
-void SceneRenderGraph::setGLBlend(bool enable)
+void SceneRenderGraph::SetGLBlend(bool enable)
 {
     if (m_Blend != enable)
     {
@@ -518,10 +518,10 @@ void SceneRenderGraph::setGLBlend(bool enable)
     }
 }
 
-void SceneRenderGraph::blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat)
+void SceneRenderGraph::Blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat)
 {
     if (destination)
-        destination->bind();
+        destination->Bind();
     else
     {
         glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
@@ -534,11 +534,11 @@ void SceneRenderGraph::blit(Texture2D::Ptr source, RenderTarget::Ptr destination
 
     if (source)
     {
-        source->setTextureName("uSource");
-        blitMat->addOrSetTexture(source);
+        source->SetTextureName("uSource");
+        blitMat->AddOrSetTexture(source);
     }
 
-    blitMat->use();
+    blitMat->Use();
 
     glBindVertexArray(m_BlitVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);

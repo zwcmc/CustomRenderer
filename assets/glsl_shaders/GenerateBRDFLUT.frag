@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 FragColor;
+out vec4 OutColor;
 
 in vec2 UV0;
 
@@ -33,13 +33,13 @@ vec2 BRDF(float NdotV, float roughness)
 
         if (NdotL > 0.0)
         {
-            float a = sqr(roughness);
+            float a = Sqr(roughness);
             float Gs = SmithG_GGX_EpicIBL(NdotV, a);
             Gs *= SmithG_GGX_EpicIBL(NdotL, a);
 
             float Gs_Vis = (Gs * VdotH) / (NdotH * NdotV);
 
-            float FH = pow5(1.0 - VdotH);
+            float FH = Pow5(1.0 - VdotH);
 
             LUT += vec2((1.0 - FH) * Gs_Vis, FH * Gs_Vis);
         }
@@ -50,5 +50,5 @@ vec2 BRDF(float NdotV, float roughness)
 
 void main()
 {
-    FragColor = vec4(BRDF(UV0.x, UV0.y), 0.0, 1.0);
+    OutColor = vec4(BRDF(UV0.x, UV0.y), 0.0, 1.0);
 }

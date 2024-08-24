@@ -6,7 +6,7 @@ TextureCube::TextureCube(const std::string& name)
     m_Target = GL_TEXTURE_CUBE_MAP;
 }
 
-void TextureCube::initTextureCube(ktxTexture* kTexture, bool useMipmap)
+void TextureCube::InitTextureCube(ktxTexture* kTexture, bool useMipmap)
 {
     m_Size = glm::u32vec2(kTexture->baseWidth, kTexture->baseHeight);
     m_InternalFormat = kTexture->glInternalformat;
@@ -16,7 +16,7 @@ void TextureCube::initTextureCube(ktxTexture* kTexture, bool useMipmap)
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);
 
-    bind();
+    Bind();
 
     GLenum glerror;
     KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
@@ -41,10 +41,10 @@ void TextureCube::initTextureCube(ktxTexture* kTexture, bool useMipmap)
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
-    unbind();
+    Unbind();
 }
 
-void TextureCube::defaultInit(const unsigned int &width, const unsigned int &height, GLenum internalFormat, GLenum format, GLenum type, bool useMipmap)
+void TextureCube::DefaultInit(const unsigned int &width, const unsigned int &height, GLenum internalFormat, GLenum format, GLenum type, bool useMipmap)
 {
     m_Size = glm::u32vec2(width, height);
     m_InternalFormat = internalFormat;
@@ -54,7 +54,7 @@ void TextureCube::defaultInit(const unsigned int &width, const unsigned int &hei
     if (m_TextureID == 0)
         glGenTextures(1, &m_TextureID);
 
-    bind();
+    Bind();
 
     glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -76,5 +76,5 @@ void TextureCube::defaultInit(const unsigned int &width, const unsigned int &hei
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
-    unbind();
+    Unbind();
 }

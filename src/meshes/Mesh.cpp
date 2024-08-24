@@ -4,7 +4,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices)
     : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
-    initBuffers();
+    InitBuffers();
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords)
@@ -12,7 +12,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
 {
     m_Vertices = vertices;
     m_Texcoords = texcoords;
-    initBuffers();
+    InitBuffers();
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
@@ -20,7 +20,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &i
 {
     m_Vertices = vertices;
     m_Indices = indices;
-    initBuffers();
+    InitBuffers();
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<unsigned int> &indices)
@@ -29,7 +29,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     m_Vertices = vertices;
     m_Texcoords = texcoords;
     m_Indices = indices;
-    initBuffers();
+    InitBuffers();
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals)
@@ -37,7 +37,7 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     m_Vertices = vertices;
     m_Texcoords = texcoords;
     m_Normals = normals;
-    initBuffers();
+    InitBuffers();
 }
 
 Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices)
@@ -47,10 +47,10 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     m_Texcoords = texcoords;
     m_Normals = normals;
     m_Indices = indices;
-    initBuffers();
+    InitBuffers();
 }
 
-void Mesh::initMesh(const std::vector<vec3> &vertices)
+void Mesh::InitMesh(const std::vector<vec3> &vertices)
 {
     m_VertexArrayID = 0;
     m_VertexBufferID = 0;
@@ -58,10 +58,10 @@ void Mesh::initMesh(const std::vector<vec3> &vertices)
 
     m_Vertices = vertices;
 
-    initBuffers();
+    InitBuffers();
 }
 
-void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords)
+void Mesh::InitMesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords)
 {
     m_VertexArrayID = 0;
     m_VertexBufferID = 0;
@@ -70,10 +70,10 @@ void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<vec2> &
     m_Vertices = vertices;
     m_Texcoords = texcoords;
 
-    initBuffers();
+    InitBuffers();
 }
 
-void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
+void Mesh::InitMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices)
 {
     m_VertexArrayID = 0;
     m_VertexBufferID = 0;
@@ -82,10 +82,10 @@ void Mesh::initMesh(const std::vector<vec3> &vertices, const std::vector<unsigne
     m_Vertices = vertices;
     m_Indices = indices;
 
-    initBuffers();
+    InitBuffers();
 }
 
-void Mesh::initBuffers()
+void Mesh::InitBuffers()
 {
     if (!m_VertexArrayID)
     {

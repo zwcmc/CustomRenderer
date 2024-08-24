@@ -10,7 +10,7 @@ Texture::~Texture()
     m_TextureID = 0;
 }
 
-void Texture::bind(const int &unit)
+void Texture::Bind(const int &unit)
 {
     if (unit >= 0)
     {
@@ -19,7 +19,7 @@ void Texture::bind(const int &unit)
     glBindTexture(m_Target, m_TextureID);
 }
 
-void Texture::unbind()
+void Texture::Unbind()
 {
     glBindTexture(m_Target, 0);
 }

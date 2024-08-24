@@ -22,19 +22,19 @@ public:
     SceneNode();
     ~SceneNode();
 
-    glm::mat4 getModelMatrix();
+    glm::mat4 GetModelMatrix();
 
-    void setOverrideMaterial(Material::Ptr mat);
-    
-    void translate(const glm::vec3 &p);
-    void rotate(const glm::vec3 &axis, const float &radians);
-    void scale(const glm::vec3 &scale);
+    void SetOverrideMaterial(Material::Ptr mat);
 
-    size_t getChildrenCount();
-    SceneNode::Ptr getChildByIndex(size_t index);
-    void addChild(SceneNode::Ptr node);
+    void Translate(const glm::vec3 &p);
+    void Rotate(const glm::vec3 &axis, const float &radians);
+    void Scale(const glm::vec3 &scale);
+
+    size_t GetChildrenCount();
+    SceneNode::Ptr GetChildByIndex(size_t index);
+    void AddChild(SceneNode::Ptr node);
     
-    void mergeChildrenAABBs(BoundingBox &boundingBox);
+    void MergeChildrenAABBs(BoundingBox &boundingBox);
 
     std::vector<MeshRender::Ptr> MeshRenders;
     glm::mat4 ModelMatrix;
