@@ -1,4 +1,4 @@
-#include "SceneNode.h"
+#include "scene/SceneNode.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -56,6 +56,24 @@ void SceneNode::addChild(SceneNode::Ptr node)
 
     node->m_Parent = getWeakPtr();
     m_Children.push_back(node);
+}
+
+void SceneNode::mergeChildrenAABBs(glm::vec3 &min, glm::vec3 &max)
+{
+    if (IsAABBCalculated)
+    {
+        glm::vec4 aabbMin = getModelMatrix() * glm::vec4(AABBMin, 1.0f);
+        glm::vec4 aabbMax = getModelMatrix() * glm::vec4(AABBMax, 1.0f);
+        if (aabbMin.x < min.x) min.x = aabbMin.x;
+        if (aabbMin.y < min.y) min.y = aabbMin.y;
+        if (aabbMin.z < min.z) min.z = aabbMin.z;
+        if (aabbMax.x > max.x) max.x = aabbMax.x;
+        if (aabbMax.y > max.y) max.y = aabbMax.y;
+        if (aabbMax.z > max.z) max.z = aabbMax.z;
+    }
+
+    for (size_t i = 0; i < m_Children.size(); ++i)
+        m_Children[i]->mergeChildrenAABBs(min, max);
 }
 
 size_t SceneNode::getChildrenCount()

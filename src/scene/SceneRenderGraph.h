@@ -10,13 +10,13 @@
 #include "cameras/Camera.h"
 #include "lights/Light.h"
 
-#include "renderer/RenderCommand.h"
-#include "renderer/CommandBuffer.h"
-#include "renderer/SceneNode.h"
-
 #include "meshes/Sphere.h"
 
+#include "renderer/RenderCommand.h"
+#include "renderer/CommandBuffer.h"
 #include "renderer/RenderTarget.h"
+
+#include "scene/SceneNode.h"
 
 class SceneRenderGraph
 {
@@ -37,6 +37,8 @@ public:
     void executeCommandBuffer();
     void renderCommand(RenderCommand::Ptr command);
     void renderMesh(Mesh::Ptr mesh);
+    
+    void calculateSceneAABB();
 
 private:
 

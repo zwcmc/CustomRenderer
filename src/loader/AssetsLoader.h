@@ -11,7 +11,8 @@
 #include "base/Shader.h"
 #include "base/Texture2D.h"
 #include "base/TextureCube.h"
-#include "renderer/SceneNode.h"
+
+#include "scene/SceneNode.h"
 
 class AssetsLoader
 {

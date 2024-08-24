@@ -1,4 +1,4 @@
-#include "SceneRenderGraph.h"
+#include "scene/SceneRenderGraph.h"
 
 #include <glm/glm.hpp>
 
@@ -308,12 +308,25 @@ void SceneRenderGraph::buildRenderCommands(SceneNode::Ptr sceneNode)
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
         m_CommandBuffer->pushCommand(sceneNode->MeshRenders[i]->getMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->getMaterial(), model);
     
-    // AABB debugging
-    if (sceneNode->IsAABBCalculated)
-        m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
+//    // AABB debugging
+//    if (sceneNode->IsAABBCalculated)
+//        m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneNode->AABBMin, sceneNode->AABBMax), m_DebuggingAABBMat, model);
 
     for (size_t i = 0; i < sceneNode->getChildrenCount(); ++i)
         buildRenderCommands(sceneNode->getChildByIndex(i));
+}
+
+void SceneRenderGraph::calculateSceneAABB()
+{
+    // Calculate the AABB for the scene
+    glm::vec3 sceneAABBMin = glm::vec3(FLT_MAX);
+    glm::vec3 sceneAABBMax = glm::vec3(-FLT_MAX);
+    m_Scene->mergeChildrenAABBs(sceneAABBMin, sceneAABBMax);
+    
+    m_Scene->IsAABBCalculated = true;
+    m_Scene->AABBMin = sceneAABBMin;
+    m_Scene->AABBMax = sceneAABBMax;
+    // m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneAABBMin, sceneAABBMax), m_DebuggingAABBMat, glm::mat4(1.0f));
 }
 
 void SceneRenderGraph::executeCommandBuffer()
@@ -323,6 +336,16 @@ void SceneRenderGraph::executeCommandBuffer()
     Camera::Ptr lightCamera = Camera::New(mainLight->getLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     lightCamera->setOrthographic(-10.0f, 10.0f, -10.0f, 10.0f, 0.001f, 100.0f);
     glm::mat4 lightVP = lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
+    
+     glm::mat4 viewCameraProjection = m_Camera->getProjectionMatrix();
+    // 1. Calculate 8 points of camera's frustum
+    
+    // 2. Transform 8 points to light space
+    
+    // 3. find minimum X, maximum X, minimum Y and maximum Y for the light's projection (left, right, bottom and top)
+    
+    // 4. Moving the Light in Texel-Sized Increments
+    
 
     // Render shadowmap first
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -339,13 +362,12 @@ void SceneRenderGraph::executeCommandBuffer()
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     glm::mat4 v = m_Camera->getViewMatrix();
-    glm::mat4 p = m_Camera->getProjectionMatrix();
     glm::vec3 cameraPos = m_Camera->getEyePosition();
 
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(v[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(p[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(viewCameraProjection[0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->getLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->getLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(cameraPos.x));

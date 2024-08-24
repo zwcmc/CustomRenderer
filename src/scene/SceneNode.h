@@ -29,6 +29,8 @@ public:
     size_t getChildrenCount();
     SceneNode::Ptr getChildByIndex(size_t index);
     void addChild(SceneNode::Ptr node);
+    
+    void mergeChildrenAABBs(glm::vec3 &min, glm::vec3 &max);
 
     std::vector<MeshRender::Ptr> MeshRenders;
     glm::mat4 ModelMatrix;
