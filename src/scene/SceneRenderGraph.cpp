@@ -326,6 +326,8 @@ void SceneRenderGraph::calculateSceneAABB()
     m_Scene->IsAABBCalculated = true;
     m_Scene->AABBMin = sceneAABBMin;
     m_Scene->AABBMax = sceneAABBMax;
+
+    // Debugging AABB
     // m_CommandBuffer->pushDebuggingCommand(AABBCube::New(sceneAABBMin, sceneAABBMax), m_DebuggingAABBMat, glm::mat4(1.0f));
 }
 
