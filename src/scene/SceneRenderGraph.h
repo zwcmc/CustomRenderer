@@ -54,7 +54,8 @@ private:
 
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
     
-    void ComputeShadowProjectionFitViewFrustum(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
+    void ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const glm::mat4 &cameraView, const glm::mat4 &lightView, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
+    void RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const glm::u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
 
     void SetGLCull(bool enable);
     void SetGLBlend(bool enable);

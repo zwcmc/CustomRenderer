@@ -338,13 +338,9 @@ void SceneRenderGraph::CalculateSceneAABB()
     // m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, glm::mat4(1.0f));
 }
 
-void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
+void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
 {
     glm::mat4 inverseCameraView = glm::inverse(cameraView);
-
-    // Calculate 8 corner points of view frustum
-    BoundingFrustum viewFrustum(cameraProjection);
-    std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
     
     vec3 tempTranslatedPoint;
     for (size_t i = 0; i < 8; ++i)
@@ -359,6 +355,42 @@ void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(const glm::mat4 &ca
     }
 }
 
+void SceneRenderGraph::RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const glm::u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
+{
+    vec3 vWorldUnitsPerTexel = vec3(0.0f);
+    
+    // Fit to the scene
+    vec3 vDiagonal = frustumPoints[0] - frustumPoints[6];
+    float fCascadeBound = glm::length(vDiagonal);
+    vec3 vBoarderOffset = (vec3(fCascadeBound) - (lightCameraOrthographicMax - lightCameraOrthographicMin)) * 0.5f;
+    vBoarderOffset.z = 0.0f;
+    lightCameraOrthographicMax += vBoarderOffset;
+    lightCameraOrthographicMin -= vBoarderOffset;
+    // The world units per texel are used to snap  the orthographic projection to texel sized increments.
+    vWorldUnitsPerTexel = vec3(fCascadeBound / bufferSize.x, fCascadeBound / bufferSize.y, 0.0);
+    
+//    // Fit to the cascade
+//    int iPCFBlurSize = 2;
+//    float fScaleDuetoBlureAMT = (float)(iPCFBlurSize * 2 + 1) / bufferSize.x;
+//    vec3 normalizeByBufferSize = vec3(1.0f / bufferSize.x, 1.0f / bufferSize.y, 0.0f);
+//    vec3 boardOffset = lightCameraOrthographicMax - lightCameraOrthographicMin;
+//    boardOffset *= 0.5f;
+//    boardOffset *= fScaleDuetoBlureAMT;
+//    lightCameraOrthographicMax += boardOffset;
+//    lightCameraOrthographicMin -= boardOffset;
+//    // The world units per texel are used to snap  the orthographic projection to texel sized increments.
+//    vWorldUnitsPerTexel = lightCameraOrthographicMax - lightCameraOrthographicMin;
+//    vWorldUnitsPerTexel *= normalizeByBufferSize;
+    
+    lightCameraOrthographicMin /= vWorldUnitsPerTexel;
+    lightCameraOrthographicMin = floor(lightCameraOrthographicMin);
+    lightCameraOrthographicMin *= vWorldUnitsPerTexel;
+    
+    lightCameraOrthographicMax /= vWorldUnitsPerTexel;
+    lightCameraOrthographicMax = floor(lightCameraOrthographicMax);
+    lightCameraOrthographicMax *= vWorldUnitsPerTexel;
+}
+
 void SceneRenderGraph::ExecuteCommandBuffer()
 {
     Light::Ptr mainLight = m_Lights[0];
@@ -369,11 +401,20 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glm::mat4 viewCameraView = m_Camera->GetViewMatrix();
 
     // Calculate a tight light camera projection to fit the camera view frustum
-    vec3 orthographicMin = vec3(FLT_MAX);
-    vec3 orthographicMax = vec3(-FLT_MAX);
-    ComputeShadowProjectionFitViewFrustum(viewCameraProjection, viewCameraView, lightCamera->GetViewMatrix(), orthographicMin, orthographicMax);
 
-    lightCamera->SetOrthographic(orthographicMin.x, orthographicMax.x, orthographicMin.y, orthographicMax.y, 0.001f, 100.0f);
+    // Calculate 8 corner points of view frustum
+    BoundingFrustum viewFrustum(viewCameraProjection);
+    std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
+    vec3 vLightCameraOrthographicMin = vec3(FLT_MAX);
+    vec3 vLightCameraOrthographicMax = vec3(-FLT_MAX);
+    ComputeShadowProjectionFitViewFrustum(frustumPoints, viewCameraView, lightCamera->GetViewMatrix(), vLightCameraOrthographicMin, vLightCameraOrthographicMax);
+    
+    // Remove the shimmering edge effect along the edges of shadows due to the light changing to fit the camera by moving the light in texel-sized increments
+    glm::u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
+    RemoveShimmeringEdgeEffect(frustumPoints, shadowmapSize, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
+
+    // Create the tight orthographic projection for the light camera
+    lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, 0.001f, 100.0f);
     glm::mat4 lightCameraVP = lightCamera->GetProjectionMatrix() * lightCamera->GetViewMatrix();
 
     // Render shadowmap first
