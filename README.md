@@ -31,12 +31,14 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] Irradiance Cubemap
   - [x] Pre-filterd Cubemap
   - [x] Pre-computing environment BRDF LUT
-- [x] Main Light Shadow Mapping
-  - [ ] Shadowmap's frustum cover the camera's frustum
+- [x] Main Light Shadow Maps
+  - [x] Calculate a projection for the light's frustum to tightly cover the camera's frustum
+  - [x] Remove the shimmering edge effect along the edges of shadows due to the light changing to fit the camera
+  - [x] Calculate the near and far planes by computing intersections with the light frustum and the scene
+  - [ ] Cascaded Shadow Maps
   - [x] PCF (Percentage Closer Filter)
   - [ ] VSM (Variance Shadow Maps)
   - [ ] PCSS (Percentage Closer Soft Shadow)
-  - [ ] Cascaded Shadow Mapping
 - [ ] Bloom
 - [ ] FXAA
 - [ ] MSAA
