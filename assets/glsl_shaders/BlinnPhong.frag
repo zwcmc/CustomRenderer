@@ -6,6 +6,7 @@ in VertexData
     vec2 UV0;
     vec3 Normal;
     vec3 PositionWS;
+    float Depth;
 } fs_in;
 
 uniform sampler2D uBaseMap;
@@ -21,6 +22,14 @@ uniform sampler2DShadow uShadowmap;
 #include "common/functions.glsl"
 #include "shader_library/shadows.glsl"
 
+const vec4 CascadeColors[4] = vec4[4]
+(
+    vec4(1.5, 0.0, 0.0, 1.0),
+    vec4(0.0, 1.5, 0.0, 1.0),
+    vec4(0.0, 0.0, 1.5, 1.0),
+    vec4(1.5, 1.0, 0.0, 1.0)
+);
+
 void main()
 {
     vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
@@ -32,20 +41,29 @@ void main()
 
     float NdotL = max(dot(N, L), 0.0);
 
-    vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS);
+    float currentPixelDepth = fs_in.Depth;
+    bvec4 fComparison = lessThan(vec4(currentPixelDepth), CascadePartitionsFrustum);
 
-    OutColor = vec4(vec3(shadowCoord.z), 1.0);
+    int iCurrentCascadeIndex = 0;
+    int CASCADE_COUNT_FLAG = 4;
+    if (CASCADE_COUNT_FLAG > 1)
+    {
+        float fIndex = dot(vec4(CASCADE_COUNT_FLAG > 0, CASCADE_COUNT_FLAG > 1, CASCADE_COUNT_FLAG > 2, CASCADE_COUNT_FLAG > 3), vec4(fComparison));
+        fIndex = min(fIndex, CASCADE_COUNT_FLAG - 1);
+        iCurrentCascadeIndex = int(fIndex);
+    }
 
-    // float shadowAtten = SampleShadowmap(uShadowmap, shadowCoord);
+    vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS, iCurrentCascadeIndex);
+    float shadowAtten = SampleShadowmapTent5x5(uShadowmap, shadowCoord);
 
-    // vec3 radiance = MainLightColor * shadowAtten;
+    vec3 radiance = MainLightColor * shadowAtten;
 
-    // vec3 ambient = baseColor.rgb * 0.04;
+    vec3 ambient = baseColor.rgb * 0.04;
+    vec3 diffuse = baseColor.rgb * radiance * NdotL;
+    float spec = pow(max(dot(N, H), 0.0), 32.0);
+    vec3 specular = vec3(1.0) * radiance * spec;
 
-    // vec3 diffuse = baseColor.rgb * radiance * NdotL;
+    vec3 color = ambient + diffuse + specular;
 
-    // float spec = pow(max(dot(N, H), 0.0), 32.0);
-    // vec3 specular = vec3(1.0) * radiance * spec;
-
-    // OutColor = vec4(ambient + diffuse + specular, 1.0);
+    OutColor = vec4(color, 1.0); // * CascadeColors[iCurrentCascadeIndex]
 }

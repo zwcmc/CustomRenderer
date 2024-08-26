@@ -134,7 +134,7 @@ namespace Collision
             vec4(0.0f, 1.0f, 1.0f, 1.0f),      // top
             vec4(0.0f, -1.0f, 1.0f, 1.0f),     // bottom
             
-            vec4(0.0f, 0.0f, -1.0f, 1.0f),      // near
+            vec4(0.0f, 0.0f, -1.0f, 1.0f),     // near
             vec4(0.0f, 0.0f, 1.0f, 1.0f)       // far
         };
         

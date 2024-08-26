@@ -46,7 +46,7 @@ void SceneRenderGraph::Init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 240, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 448, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -456,16 +456,17 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     };
     const int MAX_CASCADES = 4;
     glm::mat4 matWorldToShadows[MAX_CASCADES]; // Proj * View: World to shadow cascade matrix
+    float fCascadePartitionsFrustum[MAX_CASCADES];
     // FIT_TO_SCENE cascades
     float fCameraNearFarRange = m_Camera->GetFar() - m_Camera->GetNear();
-    float fFrustumIntervalBegin = 0.0f;
+    float fFrustumIntervalBegin = -m_Camera->GetNear();
     float fFrustumIntervalEnd;
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->Bind();
     m_ShadowCasterMat->Use();
-    for (size_t iCascadeIndex = 0; iCascadeIndex < MAX_CASCADES; ++iCascadeIndex)
+    for (int iCascadeIndex = 0; iCascadeIndex < MAX_CASCADES; ++iCascadeIndex)
     {
         fFrustumIntervalEnd = cascadePartitionPercents[iCascadeIndex];
         fFrustumIntervalEnd *= fCameraNearFarRange;
@@ -473,7 +474,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         // Calculate a tight light camera projection to fit the camera view frustum
         // Calculate 8 corner points of view frustum first
         BoundingFrustum viewFrustum(viewCameraProjection);
-        viewFrustum.Near = -fFrustumIntervalBegin;
+        
         viewFrustum.Far = -fFrustumIntervalEnd;
 
         std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
@@ -511,8 +512,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
 
         glm::u32vec2 size = m_ShadowmapRT->GetSize();
         int resolution = size.x >> 1;
-        unsigned int offsetX = (iCascadeIndex % 2) * resolution;
-        unsigned int offsetY = (iCascadeIndex / 2) * resolution;
+        int offsetX = (iCascadeIndex % 2) * resolution;
+        int offsetY = (iCascadeIndex / 2) * resolution;
         glViewport(offsetX, offsetY, resolution, resolution);
 
         std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->GetShadowCasterCommands();
@@ -544,6 +545,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         cascadeTransform[3][0] = offsetX * normalzeHeight;
         cascadeTransform[3][1] = offsetY * normalzeHeight;
         matWorldToShadows[iCascadeIndex] = cascadeTransform * matWorldToShadows[iCascadeIndex];
+
+        fCascadePartitionsFrustum[iCascadeIndex] = -fFrustumIntervalEnd;
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -554,11 +557,13 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->GetLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->GetLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->GetEyePosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(matWorldToShadows[3][0].x));
-    // glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightCameraVP[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(matWorldToShadows[0][0].x));
+
+    glm::vec4 v = glm::make_vec4(&fCascadePartitionsFrustum[0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, 432, 16, &(v.x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
+//     Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();

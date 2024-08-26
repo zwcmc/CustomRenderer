@@ -83,13 +83,14 @@ private:
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
     // {
-    //     glm::mat4 view;              // 64 bytes;  byte offset = 0;
-    //     glm::mat4 projection;        // 64 bytes;  byte offset = 64;
-    //     vec3 lightDirection0;        // 16 bytes;  byte offset = 128;
-    //     vec3 lightColor0;            // 16 bytes;  byte offset = 144;
-    //     vec3 cameraPos;              // 16 bytes;  byte offset = 160;
-    //     glm::mat4 worldToMainLight;  // 64 bytes;  byte offset = 176;
-    // };                               // total bytes = 240
+    //     glm::mat4 ViewMatrix;                  // 64 bytes;   byte offset = 0;
+    //     glm::mat4 ProjectionMatrix;            // 64 bytes;   byte offset = 64;
+    //     vec3 MainLightDirection;               // 16 bytes;   byte offset = 128;
+    //     vec3 MainLightColor;                   // 16 bytes;   byte offset = 144;
+    //     vec3 CameraPosition;                   // 16 bytes;   byte offset = 160;
+    //     glm::mat4 WorldToShadows[4];           // 256 bytes;  byte offset = 176;
+    //     vec4 CascadePartitionsFrustum;         // 16 bytes;   byte offset = 432;
+    // };                                         // Total bytes = 448
 
     Material::Ptr m_DebuggingAABBMat;
 

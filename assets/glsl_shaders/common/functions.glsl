@@ -80,9 +80,8 @@ vec3 GetNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
     return normalize(TBN * tangentNormal);
 }
 
-vec4 GetShadowCoord(vec3 positionWS)
+vec4 GetShadowCoord(vec3 positionWS, int cascadeIndex)
 {
-    int cascadeIndex = 1;
     vec4 shadowCoord = WorldToShadows[cascadeIndex] * vec4(positionWS, 1.0);
     shadowCoord.xyz /= shadowCoord.w;
     return shadowCoord;

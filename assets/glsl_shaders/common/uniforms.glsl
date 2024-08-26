@@ -9,7 +9,8 @@ layout (std140) uniform GlobalUniforms
     vec3 MainLightColor;
     vec3 CameraPosition;
     mat4 WorldToShadows[4];
-    float CascadePartitionsFrustum[4];
+    // float CascadePartitionsFrustum[4];
+    vec4 CascadePartitionsFrustum;
 };
 
 #endif

@@ -14,6 +14,7 @@ out VertexData
     vec2 UV0;
     vec3 Normal;
     vec3 PositionWS;
+    float Depth;
 } vs_out;
 
 void main()
@@ -24,6 +25,8 @@ void main()
     vs_out.Normal = vNormal * uModelMatrixInverse;
 
     vs_out.PositionWS = vec3(uModelMatrix * vec4(vPosition, 1.0));
+
+    vs_out.Depth = (ViewMatrix * vec4(vs_out.PositionWS, 1.0)).z;
 
     gl_Position = ProjectionMatrix * ViewMatrix * vec4(vs_out.PositionWS, 1.0);
 }
