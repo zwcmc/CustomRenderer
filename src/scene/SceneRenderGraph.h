@@ -51,6 +51,7 @@ private:
 
     void ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const glm::mat4 &cameraView, const glm::mat4 &lightView, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
     void RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const glm::u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
+    void ComputeNearAndFar(float &nearPlane, float &farPlane, const vec3 &lightCameraOrthographicMin, const vec3 &lightCameraOrthographicMax, const std::vector<vec3> &sceneAABBPointsLightSpace);
 
     void SetGLCull(bool enable);
     void SetGLBlend(bool enable);
@@ -91,4 +92,10 @@ private:
     // };                               // total bytes = 240
 
     Material::Ptr m_DebuggingAABBMat;
+
+    struct Triangle
+    {
+        vec3 pt[3];
+        bool culled;
+    };
 };
