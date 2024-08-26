@@ -18,6 +18,8 @@
 
 #include "scene/SceneNode.h"
 
+#include "renderer/EnvironmentIBL.h"
+
 class SceneRenderGraph
 {
     SHARED_PTR(SceneRenderGraph)
@@ -43,18 +45,10 @@ public:
 
 private:
 
-    void DrawSceneNode(SceneNode::Ptr sceneNode);
-
     void AddRenderLightCommand(Light::Ptr light);
     void BuildSkyboxRenderCommands();
-
-    void LoadEnvironment(const std::string &cubemapPath);
-    void GenerateBRDFLUT();
-    void GenerateCubemaps();
-    void RenderToCubemap(TextureCube::Ptr cubemap, unsigned int mipLevel = 0);
-
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
-    
+
     void ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const glm::mat4 &cameraView, const glm::mat4 &lightView, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
     void RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const glm::u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
 
@@ -78,14 +72,8 @@ private:
 
     RenderTarget::Ptr m_IntermediateRT;
 
-    // Environments
-    GLuint m_FrameBufferID;
-    GLuint m_CubemapDepthRenderBufferID;
-    SceneNode::Ptr m_Cube;
-    TextureCube::Ptr m_EnvironmentCubemap;
-    TextureCube::Ptr m_IrradianceCubemap;
-    TextureCube::Ptr m_PrefilteredCubemap;
-    RenderTarget::Ptr m_BRDFLUTRT;
+    // Environment IBL
+    EnvironmentIBL::Ptr m_EnvIBL;
 
     // Main light shadowmap
     Material::Ptr m_ShadowCasterMat;
