@@ -49,6 +49,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 
 ## References
 
+- [DirectX Technical Articles](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/dx9-technical-articles)
 - [Learn OpenGL by Joey de Vries](https://learnopengl.com/Introduction)
 - [glTF-Sample-Assets](https://github.com/KhronosGroup/glTF-Sample-Assets)
 - [Vulkan-glTF-PBR](https://github.com/SaschaWillems/Vulkan-glTF-PBR)
