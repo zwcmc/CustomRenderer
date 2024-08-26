@@ -102,9 +102,12 @@ int main()
     marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(marry);
 
+    marry->Translate(glm::vec3(-5.0f, 0.0f, -15.0f));
+    m_SceneRenderGraph->AddSceneNode(marry);
+
     SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-    floor->Translate(glm::vec3(floor->AABB.Center.x, -1.5f, floor->AABB.Center.z));
-    floor->Scale(glm::vec3(0.2f));
+    /*floor->Translate(glm::vec3(floor->AABB.Center.x, -1.5f, floor->AABB.Center.z));*/
+    floor->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(floor);
 
     // Get the real size in pixels
@@ -113,7 +116,7 @@ int main()
     glViewport(0, 0, realWidth, realHeight);
     
     ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    arcballCamera->SetPerspective(glm::radians(45.0f), realWidth, realHeight, 0.001f, 20.0f);
+    arcballCamera->SetPerspective(glm::radians(45.0f), realWidth, realHeight, 0.001f, 100.0f);
     m_SceneRenderGraph->SetCamera(arcballCamera);
 
     m_SceneRenderGraph->SetRenderSize(realWidth, realHeight);

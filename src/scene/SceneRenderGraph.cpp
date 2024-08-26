@@ -440,59 +440,110 @@ void SceneRenderGraph::ComputeNearAndFar(float &nearPlane, float &farPlane, cons
 void SceneRenderGraph::ExecuteCommandBuffer()
 {
     Light::Ptr mainLight = m_Lights[0];
-
     Camera::Ptr lightCamera = Camera::New(mainLight->GetLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
     glm::mat4 viewCameraProjection = m_Camera->GetProjectionMatrix();
     glm::mat4 viewCameraView = m_Camera->GetViewMatrix();
     glm::mat4 lightCameraView = lightCamera->GetViewMatrix();
 
-    // Calculate a tight light camera projection to fit the camera view frustum
-    // Calculate 8 corner points of view frustum first
-    BoundingFrustum viewFrustum(viewCameraProjection);
-    std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
-    vec3 vLightCameraOrthographicMin = vec3(FLT_MAX);
-    vec3 vLightCameraOrthographicMax = vec3(-FLT_MAX);
-    ComputeShadowProjectionFitViewFrustum(frustumPoints, viewCameraView, lightCameraView, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
-    
-    // Remove the shimmering edge effect along the edges of shadows due to the light changing to fit the camera by moving the light in texel-sized increments
-    glm::u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
-    RemoveShimmeringEdgeEffect(frustumPoints, shadowmapSize, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
-
-    // Calculate the near and far plane
-    BoundingBox bb = m_Scene->AABB;
-    std::vector<vec3> sceneAABBPoints = bb.GetCorners();
-    // Transform the scene AABB to light space
-    std::vector<vec3> sceneAABBPointsLightSpace;
-    sceneAABBPointsLightSpace.resize(8);
-    for (int index = 0; index < 8; ++index)
-        sceneAABBPointsLightSpace[index] = glm::make_vec3(lightCameraView * glm::vec4(sceneAABBPoints[index], 1.0f));
-
-    // Compute the near and far plane
-    // Near and far plane are negative in OpenGL right-hand coordinate
-    float nearPlane = 0.0f;
-    float farPlane = 10000.0f;
-    ComputeNearAndFar(nearPlane, farPlane, vLightCameraOrthographicMin, vLightCameraOrthographicMax, sceneAABBPointsLightSpace);
-
-    // PANCAKING
-    if (vLightCameraOrthographicMax.z < nearPlane)
-        nearPlane = vLightCameraOrthographicMax.z;
-
-    // Create the tight orthographic projection for the light camera
-    lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
-    glm::mat4 lightCameraVP = lightCamera->GetProjectionMatrix() * lightCamera->GetViewMatrix();
-
     // Render shadowmap first
+    // Percent of the cascade frustum
+    float cascadePartitionPercents[] =
+    {
+        0.05f,
+        0.15f,
+        0.6f,
+        1.0f
+    };
+    const int MAX_CASCADES = 4;
+    glm::mat4 matWorldToShadows[MAX_CASCADES]; // Proj * View: World to shadow cascade matrix
+    // FIT_TO_SCENE cascades
+    float fCameraNearFarRange = m_Camera->GetFar() - m_Camera->GetNear();
+    float fFrustumIntervalBegin = 0.0f;
+    float fFrustumIntervalEnd;
+
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->Bind();
     m_ShadowCasterMat->Use();
-    std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->GetShadowCasterCommands();
-    for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
+    for (size_t iCascadeIndex = 0; iCascadeIndex < MAX_CASCADES; ++iCascadeIndex)
     {
-        RenderCommand::Ptr command = shadowCasterCommands[i];
-        m_ShadowCasterMat->SetMatrix("uLightMVP", lightCameraVP * command->Transform);
-        RenderMesh(command->Mesh);
+        fFrustumIntervalEnd = cascadePartitionPercents[iCascadeIndex];
+        fFrustumIntervalEnd *= fCameraNearFarRange;
+
+        // Calculate a tight light camera projection to fit the camera view frustum
+        // Calculate 8 corner points of view frustum first
+        BoundingFrustum viewFrustum(viewCameraProjection);
+        viewFrustum.Near = -fFrustumIntervalBegin;
+        viewFrustum.Far = -fFrustumIntervalEnd;
+
+        std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
+        vec3 vLightCameraOrthographicMin = vec3(FLT_MAX);
+        vec3 vLightCameraOrthographicMax = vec3(-FLT_MAX);
+        ComputeShadowProjectionFitViewFrustum(frustumPoints, viewCameraView, lightCameraView, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
+
+        // Remove the shimmering edge effect along the edges of shadows due to the light changing to fit the camera by moving the light in texel-sized increments
+        glm::u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
+        RemoveShimmeringEdgeEffect(frustumPoints, shadowmapSize, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
+
+        // Calculate the near and far plane
+        BoundingBox bb = m_Scene->AABB;
+        std::vector<vec3> sceneAABBPoints = bb.GetCorners();
+        // Transform the scene AABB to light space
+        std::vector<vec3> sceneAABBPointsLightSpace;
+        sceneAABBPointsLightSpace.resize(8);
+        for (int index = 0; index < 8; ++index)
+            sceneAABBPointsLightSpace[index] = glm::make_vec3(lightCameraView * glm::vec4(sceneAABBPoints[index], 1.0f));
+
+        // Compute the near and far plane
+        // Near and far plane are negative in OpenGL right-hand coordinate
+        float nearPlane = 0.0f;
+        float farPlane = 10000.0f;
+        ComputeNearAndFar(nearPlane, farPlane, vLightCameraOrthographicMin, vLightCameraOrthographicMax, sceneAABBPointsLightSpace);
+
+        // PANCAKING
+        if (vLightCameraOrthographicMax.z < nearPlane)
+            nearPlane = vLightCameraOrthographicMax.z;
+
+        // Create the tight orthographic projection for the light camera
+        lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
+        
+        matWorldToShadows[iCascadeIndex] = lightCamera->GetProjectionMatrix() * lightCameraView;
+
+        glm::u32vec2 size = m_ShadowmapRT->GetSize();
+        int resolution = size.x >> 1;
+        unsigned int offsetX = (iCascadeIndex % 2) * resolution;
+        unsigned int offsetY = (iCascadeIndex / 2) * resolution;
+        glViewport(offsetX, offsetY, resolution, resolution);
+
+        std::vector<RenderCommand::Ptr> shadowCasterCommands = m_CommandBuffer->GetShadowCasterCommands();
+        for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
+        {
+            RenderCommand::Ptr command = shadowCasterCommands[i];
+            m_ShadowCasterMat->SetMatrix("uLightMVP", matWorldToShadows[iCascadeIndex] * command->Transform);
+            RenderMesh(command->Mesh);
+        }
+
+        // Apply cascade shadow transfom for shadow mapping, convert [-1, 1] to [0, 1]: xyz * 0.5 + 0.5
+        glm::mat4 textureScaleAndBias = glm::mat4(1.0f);
+        // Scale
+        textureScaleAndBias[0][0] = 0.5f;
+        textureScaleAndBias[1][1] = 0.5f;
+        textureScaleAndBias[2][2] = 0.5f;
+        // Bias
+        textureScaleAndBias[3][0] = 0.5f;
+        textureScaleAndBias[3][1] = 0.5f;
+        textureScaleAndBias[3][2] = 0.5f;
+        matWorldToShadows[iCascadeIndex] = textureScaleAndBias * matWorldToShadows[iCascadeIndex];
+
+        // Cascade offset
+        glm::mat4 cascadeTransform = glm::mat4(1.0f);
+        float normalizeWidth = 1.0f / size.x;
+        float normalzeHeight = 1.0f / size.y;
+        cascadeTransform[0][0] = resolution * normalizeWidth;
+        cascadeTransform[1][1] = resolution * normalzeHeight;
+        cascadeTransform[3][0] = offsetX * normalzeHeight;
+        cascadeTransform[3][1] = offsetY * normalzeHeight;
+        matWorldToShadows[iCascadeIndex] = cascadeTransform * matWorldToShadows[iCascadeIndex];
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -503,7 +554,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->GetLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->GetLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->GetEyePosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightCameraVP[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(matWorldToShadows[3][0].x));
+    // glBufferSubData(GL_UNIFORM_BUFFER, 176, 64, &(lightCameraVP[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
