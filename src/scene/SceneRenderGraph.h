@@ -32,6 +32,7 @@ public:
     void AddLight(Light::Ptr light);
 
     void Init();
+    void Cleanup();
 
     void AddSceneNode(SceneNode::Ptr sceneNode);
     void ExecuteCommandBuffer();
@@ -60,8 +61,6 @@ private:
     void SetGLCull(bool enable);
     void SetGLBlend(bool enable);
 
-    void Blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat);
-
     bool m_CullFace;
     bool m_Blend;
 
@@ -78,9 +77,6 @@ private:
     Sphere::Ptr m_LightMesh;
 
     RenderTarget::Ptr m_IntermediateRT;
-    
-    GLuint m_BlitVAO;
-    Material::Ptr m_BlitMat;
 
     // Environments
     GLuint m_FrameBufferID;

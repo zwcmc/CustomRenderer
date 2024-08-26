@@ -135,6 +135,9 @@ int main()
         glfwPollEvents();
     }
 
+    // Cleanup
+    m_SceneRenderGraph->Cleanup();
+
     glfwTerminate();
     return 0;
 }

@@ -10,6 +10,8 @@
 
 #include "utility/Collision.h"
 
+#include "renderer/Blitter.h"
+
 using namespace Collision;
 
 SceneRenderGraph::SceneRenderGraph()
@@ -18,8 +20,6 @@ SceneRenderGraph::SceneRenderGraph()
 
 SceneRenderGraph::~SceneRenderGraph()
 {
-    glDeleteVertexArrays(1, &m_BlitVAO);
-
     m_Lights.clear();
 }
 
@@ -57,8 +57,9 @@ void SceneRenderGraph::Init()
     // Mesh for rendering lights
     m_LightMesh = Sphere::New(16, 16, 0.02f);
 
-    glGenVertexArrays(1, &m_BlitVAO);
-    m_BlitMat = Material::New("Blit", "glsl_shaders/Blit.vert", "glsl_shaders/Blit.frag");
+    // Init Blitter
+    Blitter::Init();
+
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Load environment cubemaps
@@ -70,6 +71,12 @@ void SceneRenderGraph::Init()
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
     m_DebuggingAABBMat->SetDoubleSided(true);
+}
+
+void SceneRenderGraph::Cleanup()
+{
+    // Cleanup Blitter
+    Blitter::Cleanup();
 }
 
 void SceneRenderGraph::SetRenderSize(const int &width, const int &height)
@@ -227,7 +234,8 @@ void SceneRenderGraph::GenerateBRDFLUT()
     m_BRDFLUTRT = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
     m_BRDFLUTRT->GetColorTexture(0)->SetTextureName("uBRDFLUT");
     Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vert", "glsl_shaders/GenerateBRDFLUT.frag");
-    Blit(nullptr, m_BRDFLUTRT, generateBRDFLUTFMat);
+
+    Blitter::RenderToTarget(m_BRDFLUTRT, generateBRDFLUTFMat);
 }
 
 void SceneRenderGraph::LoadEnvironment(const std::string &cubemapPath)
@@ -491,8 +499,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    Blit(m_IntermediateRT->GetColorTexture(0), nullptr, m_BlitMat);
-//    Blit(m_ShadowmapRT->GetShadowmapTexture(), nullptr, m_BlitMat);
+    Blitter::BlitToCamera(m_IntermediateRT->GetColorTexture(0), m_RenderSize);
+    // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize);
 }
 
 void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command)
@@ -558,31 +566,4 @@ void SceneRenderGraph::SetGLBlend(bool enable)
         else
             glDisable(GL_BLEND);
     }
-}
-
-void SceneRenderGraph::Blit(Texture2D::Ptr source, RenderTarget::Ptr destination, Material::Ptr blitMat)
-{
-    if (destination)
-        destination->Bind();
-    else
-    {
-        glViewport(0, 0, m_RenderSize.x, m_RenderSize.y);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    }
-
-    if (blitMat == nullptr)
-        blitMat = m_BlitMat;
-
-    if (source)
-    {
-        source->SetTextureName("uSource");
-        blitMat->AddOrSetTexture(source);
-    }
-
-    blitMat->Use();
-
-    glBindVertexArray(m_BlitVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
 }
