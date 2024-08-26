@@ -40,7 +40,6 @@ uniform sampler2DShadow uShadowmap;
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
-#include "shader_library/shadows.glsl"
 
 void main()
 {
@@ -65,8 +64,8 @@ void main()
     }
 
     vec3 N = uNormalMapSet > 0.0 ? GetNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
-    vec3 V = normalize(cameraPos - fs_in.PositionWS);
-    vec3 L = normalize(lightPosition0);
+    vec3 V = normalize(CameraPosition - fs_in.PositionWS);
+    vec3 L = normalize(MainLightDirection);
     vec3 H = normalize(L + V);
 
     float NdotL = max(dot(N, L), 0.0);
@@ -76,10 +75,9 @@ void main()
 
 
     // Main light shadow
-    vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS);
-    float shadowAtten = SampleShadowmapTent5x5(uShadowmap, shadowCoord);
+    float shadowAtten = 1.0;
 
-    vec3 radiance = lightColor0 * shadowAtten;
+    vec3 radiance = MainLightColor * shadowAtten;
 
     vec3 Lo = vec3(0.0);
 

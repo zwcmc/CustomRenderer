@@ -3,12 +3,13 @@
 
 layout (std140) uniform GlobalUniforms
 {
-    mat4 viewMatrix;
-    mat4 projectionMatrix;
-    vec3 lightPosition0;
-    vec3 lightColor0;
-    vec3 cameraPos;
-    mat4 worldToShadow;
+    mat4 ViewMatrix;
+    mat4 ProjectionMatrix;
+    vec3 MainLightDirection;
+    vec3 MainLightColor;
+    vec3 CameraPosition;
+    mat4 WorldToShadows[4];
+    float CascadePartitionsFrustum[4];
 };
 
 #endif

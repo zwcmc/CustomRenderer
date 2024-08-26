@@ -25,5 +25,5 @@ void main()
 
     vs_out.PositionWS = vec3(uModelMatrix * vec4(vPosition, 1.0));
 
-    gl_Position = projectionMatrix * viewMatrix * vec4(vs_out.PositionWS, 1.0);
+    gl_Position = ProjectionMatrix * ViewMatrix * vec4(vs_out.PositionWS, 1.0);
 }

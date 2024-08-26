@@ -82,7 +82,8 @@ vec3 GetNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
 
 vec4 GetShadowCoord(vec3 positionWS)
 {
-    vec4 shadowCoord = worldToShadow * vec4(positionWS, 1.0);
+    int cascadeIndex = 1;
+    vec4 shadowCoord = WorldToShadows[cascadeIndex] * vec4(positionWS, 1.0);
     shadowCoord.xyz /= shadowCoord.w;
     return shadowCoord;
 }
