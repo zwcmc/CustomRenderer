@@ -8,7 +8,7 @@
 #include "ptr.h"
 
 #include "cameras/Camera.h"
-#include "lights/Light.h"
+#include "lights/DirectionalLight.h"
 
 #include "meshes/Sphere.h"
 
@@ -19,6 +19,7 @@
 #include "scene/SceneNode.h"
 
 #include "renderer/EnvironmentIBL.h"
+#include "renderer/DirectionalLightShadowMap.h"
 
 using namespace glm;
 
@@ -27,20 +28,20 @@ class SceneRenderGraph
     SHARED_PTR(SceneRenderGraph)
 public:
     SceneRenderGraph();
-    ~SceneRenderGraph();
+    ~SceneRenderGraph() = default;
 
     void SetRenderSize(const int &width, const int &height);
     void SetCamera(Camera::Ptr camera);
     Camera::Ptr GetActiveCamera() { return m_Camera; }
 
-    void AddLight(Light::Ptr light);
+    void SetMainLight(DirectionalLight::Ptr light);
 
     void Init();
     void Cleanup();
 
     void AddSceneNode(SceneNode::Ptr sceneNode);
     void ExecuteCommandBuffer();
-    void RenderCommand(RenderCommand::Ptr command);
+    void RenderCommand(RenderCommand::Ptr command, Light::Ptr light);
     void RenderMesh(Mesh::Ptr mesh);
     
     void CalculateSceneAABB();
@@ -50,10 +51,6 @@ private:
     void AddRenderLightCommand(Light::Ptr light);
     void BuildSkyboxRenderCommands();
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
-
-    void ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const mat4 &cameraView, const mat4 &lightView, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
-    void RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
-    void ComputeNearAndFar(float &nearPlane, float &farPlane, const vec3 &lightCameraOrthographicMin, const vec3 &lightCameraOrthographicMax, const std::vector<vec3> &sceneAABBPointsLightSpace);
 
     void SetGLCull(bool enable);
     void SetGLBlend(bool enable);
@@ -67,7 +64,7 @@ private:
 
     CommandBuffer::Ptr m_CommandBuffer;
     Camera::Ptr m_Camera;
-    std::vector<Light::Ptr> m_Lights;
+    DirectionalLight::Ptr m_MainLight;
 
     GLuint m_GlobalUniformBufferID;
 
@@ -78,9 +75,8 @@ private:
     // Environment IBL
     EnvironmentIBL::Ptr m_EnvIBL;
 
-    // Main light shadowmap
-    Material::Ptr m_ShadowCasterMat;
-    RenderTarget::Ptr m_ShadowMapRT;
+    // Directional Shadow Map
+    DirectionalLightShadowMap::Ptr m_DirectionalShadowMap;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
@@ -93,13 +89,8 @@ private:
     //     mat4 ShadowProjections[4];             // 256 bytes;  byte offset = 176;
     //     mat4 ShadowView;                       // 64 bytes;   byte offset = 432;
     //     vec4 CascadeScalesAndOffsets[4];       // 64 bytes;   byte offset = 496;
-    // };                                         // Total bytes = 560
+    //     vec4 CascadeParams;                    // 16 bytes;   byte offset = 560;
+    // };                                         // Total bytes = 576
 
     Material::Ptr m_DebuggingAABBMat;
-
-    struct Triangle
-    {
-        vec3 pt[3];
-        bool culled;
-    };
 };

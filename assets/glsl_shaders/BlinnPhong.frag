@@ -18,6 +18,7 @@ uniform sampler2D uNormalMap;
 uniform float uNormalMapSet;
 
 uniform sampler2DShadow uShadowMap;
+uniform float uShadowMapSet;
 
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
@@ -42,30 +43,27 @@ void main()
 
     float NdotL = max(dot(N, L), 0.0);
 
+    float shadowAtten = 1.0;
     int iCurrentCascadeIndex = 0;
-    int CASCADE_COUNT_FLAG = 4;
-    vec4 shadowCoord = vec4(0.0);
-    int iCascadeFound = 0;
-    for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
+    if (uShadowMapSet > 0.0)
     {
-        shadowCoord = ShadowProjections[iCascadeIndex] * fs_in.vTexShadow;
-        // Perspective division
-        shadowCoord.xyzw /= shadowCoord.w;
-        if (min(shadowCoord.x, shadowCoord.y) > 1.0/2048.0 && max(shadowCoord.x, shadowCoord.y) < 2047.0/2048.0)
+        int CASCADE_COUNT_FLAG = int(CascadeParams.x);
+        vec4 shadowCoord = vec4(0.0);
+        int iCascadeFound = 0;
+        for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
         {
-            iCurrentCascadeIndex = iCascadeIndex;
-            iCascadeFound = 1;
+            shadowCoord = ShadowProjections[iCascadeIndex] * fs_in.vTexShadow;
+            // Perspective division
+            shadowCoord.xyzw /= shadowCoord.w;
+            if (min(shadowCoord.x, shadowCoord.y) > CascadeParams.y && max(shadowCoord.x, shadowCoord.y) < CascadeParams.z)
+            {
+                iCurrentCascadeIndex = iCascadeIndex;
+                iCascadeFound = 1;
+            }
         }
+        shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
+        shadowAtten = SampleShadowMap(uShadowMap, shadowCoord);
     }
-
-    shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
-    // shadowCoord.x *= CascadeScales[iCurrentCascadeIndex];
-    // shadowCoord.x += (iCurrentCascadeIndex%2) * 0.5;
-    // shadowCoord.y *= CascadeScales[iCurrentCascadeIndex];
-    // shadowCoord.y += (iCurrentCascadeIndex/2) * 0.5;
-
-    float shadowAtten = SampleShadowMap(uShadowMap, shadowCoord);
-
     vec3 radiance = MainLightColor * shadowAtten;
 
     vec3 ambient = baseColor.rgb * 0.04;

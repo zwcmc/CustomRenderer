@@ -5,7 +5,7 @@
 
 #include "cameras/ArcballCamera.h"
 
-#include "lights/Light.h"
+#include "lights/DirectionalLight.h"
 
 #include "loader/AssetsLoader.h"
 
@@ -122,8 +122,8 @@ int main()
 
     m_SceneRenderGraph->SetRenderSize(realWidth, realHeight);
 
-    Light::Ptr light = Light::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(2.0f, 2.0f, 2.0f));
-    m_SceneRenderGraph->AddLight(light);
+    DirectionalLight::Ptr mainLight = DirectionalLight::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(2.0f, 2.0f, 2.0f), true);
+    m_SceneRenderGraph->SetMainLight(mainLight);
     
     m_SceneRenderGraph->CalculateSceneAABB();
 
