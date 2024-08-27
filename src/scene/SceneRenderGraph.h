@@ -89,8 +89,8 @@ private:
     //     vec3 MainLightColor;                   // 16 bytes;   byte offset = 144;
     //     vec3 CameraPosition;                   // 16 bytes;   byte offset = 160;
     //     glm::mat4 WorldToShadows[4];           // 256 bytes;  byte offset = 176;
-    //     vec4 CascadePartitionsFrustum;         // 16 bytes;   byte offset = 432;
-    // };                                         // Total bytes = 448
+    //     glm::mat4 ShadowView;                  // 64 bytes;   byte offset = 432
+    // };                                         // Total bytes = 496
 
     Material::Ptr m_DebuggingAABBMat;
 

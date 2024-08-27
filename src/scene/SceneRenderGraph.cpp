@@ -46,7 +46,7 @@ void SceneRenderGraph::Init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 448, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 496, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -455,8 +455,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         1.0f
     };
     const int MAX_CASCADES = 4;
-    glm::mat4 matWorldToShadows[MAX_CASCADES]; // Proj * View: World to shadow cascade matrix
-    float fCascadePartitionsFrustum[MAX_CASCADES];
+    glm::mat4 matShadowProjs[MAX_CASCADES];
+
     // FIT_TO_SCENE cascades
     float fCameraNearFarRange = m_Camera->GetFar() - m_Camera->GetNear();
     float fFrustumIntervalBegin = -m_Camera->GetNear();
@@ -503,14 +503,10 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         float farPlane = 10000.0f;
         ComputeNearAndFar(nearPlane, farPlane, vLightCameraOrthographicMin, vLightCameraOrthographicMax, sceneAABBPointsLightSpace);
 
-        // Shadow Pancaking
-        //if (vLightCameraOrthographicMax.z < nearPlane)
-        //    nearPlane = vLightCameraOrthographicMax.z;
-
         // Create the tight orthographic projection for the light camera
         lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
 
-        matWorldToShadows[iCascadeIndex] = lightCamera->GetProjectionMatrix() * lightCameraView;
+        matShadowProjs[iCascadeIndex] = lightCamera->GetProjectionMatrix();
 
         int offsetX = (iCascadeIndex % 2) * resolution;
         int offsetY = (iCascadeIndex / 2) * resolution;
@@ -520,7 +516,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
         {
             RenderCommand::Ptr command = shadowCasterCommands[i];
-            m_ShadowCasterMat->SetMatrix("uLightMVP", matWorldToShadows[iCascadeIndex] * command->Transform);
+            m_ShadowCasterMat->SetMatrix("uLightMVP", matShadowProjs[iCascadeIndex] * lightCameraView * command->Transform);
             RenderMesh(command->Mesh);
         }
 
@@ -534,19 +530,17 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         textureScaleAndBias[3][0] = 0.5f;
         textureScaleAndBias[3][1] = 0.5f;
         textureScaleAndBias[3][2] = 0.5f;
-        matWorldToShadows[iCascadeIndex] = textureScaleAndBias * matWorldToShadows[iCascadeIndex];
+        matShadowProjs[iCascadeIndex] = textureScaleAndBias * matShadowProjs[iCascadeIndex];
 
-        // Cascade offset
-        glm::mat4 cascadeTransform = glm::mat4(1.0f);
-        float normalizeWidth = 1.0f / shadowmapSize.x;
-        float normalzeHeight = 1.0f / shadowmapSize.y;
-        cascadeTransform[0][0] = resolution * normalizeWidth;
-        cascadeTransform[1][1] = resolution * normalzeHeight;
-        cascadeTransform[3][0] = offsetX * normalizeWidth;
-        cascadeTransform[3][1] = offsetY * normalzeHeight;
-        matWorldToShadows[iCascadeIndex] = cascadeTransform * matWorldToShadows[iCascadeIndex];
-
-        fCascadePartitionsFrustum[iCascadeIndex] = -fFrustumIntervalEnd;
+        //// Cascade offset
+        //glm::mat4 cascadeTransform = glm::mat4(1.0f);
+        //float normalizeWidth = 1.0f / shadowmapSize.x;
+        //float normalzeHeight = 1.0f / shadowmapSize.y;
+        //cascadeTransform[0][0] = resolution * normalizeWidth;
+        //cascadeTransform[1][1] = resolution * normalzeHeight;
+        //cascadeTransform[3][0] = offsetX * normalizeWidth;
+        //cascadeTransform[3][1] = offsetY * normalzeHeight;
+        //matShadowProjs[iCascadeIndex] = cascadeTransform * matShadowProjs[iCascadeIndex];
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -557,10 +551,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->GetLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->GetLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->GetEyePosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(matWorldToShadows[0][0].x));
-
-    glm::vec4 v = glm::make_vec4(&fCascadePartitionsFrustum[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 432, 16, &(v.x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(matShadowProjs[0][0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 432, 64, &(lightCameraView[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;

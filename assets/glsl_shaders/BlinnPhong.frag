@@ -6,7 +6,8 @@ in VertexData
     vec2 UV0;
     vec3 Normal;
     vec3 PositionWS;
-    float Depth;
+    // float Depth;
+    vec4 vTexShadow;
 } fs_in;
 
 uniform sampler2D uBaseMap;
@@ -43,19 +44,26 @@ void main()
 
     int iCurrentCascadeIndex = 0;
     int CASCADE_COUNT_FLAG = 4;
-    if (CASCADE_COUNT_FLAG > 1)
+    vec4 shadowCoord = vec4(0.0);
+    int iCascadeFound = 0;
+    for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
     {
-        float currentPixelDepth = fs_in.Depth;
-        bvec4 fComparison = lessThan(vec4(currentPixelDepth), CascadePartitionsFrustum);
-        float fIndex = dot(vec4(CASCADE_COUNT_FLAG > 0, CASCADE_COUNT_FLAG > 1, CASCADE_COUNT_FLAG > 2, CASCADE_COUNT_FLAG > 3), vec4(fComparison));
-        fIndex = min(fIndex, CASCADE_COUNT_FLAG - 1);
-        iCurrentCascadeIndex = int(fIndex);
+        shadowCoord = WorldToShadows[iCascadeIndex] * fs_in.vTexShadow;
+        // Perspective division
+        shadowCoord.xyzw /= shadowCoord.w;
+        if (min(shadowCoord.x, shadowCoord.y) > 1.0/2048.0 && max(shadowCoord.x, shadowCoord.y) < 2047.0/2048.0)
+        {
+            iCurrentCascadeIndex = iCascadeIndex;
+            iCascadeFound = 1;
+        }
     }
 
-    vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS, iCurrentCascadeIndex);
+    shadowCoord.x *= 0.5;
+    shadowCoord.x += (iCurrentCascadeIndex%2) * 0.5;
+    shadowCoord.y *= 0.5;
+    shadowCoord.y += (iCurrentCascadeIndex/2) * 0.5;
+
     float shadowAtten = SampleShadowmap(uShadowmap, shadowCoord);
-    if (shadowCoord.z <= 0.0 || shadowCoord.z >= 1.0)
-        shadowAtten = 1.0;
 
     vec3 radiance = MainLightColor * shadowAtten;
 
