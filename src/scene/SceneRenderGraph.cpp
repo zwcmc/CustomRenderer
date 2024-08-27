@@ -503,6 +503,10 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         float farPlane = 10000.0f;
         ComputeNearAndFar(nearPlane, farPlane, vLightCameraOrthographicMin, vLightCameraOrthographicMax, sceneAABBPointsLightSpace);
 
+        // Shadow Pancaking
+        if (vLightCameraOrthographicMax.z < nearPlane)
+            nearPlane = vLightCameraOrthographicMax.z;
+
         // Create the tight orthographic projection for the light camera
         lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
 
@@ -555,7 +559,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 432, 64, &(lightCameraView[0].x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
+    Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();
