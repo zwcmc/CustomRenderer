@@ -17,7 +17,7 @@ uniform vec4 uBaseColor;
 uniform sampler2D uNormalMap;
 uniform float uNormalMapSet;
 
-uniform sampler2DShadow uShadowmap;
+uniform sampler2DShadow uShadowMap;
 
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
@@ -64,7 +64,7 @@ void main()
     // shadowCoord.y *= CascadeScales[iCurrentCascadeIndex];
     // shadowCoord.y += (iCurrentCascadeIndex/2) * 0.5;
 
-    float shadowAtten = SampleShadowmap(uShadowmap, shadowCoord);
+    float shadowAtten = SampleShadowMap(uShadowMap, shadowCoord);
 
     vec3 radiance = MainLightColor * shadowAtten;
 

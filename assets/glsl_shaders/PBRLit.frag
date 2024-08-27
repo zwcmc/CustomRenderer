@@ -35,7 +35,7 @@ uniform samplerCube uIrradianceCubemap;
 uniform samplerCube uPrefilteredCubemap;
 uniform sampler2D uBRDFLUT;
 
-uniform sampler2DShadow uShadowmap;
+uniform sampler2DShadow uShadowMap;
 
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"

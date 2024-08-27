@@ -64,7 +64,7 @@ void SceneRenderGraph::Init()
     BuildSkyboxRenderCommands();
 
     // Main light shadowmap
-    m_ShadowmapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
+    m_ShadowMapRT = RenderTarget::New(2048, 2048, GL_FLOAT, 0, false, true);
     m_ShadowCasterMat = Material::New("ShadowCaster", "glsl_shaders/ShadowCaster.vert", "glsl_shaders/ShadowCaster.frag");
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
@@ -466,9 +466,9 @@ void SceneRenderGraph::ExecuteCommandBuffer()
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
-    m_ShadowmapRT->Bind();
+    m_ShadowMapRT->Bind();
     m_ShadowCasterMat->Use();
-    u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
+    u32vec2 shadowmapSize = m_ShadowMapRT->GetSize();
     for (int iCascadeIndex = 0; iCascadeIndex < MAX_CASCADES; ++iCascadeIndex)
     {
         int resolution = shadowmapSize.x >> 1;
@@ -566,7 +566,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
+    // Blitter::BlitToCamera(m_ShadowMapRT->GetShadowMapTexture(), m_RenderSize); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();
@@ -635,7 +635,7 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command)
 
     if (mat->GetMaterialCastShadows())
     {
-        mat->AddOrSetTexture(m_ShadowmapRT->GetShadowmapTexture());
+        mat->AddOrSetTexture(m_ShadowMapRT->GetShadowMapTexture());
     }
 
     mat->Use();

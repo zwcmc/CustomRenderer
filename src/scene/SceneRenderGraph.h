@@ -80,7 +80,7 @@ private:
 
     // Main light shadowmap
     Material::Ptr m_ShadowCasterMat;
-    RenderTarget::Ptr m_ShadowmapRT;
+    RenderTarget::Ptr m_ShadowMapRT;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms

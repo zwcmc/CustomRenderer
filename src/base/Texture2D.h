@@ -14,7 +14,7 @@ public:
 
     void InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap = false);
     void InitTexture2D(ktxTexture* kTexture, bool useMipmap = false);
-    void InitShadowmap(const glm::u32vec2 &size);
+    void InitShadowMap(const glm::u32vec2 &size);
 
     void SetFilterMode(GLenum minFilter, GLenum magFilter);
     void SetWrapMode(GLenum wrapS, GLenum wrapT);

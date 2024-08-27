@@ -33,12 +33,12 @@ void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_S
     }
 }
 
-float SampleShadowmap(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMap(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     return texture(shadowmap, vec3(shadowCoord.xy, shadowCoord.z));
 }
 
-float SampleShadowmapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     vec2 poissonUV[POISSON_SAMPLE_NUM];
     PoissonDiskSamples(shadowCoord.xy, poissonUV);
@@ -51,7 +51,7 @@ float SampleShadowmapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     return shadow / float(POISSON_SAMPLE_NUM);
 }
 
-float SampleShadowmapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     float fetchesWeights[4];
     vec2 fetchesUV[4];
@@ -64,7 +64,7 @@ float SampleShadowmapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
             + fetchesWeights[3] * texture(shadowmap, vec3(fetchesUV[3], shadowCoord.z));
 }
 
-float SampleShadowmapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     float fetchesWeights[9];
     vec2 fetchesUV[9];
@@ -82,7 +82,7 @@ float SampleShadowmapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
             + fetchesWeights[8] * texture(shadowmap, vec3(fetchesUV[8], shadowCoord.z));
 }
 
-float SampleShadowmapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord)
 {
     float fetchesWeights[16];
     vec2 fetchesUV[16];

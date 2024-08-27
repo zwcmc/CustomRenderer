@@ -1,11 +1,11 @@
 #include "renderer/RenderTarget.h"
 
-RenderTarget::RenderTarget(const unsigned int &width, const unsigned int &height, GLenum type, unsigned int colorAttachmentsNum, bool depthAndStencil, bool isShadowmap)
-    : RenderTarget(glm::u32vec2(width, height), type, colorAttachmentsNum, depthAndStencil, isShadowmap)
+RenderTarget::RenderTarget(const unsigned int &width, const unsigned int &height, GLenum type, unsigned int colorAttachmentsNum, bool depthAndStencil, bool isShadowMap)
+    : RenderTarget(glm::u32vec2(width, height), type, colorAttachmentsNum, depthAndStencil, isShadowMap)
 { }
 
-RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int colorAttachmentsNum, bool depthAndStencil, bool isShadowmap)
-    : m_FrameBufferID(0), m_Size(size), m_Type(type), m_HasDepthAndStencil(depthAndStencil), m_IsShadowmap(isShadowmap)
+RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int colorAttachmentsNum, bool depthAndStencil, bool isShadowMap)
+    : m_FrameBufferID(0), m_Size(size), m_Type(type), m_HasDepthAndStencil(depthAndStencil), m_IsShadowMap(isShadowMap)
 {
     glGenFramebuffers(1, &m_FrameBufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
@@ -13,20 +13,16 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     // Color attachments
     GLenum internalFormat = GL_RGBA;
     if (type == GL_HALF_FLOAT)
-    {
         internalFormat = GL_RGBA16F; // Using GL_RGBA16F for HDR will suffice
-    }
     else if (type == GL_FLOAT)
-    {
         internalFormat = GL_RGBA32F;
-    }
 
-    if (isShadowmap)
+    if (isShadowMap)
     {
-        m_ShadowmapAttachment = Texture2D::New("uShadowmap");
-        m_ShadowmapAttachment->InitShadowmap(size);
+        m_ShadowMapAttachment = Texture2D::New("uShadowMap");
+        m_ShadowMapAttachment->InitShadowMap(size);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_ShadowmapAttachment->GetTextureID(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_ShadowMapAttachment->GetTextureID(), 0);
 
         // Disable writes to the color buffer
         glDrawBuffer(GL_NONE);
@@ -83,9 +79,9 @@ Texture2D::Ptr RenderTarget::GetDepthAndStencilTexture()
     return m_HasDepthAndStencil ? m_DepthStencilAttachment : nullptr;
 }
 
-Texture2D::Ptr RenderTarget::GetShadowmapTexture()
+Texture2D::Ptr RenderTarget::GetShadowMapTexture()
 {
-    return m_IsShadowmap ? m_ShadowmapAttachment : nullptr;
+    return m_IsShadowMap ? m_ShadowMapAttachment : nullptr;
 }
 
 void RenderTarget::SetSize(const glm::u32vec2 &size)
