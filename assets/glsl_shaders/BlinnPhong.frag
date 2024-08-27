@@ -48,7 +48,7 @@ void main()
     int iCascadeFound = 0;
     for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
     {
-        shadowCoord = WorldToShadows[iCascadeIndex] * fs_in.vTexShadow;
+        shadowCoord = ShadowProjections[iCascadeIndex] * fs_in.vTexShadow;
         // Perspective division
         shadowCoord.xyzw /= shadowCoord.w;
         if (min(shadowCoord.x, shadowCoord.y) > 1.0/2048.0 && max(shadowCoord.x, shadowCoord.y) < 2047.0/2048.0)
@@ -58,10 +58,11 @@ void main()
         }
     }
 
-    shadowCoord.x *= 0.5;
-    shadowCoord.x += (iCurrentCascadeIndex%2) * 0.5;
-    shadowCoord.y *= 0.5;
-    shadowCoord.y += (iCurrentCascadeIndex/2) * 0.5;
+    shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
+    // shadowCoord.x *= CascadeScales[iCurrentCascadeIndex];
+    // shadowCoord.x += (iCurrentCascadeIndex%2) * 0.5;
+    // shadowCoord.y *= CascadeScales[iCurrentCascadeIndex];
+    // shadowCoord.y += (iCurrentCascadeIndex/2) * 0.5;
 
     float shadowAtten = SampleShadowmap(uShadowmap, shadowCoord);
 

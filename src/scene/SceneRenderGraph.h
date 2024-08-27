@@ -20,6 +20,8 @@
 
 #include "renderer/EnvironmentIBL.h"
 
+using namespace glm;
+
 class SceneRenderGraph
 {
     SHARED_PTR(SceneRenderGraph)
@@ -49,8 +51,8 @@ private:
     void BuildSkyboxRenderCommands();
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
 
-    void ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const glm::mat4 &cameraView, const glm::mat4 &lightView, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
-    void RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const glm::u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
+    void ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const mat4 &cameraView, const mat4 &lightView, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
+    void RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax);
     void ComputeNearAndFar(float &nearPlane, float &farPlane, const vec3 &lightCameraOrthographicMin, const vec3 &lightCameraOrthographicMax, const std::vector<vec3> &sceneAABBPointsLightSpace);
 
     void SetGLCull(bool enable);
@@ -59,7 +61,7 @@ private:
     bool m_CullFace;
     bool m_Blend;
 
-    glm::u32vec2 m_RenderSize;
+    u32vec2 m_RenderSize;
 
     SceneNode::Ptr m_Scene;
 
@@ -83,14 +85,15 @@ private:
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
     // {
-    //     glm::mat4 ViewMatrix;                  // 64 bytes;   byte offset = 0;
-    //     glm::mat4 ProjectionMatrix;            // 64 bytes;   byte offset = 64;
+    //     mat4 ViewMatrix;                       // 64 bytes;   byte offset = 0;
+    //     mat4 ProjectionMatrix;                 // 64 bytes;   byte offset = 64;
     //     vec3 MainLightDirection;               // 16 bytes;   byte offset = 128;
     //     vec3 MainLightColor;                   // 16 bytes;   byte offset = 144;
     //     vec3 CameraPosition;                   // 16 bytes;   byte offset = 160;
-    //     glm::mat4 WorldToShadows[4];           // 256 bytes;  byte offset = 176;
-    //     glm::mat4 ShadowView;                  // 64 bytes;   byte offset = 432
-    // };                                         // Total bytes = 496
+    //     mat4 ShadowProjections[4];             // 256 bytes;  byte offset = 176;
+    //     mat4 ShadowView;                       // 64 bytes;   byte offset = 432;
+    //     vec4 CascadeScalesAndOffsets[4];       // 64 bytes;   byte offset = 496;
+    // };                                         // Total bytes = 560
 
     Material::Ptr m_DebuggingAABBMat;
 

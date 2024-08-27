@@ -11,7 +11,7 @@
 using namespace Collision;
 
 SceneRenderGraph::SceneRenderGraph()
-    : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false), m_RenderSize(glm::u32vec2(1))
+    : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false), m_RenderSize(u32vec2(1))
 { }
 
 SceneRenderGraph::~SceneRenderGraph()
@@ -46,7 +46,7 @@ void SceneRenderGraph::Init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 496, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 560, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -84,7 +84,7 @@ void SceneRenderGraph::SetRenderSize(const int &width, const int &height)
 
     m_Camera->SetScreenSize(width, height);
 
-    m_IntermediateRT->SetSize(glm::u32vec2(width, height));
+    m_IntermediateRT->SetSize(u32vec2(width, height));
 }
 
 void SceneRenderGraph::SetCamera(Camera::Ptr camera)
@@ -116,8 +116,8 @@ void SceneRenderGraph::AddRenderLightCommand(Light::Ptr light)
     lightMat->AddOrSetVector("uEmissiveColor", light->GetLightColor());
 
     // Only need to modify the translation column
-    glm::mat4 transform = glm::mat4(1.0f);
-    glm::vec3 lightPos = light->GetLightPosition();
+    mat4 transform = mat4(1.0f);
+    vec3 lightPos = light->GetLightPosition();
     transform[3][0] = lightPos.x;
     transform[3][1] = lightPos.y;
     transform[3][2] = lightPos.z;
@@ -131,7 +131,7 @@ void SceneRenderGraph::BuildSkyboxRenderCommands()
 
 void SceneRenderGraph::BuildRenderCommands(SceneNode::Ptr sceneNode)
 {
-    glm::mat4 model = sceneNode->GetModelMatrix();
+    mat4 model = sceneNode->GetModelMatrix();
     Material::Ptr overrideMat = sceneNode->OverrideMat;
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
         m_CommandBuffer->PushCommand(sceneNode->MeshRenders[i]->GetMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->GetMaterial(), model);
@@ -152,38 +152,38 @@ void SceneRenderGraph::CalculateSceneAABB()
     // Debugging camera's frustum
 //    BoundingFrustum bf;
 //    BoundingFrustum::CreateFromMatrix(bf, m_Camera->GetProjectionMatrix());
-//    glm::mat4 tr = glm::mat4(1.0f);
-//    tr = glm::translate(tr, m_Camera->GetEyePosition());
+//    mat4 tr = mat4(1.0f);
+//    tr = translate(tr, m_Camera->GetEyePosition());
 //    m_CommandBuffer->PushDebuggingCommand(AABBCube::New(bf.GetCorners()), m_DebuggingAABBMat, tr);
 
     // Debugging AABB
-    // m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, glm::mat4(1.0f));
+    // m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, mat4(1.0f));
 }
 
-void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const glm::mat4 &cameraView, const glm::mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
+void SceneRenderGraph::ComputeShadowProjectionFitViewFrustum(std::vector<vec3> &frustumPoints, const mat4 &cameraView, const mat4 &lightView,vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
 {
-    glm::mat4 inverseCameraView = glm::inverse(cameraView);
+    mat4 inverseCameraView = inverse(cameraView);
     
     vec3 tempTranslatedPoint;
     for (size_t i = 0; i < 8; ++i)
     {
         // Transform the frustum from camera view space to world space
-        frustumPoints[i] = glm::make_vec3(inverseCameraView * glm::vec4(frustumPoints[i], 1.0f));
+        frustumPoints[i] = make_vec3(inverseCameraView * vec4(frustumPoints[i], 1.0f));
         // Transform the frustum from world space to light view space
-        tempTranslatedPoint = glm::make_vec3(lightView * glm::vec4(frustumPoints[i], 1.0f));
+        tempTranslatedPoint = make_vec3(lightView * vec4(frustumPoints[i], 1.0f));
         // Find the min and max
-        lightCameraOrthographicMin = glm::min(tempTranslatedPoint, lightCameraOrthographicMin);
-        lightCameraOrthographicMax = glm::max(tempTranslatedPoint, lightCameraOrthographicMax);
+        lightCameraOrthographicMin = min(tempTranslatedPoint, lightCameraOrthographicMin);
+        lightCameraOrthographicMax = max(tempTranslatedPoint, lightCameraOrthographicMax);
     }
 }
 
-void SceneRenderGraph::RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const glm::u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
+void SceneRenderGraph::RemoveShimmeringEdgeEffect(const std::vector<vec3> &frustumPoints, const u32vec2 &bufferSize, vec3 &lightCameraOrthographicMin, vec3 &lightCameraOrthographicMax)
 {
     vec3 vWorldUnitsPerTexel = vec3(0.0f);
 
     // Fit to the scene
     vec3 vDiagonal = frustumPoints[0] - frustumPoints[6];
-    float fCascadeBound = glm::length(vDiagonal);
+    float fCascadeBound = length(vDiagonal);
     vec3 vBoarderOffset = (vec3(fCascadeBound) - (lightCameraOrthographicMax - lightCameraOrthographicMin)) * 0.5f;
     vBoarderOffset.z = 0.0f;
     lightCameraOrthographicMax += vBoarderOffset;
@@ -440,10 +440,10 @@ void SceneRenderGraph::ComputeNearAndFar(float &nearPlane, float &farPlane, cons
 void SceneRenderGraph::ExecuteCommandBuffer()
 {
     Light::Ptr mainLight = m_Lights[0];
-    Camera::Ptr lightCamera = Camera::New(mainLight->GetLightPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 viewCameraProjection = m_Camera->GetProjectionMatrix();
-    glm::mat4 viewCameraView = m_Camera->GetViewMatrix();
-    glm::mat4 lightCameraView = lightCamera->GetViewMatrix();
+    Camera::Ptr lightCamera = Camera::New(mainLight->GetLightPosition(), vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
+    mat4 viewCameraProjection = m_Camera->GetProjectionMatrix();
+    mat4 viewCameraView = m_Camera->GetViewMatrix();
+    mat4 lightCameraView = lightCamera->GetViewMatrix();
 
     // Render shadowmap first
     // Percent of the cascade frustum
@@ -454,8 +454,10 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         0.6f,
         1.0f
     };
+
     const int MAX_CASCADES = 4;
-    glm::mat4 matShadowProjs[MAX_CASCADES];
+    mat4 matShadowProjections[MAX_CASCADES];
+    vec4 cascadeScalesAndOffsets[MAX_CASCADES];
 
     // FIT_TO_SCENE cascades
     float fCameraNearFarRange = m_Camera->GetFar() - m_Camera->GetNear();
@@ -466,7 +468,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->Bind();
     m_ShadowCasterMat->Use();
-    glm::u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
+    u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
     for (int iCascadeIndex = 0; iCascadeIndex < MAX_CASCADES; ++iCascadeIndex)
     {
         int resolution = shadowmapSize.x >> 1;
@@ -486,7 +488,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         ComputeShadowProjectionFitViewFrustum(frustumPoints, viewCameraView, lightCameraView, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
 
         // Remove the shimmering edge effect along the edges of shadows due to the light changing to fit the camera by moving the light in texel-sized increments
-        RemoveShimmeringEdgeEffect(frustumPoints, glm::u32vec2(resolution, resolution), vLightCameraOrthographicMin, vLightCameraOrthographicMax);
+        RemoveShimmeringEdgeEffect(frustumPoints, u32vec2(resolution, resolution), vLightCameraOrthographicMin, vLightCameraOrthographicMax);
 
         // Calculate the near and far plane
         BoundingBox bb = m_Scene->AABB;
@@ -495,7 +497,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         std::vector<vec3> sceneAABBPointsLightSpace;
         sceneAABBPointsLightSpace.resize(8);
         for (int index = 0; index < 8; ++index)
-            sceneAABBPointsLightSpace[index] = glm::make_vec3(lightCameraView * glm::vec4(sceneAABBPoints[index], 1.0f));
+            sceneAABBPointsLightSpace[index] = make_vec3(lightCameraView * vec4(sceneAABBPoints[index], 1.0f));
 
         // Compute the near and far plane
         // Near and far plane are negative in OpenGL right-hand coordinate
@@ -510,7 +512,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         // Create the tight orthographic projection for the light camera
         lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
 
-        matShadowProjs[iCascadeIndex] = lightCamera->GetProjectionMatrix();
+        matShadowProjections[iCascadeIndex] = lightCamera->GetProjectionMatrix();
 
         int offsetX = (iCascadeIndex % 2) * resolution;
         int offsetY = (iCascadeIndex / 2) * resolution;
@@ -520,12 +522,12 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         for (size_t i = 0; i < shadowCasterCommands.size(); ++i)
         {
             RenderCommand::Ptr command = shadowCasterCommands[i];
-            m_ShadowCasterMat->SetMatrix("uLightMVP", matShadowProjs[iCascadeIndex] * lightCameraView * command->Transform);
+            m_ShadowCasterMat->SetMatrix("uLightMVP", matShadowProjections[iCascadeIndex] * lightCameraView * command->Transform);
             RenderMesh(command->Mesh);
         }
 
         // Apply cascade shadow transfom for shadow mapping, convert xyz from [-1, 1] to [0, 1]: xyz * 0.5 + 0.5.
-        glm::mat4 textureScaleAndBias = glm::mat4(1.0f);
+        mat4 textureScaleAndBias = mat4(1.0f);
         // Scale
         textureScaleAndBias[0][0] = 0.5f;
         textureScaleAndBias[1][1] = 0.5f;
@@ -534,17 +536,15 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         textureScaleAndBias[3][0] = 0.5f;
         textureScaleAndBias[3][1] = 0.5f;
         textureScaleAndBias[3][2] = 0.5f;
-        matShadowProjs[iCascadeIndex] = textureScaleAndBias * matShadowProjs[iCascadeIndex];
+        matShadowProjections[iCascadeIndex] = textureScaleAndBias * matShadowProjections[iCascadeIndex];
 
-        //// Cascade offset
-        //glm::mat4 cascadeTransform = glm::mat4(1.0f);
-        //float normalizeWidth = 1.0f / shadowmapSize.x;
-        //float normalzeHeight = 1.0f / shadowmapSize.y;
-        //cascadeTransform[0][0] = resolution * normalizeWidth;
-        //cascadeTransform[1][1] = resolution * normalzeHeight;
-        //cascadeTransform[3][0] = offsetX * normalizeWidth;
-        //cascadeTransform[3][1] = offsetY * normalzeHeight;
-        //matShadowProjs[iCascadeIndex] = cascadeTransform * matShadowProjs[iCascadeIndex];
+        // Scales and offsets for mapping cascade texture coordinates.
+        vec4 scaleAndOffset = vec4(0.0f);
+        scaleAndOffset.x = 0.5f;
+        scaleAndOffset.y = 0.5f;
+        scaleAndOffset.z = static_cast<float>(offsetX) / shadowmapSize.x;
+        scaleAndOffset.w = static_cast<float>(offsetY) / shadowmapSize.y;
+        cascadeScalesAndOffsets[iCascadeIndex] = scaleAndOffset;
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -555,11 +555,18 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(mainLight->GetLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(mainLight->GetLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->GetEyePosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(matShadowProjs[0][0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(matShadowProjections[0][0].x));
     glBufferSubData(GL_UNIFORM_BUFFER, 432, 64, &(lightCameraView[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 496, 64, &(cascadeScalesAndOffsets[0].x));
+
+    // Set float[4];
+    // glBufferSubData(GL_UNIFORM_BUFFER, 496, 64, &cascadeScales); does not work?
+    // for (size_t i = 0; i < 4; ++i)
+    //     glBufferSubData(GL_UNIFORM_BUFFER, 496 + (i * 16), 16, &cascadeScales[i]);
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
+    // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();
@@ -633,7 +640,7 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command)
 
     mat->Use();
     mat->SetMatrix("uModelMatrix", command->Transform);
-    mat->SetMatrix("uModelMatrixInverse", glm::mat3x3(glm::inverse(command->Transform)));
+    mat->SetMatrix("uModelMatrixInverse", mat3x3(inverse(command->Transform)));
 
     RenderMesh(mesh);
 }
