@@ -24,10 +24,10 @@ uniform sampler2DShadow uShadowmap;
 
 const vec4 CascadeColors[4] = vec4[4]
 (
-    vec4(1.5, 0.0, 0.0, 1.0),
-    vec4(0.0, 1.5, 0.0, 1.0),
-    vec4(0.0, 0.0, 1.5, 1.0),
-    vec4(1.5, 1.0, 0.0, 1.0)
+    vec4(1.0, 0.0, 0.0, 1.0),
+    vec4(0.0, 1.0, 0.0, 1.0),
+    vec4(0.0, 0.0, 1.0, 1.0),
+    vec4(1.0, 0.0, 1.0, 1.0)
 );
 
 void main()
@@ -41,20 +41,21 @@ void main()
 
     float NdotL = max(dot(N, L), 0.0);
 
-    float currentPixelDepth = fs_in.Depth;
-    bvec4 fComparison = lessThan(vec4(currentPixelDepth), CascadePartitionsFrustum);
-
     int iCurrentCascadeIndex = 0;
     int CASCADE_COUNT_FLAG = 4;
     if (CASCADE_COUNT_FLAG > 1)
     {
+        float currentPixelDepth = fs_in.Depth;
+        bvec4 fComparison = lessThan(vec4(currentPixelDepth), CascadePartitionsFrustum);
         float fIndex = dot(vec4(CASCADE_COUNT_FLAG > 0, CASCADE_COUNT_FLAG > 1, CASCADE_COUNT_FLAG > 2, CASCADE_COUNT_FLAG > 3), vec4(fComparison));
         fIndex = min(fIndex, CASCADE_COUNT_FLAG - 1);
         iCurrentCascadeIndex = int(fIndex);
     }
 
     vec4 shadowCoord = GetShadowCoord(fs_in.PositionWS, iCurrentCascadeIndex);
-    float shadowAtten = SampleShadowmapTent5x5(uShadowmap, shadowCoord);
+    float shadowAtten = SampleShadowmap(uShadowmap, shadowCoord);
+    if (shadowCoord.z <= 0.0 || shadowCoord.z >= 1.0)
+        shadowAtten = 1.0;
 
     vec3 radiance = MainLightColor * shadowAtten;
 
@@ -65,5 +66,5 @@ void main()
 
     vec3 color = ambient + diffuse + specular;
 
-    OutColor = vec4(color, 1.0); // * CascadeColors[iCurrentCascadeIndex]
+    OutColor = vec4(color, 1.0) * CascadeColors[iCurrentCascadeIndex];
 }

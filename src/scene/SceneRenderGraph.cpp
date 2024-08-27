@@ -466,15 +466,18 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glPolygonOffset(1.1f, 4.0f);
     m_ShadowmapRT->Bind();
     m_ShadowCasterMat->Use();
+    glm::u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
     for (int iCascadeIndex = 0; iCascadeIndex < MAX_CASCADES; ++iCascadeIndex)
     {
+        int resolution = shadowmapSize.x >> 1;
+
         fFrustumIntervalEnd = cascadePartitionPercents[iCascadeIndex];
         fFrustumIntervalEnd *= fCameraNearFarRange;
 
         // Calculate a tight light camera projection to fit the camera view frustum
         // Calculate 8 corner points of view frustum first
         BoundingFrustum viewFrustum(viewCameraProjection);
-        
+        viewFrustum.Near = fFrustumIntervalBegin;
         viewFrustum.Far = -fFrustumIntervalEnd;
 
         std::vector<vec3> frustumPoints = viewFrustum.GetCorners();
@@ -483,8 +486,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         ComputeShadowProjectionFitViewFrustum(frustumPoints, viewCameraView, lightCameraView, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
 
         // Remove the shimmering edge effect along the edges of shadows due to the light changing to fit the camera by moving the light in texel-sized increments
-        glm::u32vec2 shadowmapSize = m_ShadowmapRT->GetSize();
-        RemoveShimmeringEdgeEffect(frustumPoints, shadowmapSize, vLightCameraOrthographicMin, vLightCameraOrthographicMax);
+        RemoveShimmeringEdgeEffect(frustumPoints, glm::u32vec2(resolution, resolution), vLightCameraOrthographicMin, vLightCameraOrthographicMax);
 
         // Calculate the near and far plane
         BoundingBox bb = m_Scene->AABB;
@@ -501,17 +503,15 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         float farPlane = 10000.0f;
         ComputeNearAndFar(nearPlane, farPlane, vLightCameraOrthographicMin, vLightCameraOrthographicMax, sceneAABBPointsLightSpace);
 
-        // PANCAKING
-        if (vLightCameraOrthographicMax.z < nearPlane)
-            nearPlane = vLightCameraOrthographicMax.z;
+        // Shadow Pancaking
+        //if (vLightCameraOrthographicMax.z < nearPlane)
+        //    nearPlane = vLightCameraOrthographicMax.z;
 
         // Create the tight orthographic projection for the light camera
         lightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
-        
+
         matWorldToShadows[iCascadeIndex] = lightCamera->GetProjectionMatrix() * lightCameraView;
 
-        glm::u32vec2 size = m_ShadowmapRT->GetSize();
-        int resolution = size.x >> 1;
         int offsetX = (iCascadeIndex % 2) * resolution;
         int offsetY = (iCascadeIndex / 2) * resolution;
         glViewport(offsetX, offsetY, resolution, resolution);
@@ -524,7 +524,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
             RenderMesh(command->Mesh);
         }
 
-        // Apply cascade shadow transfom for shadow mapping, convert [-1, 1] to [0, 1]: xyz * 0.5 + 0.5
+        // Apply cascade shadow transfom for shadow mapping, convert xyz from [-1, 1] to [0, 1]: xyz * 0.5 + 0.5.
         glm::mat4 textureScaleAndBias = glm::mat4(1.0f);
         // Scale
         textureScaleAndBias[0][0] = 0.5f;
@@ -538,11 +538,11 @@ void SceneRenderGraph::ExecuteCommandBuffer()
 
         // Cascade offset
         glm::mat4 cascadeTransform = glm::mat4(1.0f);
-        float normalizeWidth = 1.0f / size.x;
-        float normalzeHeight = 1.0f / size.y;
+        float normalizeWidth = 1.0f / shadowmapSize.x;
+        float normalzeHeight = 1.0f / shadowmapSize.y;
         cascadeTransform[0][0] = resolution * normalizeWidth;
         cascadeTransform[1][1] = resolution * normalzeHeight;
-        cascadeTransform[3][0] = offsetX * normalzeHeight;
+        cascadeTransform[3][0] = offsetX * normalizeWidth;
         cascadeTransform[3][1] = offsetY * normalzeHeight;
         matWorldToShadows[iCascadeIndex] = cascadeTransform * matWorldToShadows[iCascadeIndex];
 
@@ -563,7 +563,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 432, 16, &(v.x));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-//     Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
+    // Blitter::BlitToCamera(m_ShadowmapRT->GetShadowmapTexture(), m_RenderSize); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();
