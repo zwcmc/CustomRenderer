@@ -17,7 +17,7 @@ float Rand_2to1(vec2 uv)
     return fract(sin(sn) * c);
 }
 
-void ClampTexCoordsToCascadeForPCF(in out vec4 shadowCoord, vec4 clampRange)
+void ClampTexCoordsToCascadeForPCF(inout vec4 shadowCoord, vec4 clampRange)
 {
     shadowCoord.xy = clamp(shadowCoord.xy, clampRange.xy + MAIN_SHADOWMAP_SIZE.xy, clampRange.zw - MAIN_SHADOWMAP_SIZE.xy);
 }
@@ -38,7 +38,7 @@ void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_S
     }
 }
 
-float SampleShadowMap(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
+float SampleShadowMap(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
 {
     ClampTexCoordsToCascadeForPCF(shadowCoord, cascadeTexCoordsClamp);
     return texture(shadowmap, shadowCoord.xyz);
@@ -57,7 +57,7 @@ float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     return shadow / float(POISSON_SAMPLE_NUM);
 }
 
-float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
+float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
 {
     float fetchesWeights[4];
     vec2 fetchesUV[4];
@@ -70,7 +70,7 @@ float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 c
             + fetchesWeights[3] * SampleShadowMap(shadowmap, vec4(fetchesUV[3], shadowCoord.zw), cascadeTexCoordsClamp);
 }
 
-float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
+float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
 {
     float fetchesWeights[9];
     vec2 fetchesUV[9];
@@ -88,7 +88,7 @@ float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 c
             + fetchesWeights[8] * SampleShadowMap(shadowmap, vec4(fetchesUV[8], shadowCoord.zw), cascadeTexCoordsClamp);
 }
 
-float SampleShadowMapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
+float SampleShadowMapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
 {
     float fetchesWeights[16];
     vec2 fetchesUV[16];

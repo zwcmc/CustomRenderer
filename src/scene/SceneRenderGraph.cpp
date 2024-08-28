@@ -257,11 +257,18 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     mat->AddOrSetTextureCube(m_EnvIBL->GetPrefiltered());
     mat->AddOrSetTexture(m_EnvIBL->GetBRDFLUTTexture());
 
-    mat->AddOrSetFloat("uShadowMapSet", -1.0f);
-    if (mat->GetMaterialCastShadows() && light->IsCastShadow())
+    if (mat->GetMaterialCastShadows())
     {
-        mat->AddOrSetFloat("uShadowMapSet", 1.0f);
-        mat->AddOrSetTexture(light->GetShadowMapRT()->GetShadowMapTexture());
+        if (light->IsCastShadow())
+        {
+            mat->AddOrSetFloat("uShadowMapSet", 1.0f);
+            mat->AddOrSetTexture(light->GetShadowMapRT()->GetShadowMapTexture());
+        }
+        else
+        {
+            mat->AddOrSetFloat("uShadowMapSet", -1.0f);
+            mat->AddOrSetTexture(light->GetEmptyShadowMapTexture());
+        }
     }
 
     mat->Use();

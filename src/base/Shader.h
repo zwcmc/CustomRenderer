@@ -24,6 +24,8 @@ public:
     void SetUniformVector(const std::string &uniformName, const glm::vec4 &value);
     void SetUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value);
     void SetUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value);
+    
+    std::string& GetName();
 
 private:
     void CreateShadersAndCompile(const std::string &vsSource, const std::string &fsSource);

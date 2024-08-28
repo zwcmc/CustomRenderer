@@ -15,7 +15,9 @@ public:
     ~DirectionalLight() = default;
     
     virtual RenderTarget::Ptr GetShadowMapRT() override;
+    virtual Texture2D::Ptr GetEmptyShadowMapTexture() override;
     
 private:
     RenderTarget::Ptr m_ShadowMapRT;
+    Texture2D::Ptr m_EmptyShadowMapTexture;
 };

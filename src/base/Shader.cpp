@@ -59,6 +59,11 @@ GLuint Shader::GetUniformLocation(const std::string &uniformName)
     return glGetUniformLocation(m_ShaderID, uniformName.c_str());
 }
 
+std::string& Shader::GetName()
+{
+    return m_ShaderName;
+}
+
 void Shader::CreateShadersAndCompile(const std::string &vsSource, const std::string &fsSource)
 {
     GLuint vsID = glCreateShader(GL_VERTEX_SHADER);

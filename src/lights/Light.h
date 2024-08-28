@@ -18,6 +18,7 @@ public:
     void SetCastShadow(const bool &bCastShadow);
     
     virtual RenderTarget::Ptr GetShadowMapRT() { return nullptr; }
+    virtual Texture2D::Ptr GetEmptyShadowMapTexture() { return nullptr; }
 
 private:
     glm::vec3 m_Position;

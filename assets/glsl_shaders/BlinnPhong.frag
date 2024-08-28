@@ -76,7 +76,7 @@ void main()
             shadowCoord = ShadowProjections[iCurrentCascadeIndex] * fs_in.vTexShadow;
             // Perspective division
             shadowCoord.xyzw /= shadowCoord.w;
-            shadowAtten = SampleShadowMapTent3x3(uShadowMap, shadowCoord);
+            shadowAtten = SampleShadowMapTent3x3(uShadowMap, shadowCoord, vec4(vec2(0.0), vec2(1.0)));
         }
     }
     vec3 radiance = MainLightColor * shadowAtten;

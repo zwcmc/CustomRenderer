@@ -43,6 +43,8 @@ public:
 
     void SetCastShadows(bool cast) { m_CastShadows  = cast; }
     bool GetMaterialCastShadows() { return m_CastShadows; }
+    
+    std::string GetShaderName() { return m_Shader->GetName(); }
 
     void Use();
 private:
