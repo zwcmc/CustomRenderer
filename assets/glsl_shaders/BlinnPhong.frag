@@ -62,7 +62,7 @@ void main()
             }
         }
         shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
-        shadowAtten = SampleShadowMap(uShadowMap, shadowCoord);
+        shadowAtten = SampleShadowMapTent5x5(uShadowMap, shadowCoord);
     }
     vec3 radiance = MainLightColor * shadowAtten;
 
