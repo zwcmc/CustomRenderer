@@ -27,16 +27,18 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
 
     // Slope-Scale Depth Bias
     glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(2.2f, 4.0f);
 
     light->GetShadowMapRT()->Bind();
     m_DirectionalShadowCasterMat->Use();
-    
+
     int cascadesCnt = m_UseCascadeShadowMaps ? MAX_CASCADES : 1;
     int shadowMapResolution = light->GetShadowMapRT()->GetSize().x;
-    
+
     m_CascadeParams.x = static_cast<float>(cascadesCnt);
     m_CascadeParams.y = 1.0f / shadowMapResolution;
-    m_CascadeParams.z = static_cast<float>(shadowMapResolution - 1) / shadowMapResolution;
+    m_CascadeParams.z = 1.0f - m_CascadeParams.y;
+    m_CascadeParams.w = 0.0f;
 
     // FIT_TO_SCENE cascades
     float fCameraNearFarRange = viewCamera->GetFar() - viewCamera->GetNear();
@@ -45,11 +47,11 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
 
     for (int iCascadeIndex = 0; iCascadeIndex < cascadesCnt; ++iCascadeIndex)
     {
-        // Different slope-scale depth bias for different cascade
-        if (iCascadeIndex <= 0)
-            glPolygonOffset(1.1f, 4.0f);
-        else
-            glPolygonOffset(2.2f, 4.0f);
+        //// Different slope-scale depth bias for different cascade
+        //if (iCascadeIndex <= 0)
+        //    glPolygonOffset(2.2f, 4.0f);
+        //else
+        //    glPolygonOffset(2.2f, 4.0f);
 
         int cascadeResolution = m_UseCascadeShadowMaps ? shadowMapResolution >> 1 : shadowMapResolution;
 

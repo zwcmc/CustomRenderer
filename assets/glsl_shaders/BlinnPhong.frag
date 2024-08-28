@@ -49,20 +49,35 @@ void main()
     {
         int CASCADE_COUNT_FLAG = int(CascadeParams.x);
         vec4 shadowCoord = vec4(0.0);
-        int iCascadeFound = 0;
-        for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
+
+        if (CASCADE_COUNT_FLAG > 1)
         {
-            shadowCoord = ShadowProjections[iCascadeIndex] * fs_in.vTexShadow;
+            int iCascadeFound = 0;
+            for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
+            {
+                shadowCoord = ShadowProjections[iCascadeIndex] * fs_in.vTexShadow;
+                // Perspective division
+                shadowCoord.xyzw /= shadowCoord.w;
+                if (min(shadowCoord.x, shadowCoord.y) > CascadeParams.y && max(shadowCoord.x, shadowCoord.y) < CascadeParams.z)
+                {
+                    iCurrentCascadeIndex = iCascadeIndex;
+                    iCascadeFound = 1;
+                }
+            }
+            shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
+            // Min and max texcoord coordinates of the cascade
+            vec4 cascadeTexCoordsClamp;
+            cascadeTexCoordsClamp.xy = CascadeScalesAndOffsets[iCurrentCascadeIndex].zw; // x: min x, y: min y
+            cascadeTexCoordsClamp.zw = cascadeTexCoordsClamp.xy + 0.5;  // z: max x, w: max y
+            shadowAtten = SampleShadowMapTent3x3(uShadowMap, shadowCoord, cascadeTexCoordsClamp);
+        }
+        else
+        {
+            shadowCoord = ShadowProjections[iCurrentCascadeIndex] * fs_in.vTexShadow;
             // Perspective division
             shadowCoord.xyzw /= shadowCoord.w;
-            if (min(shadowCoord.x, shadowCoord.y) > CascadeParams.y && max(shadowCoord.x, shadowCoord.y) < CascadeParams.z)
-            {
-                iCurrentCascadeIndex = iCascadeIndex;
-                iCascadeFound = 1;
-            }
+            shadowAtten = SampleShadowMapTent3x3(uShadowMap, shadowCoord);
         }
-        shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
-        shadowAtten = SampleShadowMapTent5x5(uShadowMap, shadowCoord);
     }
     vec3 radiance = MainLightColor * shadowAtten;
 

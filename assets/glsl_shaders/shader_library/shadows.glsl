@@ -17,6 +17,11 @@ float Rand_2to1(vec2 uv)
     return fract(sin(sn) * c);
 }
 
+void ClampTexCoordsToCascadeForPCF(in out vec4 shadowCoord, vec4 clampRange)
+{
+    shadowCoord.xy = clamp(shadowCoord.xy, clampRange.xy + MAIN_SHADOWMAP_SIZE.xy, clampRange.zw - MAIN_SHADOWMAP_SIZE.xy);
+}
+
 void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_SAMPLE_NUM])
 {
     float angleStep = M_TAU * float(POISSON_SAMPLE_NUM * 0.5) / float(POISSON_SAMPLE_NUM);
@@ -33,9 +38,10 @@ void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_S
     }
 }
 
-float SampleShadowMap(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMap(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
 {
-    return texture(shadowmap, vec3(shadowCoord.xy, shadowCoord.z));
+    ClampTexCoordsToCascadeForPCF(shadowCoord, cascadeTexCoordsClamp);
+    return texture(shadowmap, shadowCoord.xyz);
 }
 
 float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
@@ -51,60 +57,60 @@ float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     return shadow / float(POISSON_SAMPLE_NUM);
 }
 
-float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
 {
     float fetchesWeights[4];
     vec2 fetchesUV[4];
 
     SampleShadow_ComputeSamples_Tent_3x3(MAIN_SHADOWMAP_SIZE, shadowCoord.xy, fetchesWeights, fetchesUV);
 
-    return fetchesWeights[0] * texture(shadowmap, vec3(fetchesUV[0], shadowCoord.z))
-            + fetchesWeights[1] * texture(shadowmap, vec3(fetchesUV[1], shadowCoord.z))
-            + fetchesWeights[2] * texture(shadowmap, vec3(fetchesUV[2], shadowCoord.z))
-            + fetchesWeights[3] * texture(shadowmap, vec3(fetchesUV[3], shadowCoord.z));
+    return fetchesWeights[0] * SampleShadowMap(shadowmap, vec4(fetchesUV[0], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[1] * SampleShadowMap(shadowmap, vec4(fetchesUV[1], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[2] * SampleShadowMap(shadowmap, vec4(fetchesUV[2], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[3] * SampleShadowMap(shadowmap, vec4(fetchesUV[3], shadowCoord.zw), cascadeTexCoordsClamp);
 }
 
-float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
 {
     float fetchesWeights[9];
     vec2 fetchesUV[9];
 
     SampleShadow_ComputeSamples_Tent_5x5(MAIN_SHADOWMAP_SIZE, shadowCoord.xy, fetchesWeights, fetchesUV);
 
-    return fetchesWeights[0] * texture(shadowmap, vec3(fetchesUV[0], shadowCoord.z))
-            + fetchesWeights[1] * texture(shadowmap, vec3(fetchesUV[1], shadowCoord.z))
-            + fetchesWeights[2] * texture(shadowmap, vec3(fetchesUV[2], shadowCoord.z))
-            + fetchesWeights[3] * texture(shadowmap, vec3(fetchesUV[3], shadowCoord.z))
-            + fetchesWeights[4] * texture(shadowmap, vec3(fetchesUV[4], shadowCoord.z))
-            + fetchesWeights[5] * texture(shadowmap, vec3(fetchesUV[5], shadowCoord.z))
-            + fetchesWeights[6] * texture(shadowmap, vec3(fetchesUV[6], shadowCoord.z))
-            + fetchesWeights[7] * texture(shadowmap, vec3(fetchesUV[7], shadowCoord.z))
-            + fetchesWeights[8] * texture(shadowmap, vec3(fetchesUV[8], shadowCoord.z));
+    return fetchesWeights[0] * SampleShadowMap(shadowmap, vec4(fetchesUV[0], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[1] * SampleShadowMap(shadowmap, vec4(fetchesUV[1], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[2] * SampleShadowMap(shadowmap, vec4(fetchesUV[2], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[3] * SampleShadowMap(shadowmap, vec4(fetchesUV[3], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[4] * SampleShadowMap(shadowmap, vec4(fetchesUV[4], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[5] * SampleShadowMap(shadowmap, vec4(fetchesUV[5], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[6] * SampleShadowMap(shadowmap, vec4(fetchesUV[6], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[7] * SampleShadowMap(shadowmap, vec4(fetchesUV[7], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[8] * SampleShadowMap(shadowmap, vec4(fetchesUV[8], shadowCoord.zw), cascadeTexCoordsClamp);
 }
 
-float SampleShadowMapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord)
+float SampleShadowMapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp = vec4(0.0, 0.0, 1.0, 1.0))
 {
     float fetchesWeights[16];
     vec2 fetchesUV[16];
 
     SampleShadow_ComputeSamples_Tent_7x7(MAIN_SHADOWMAP_SIZE, shadowCoord.xy, fetchesWeights, fetchesUV);
 
-    return fetchesWeights[0] * texture(shadowmap, vec3(fetchesUV[0], shadowCoord.z))
-            + fetchesWeights[1] * texture(shadowmap, vec3(fetchesUV[1], shadowCoord.z))
-            + fetchesWeights[2] * texture(shadowmap, vec3(fetchesUV[2], shadowCoord.z))
-            + fetchesWeights[3] * texture(shadowmap, vec3(fetchesUV[3], shadowCoord.z))
-            + fetchesWeights[4] * texture(shadowmap, vec3(fetchesUV[4], shadowCoord.z))
-            + fetchesWeights[5] * texture(shadowmap, vec3(fetchesUV[5], shadowCoord.z))
-            + fetchesWeights[6] * texture(shadowmap, vec3(fetchesUV[6], shadowCoord.z))
-            + fetchesWeights[7] * texture(shadowmap, vec3(fetchesUV[7], shadowCoord.z))
-            + fetchesWeights[8] * texture(shadowmap, vec3(fetchesUV[8], shadowCoord.z))
-            + fetchesWeights[9] * texture(shadowmap, vec3(fetchesUV[9], shadowCoord.z))
-            + fetchesWeights[10] * texture(shadowmap, vec3(fetchesUV[10], shadowCoord.z))
-            + fetchesWeights[11] * texture(shadowmap, vec3(fetchesUV[11], shadowCoord.z))
-            + fetchesWeights[12] * texture(shadowmap, vec3(fetchesUV[12], shadowCoord.z))
-            + fetchesWeights[13] * texture(shadowmap, vec3(fetchesUV[13], shadowCoord.z))
-            + fetchesWeights[14] * texture(shadowmap, vec3(fetchesUV[14], shadowCoord.z))
-            + fetchesWeights[15] * texture(shadowmap, vec3(fetchesUV[15], shadowCoord.z));
+    return fetchesWeights[0] * SampleShadowMap(shadowmap, vec4(fetchesUV[0], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[1] * SampleShadowMap(shadowmap, vec4(fetchesUV[1], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[2] * SampleShadowMap(shadowmap, vec4(fetchesUV[2], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[3] * SampleShadowMap(shadowmap, vec4(fetchesUV[3], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[4] * SampleShadowMap(shadowmap, vec4(fetchesUV[4], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[5] * SampleShadowMap(shadowmap, vec4(fetchesUV[5], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[6] * SampleShadowMap(shadowmap, vec4(fetchesUV[6], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[7] * SampleShadowMap(shadowmap, vec4(fetchesUV[7], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[8] * SampleShadowMap(shadowmap, vec4(fetchesUV[8], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[9] * SampleShadowMap(shadowmap, vec4(fetchesUV[9], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[10] * SampleShadowMap(shadowmap, vec4(fetchesUV[10], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[11] * SampleShadowMap(shadowmap, vec4(fetchesUV[11], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[12] * SampleShadowMap(shadowmap, vec4(fetchesUV[12], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[13] * SampleShadowMap(shadowmap, vec4(fetchesUV[13], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[14] * SampleShadowMap(shadowmap, vec4(fetchesUV[14], shadowCoord.zw), cascadeTexCoordsClamp)
+            + fetchesWeights[15] * SampleShadowMap(shadowmap, vec4(fetchesUV[15], shadowCoord.zw), cascadeTexCoordsClamp);
 }
 
 #endif

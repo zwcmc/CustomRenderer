@@ -11,7 +11,7 @@ layout (std140) uniform GlobalUniforms
     mat4 ShadowProjections[4];
     mat4 ShadowView;
     vec4 CascadeScalesAndOffsets[4];
-    vec4 CascadeParams; // { x: cascades count, y: min border padding 1.0/bufferSize, z: max border padding (bufferSize - 1) / bufferSize }
+    vec4 CascadeParams; // { x: cascades count, y: min border padding (1.0f/bufferSize), z: max border padding (1.0 - 1.0f/bufferSize), w: unused }
 };
 
 #endif

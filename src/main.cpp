@@ -147,7 +147,6 @@ int main()
 
         m_SceneRenderGraph->ExecuteCommandBuffer();
 
-
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
