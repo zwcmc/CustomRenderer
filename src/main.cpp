@@ -77,8 +77,8 @@ int main()
     }
 
     glfwMakeContextCurrent(m_Window);
-    // Disable vsync
-    glfwSwapInterval(0);
+    // Enable vsync
+    glfwSwapInterval(1);
 
     // Set callbacks
     glfwSetFramebufferSizeCallback(m_Window, resizeCallback);
