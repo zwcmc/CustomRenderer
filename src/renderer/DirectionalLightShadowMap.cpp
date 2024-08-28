@@ -35,9 +35,9 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
     int cascadesCnt = m_UseCascadeShadowMaps ? MAX_CASCADES : 1;
     int shadowMapResolution = light->GetShadowMapRT()->GetSize().x;
     
-    m_CascadeParams.x = cascadesCnt;
+    m_CascadeParams.x = static_cast<float>(cascadesCnt);
     m_CascadeParams.y = 1.0f / shadowMapResolution;
-    m_CascadeParams.z = (float)(shadowMapResolution - 1) / shadowMapResolution;
+    m_CascadeParams.z = static_cast<float>(shadowMapResolution - 1) / shadowMapResolution;
 
     // FIT_TO_SCENE cascades
     float fCameraNearFarRange = viewCamera->GetFar() - viewCamera->GetNear();
@@ -50,8 +50,8 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
 
         if (m_UseCascadeShadowMaps)
         {
-            fFrustumIntervalEnd = CASCADE_PARTITION_PERCENTS[iCascadeIndex];
-            fFrustumIntervalEnd /= (float)CASCADE_PARTITION_MAX;
+            fFrustumIntervalEnd = static_cast<float>(CASCADE_PARTITION_PERCENTS[iCascadeIndex]);
+            fFrustumIntervalEnd /= CASCADE_PARTITION_MAX;
             fFrustumIntervalEnd *= fCameraNearFarRange;
         }
 
