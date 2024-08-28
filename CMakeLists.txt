@@ -39,11 +39,13 @@ endfunction()
 set(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(BASE_GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad")
 set(BASE_STB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb")
+set(BASE_IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui")
 
 # Create source groups
 create_source_groups(${BASE_DIR})
 create_source_groups(${BASE_GLAD_DIR})
 create_source_groups(${BASE_STB_DIR})
+create_source_groups(${BASE_IMGUI_DIR})
 
 # Collect all source files
 file(GLOB_RECURSE PROJECT_SOURCES
@@ -53,6 +55,8 @@ file(GLOB_RECURSE PROJECT_SOURCES
     "${BASE_GLAD_DIR}/src/*.c"
     "${BASE_STB_DIR}/*.h"
     "${BASE_STB_DIR}/*.cpp"
+    "${BASE_IMGUI_DIR}/*.h"
+    "${BASE_IMGUI_DIR}/*.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
@@ -111,3 +115,4 @@ target_link_libraries(${PROJECT_NAME} assimp)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/stb)
+target_include_directories(${PROJECT_NAME} PRIVATE third_party/imgui)

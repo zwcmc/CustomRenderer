@@ -1,6 +1,11 @@
 #include <string>
 #include <iostream>
 #include <glad/glad.h>
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include <GLFW/glfw3.h>
 
 #include "cameras/ArcballCamera.h"
@@ -72,6 +77,8 @@ int main()
     }
 
     glfwMakeContextCurrent(m_Window);
+    // Disable vsync
+    glfwSwapInterval(0);
 
     // Set callbacks
     glfwSetFramebufferSizeCallback(m_Window, resizeCallback);
@@ -127,11 +134,32 @@ int main()
     
     m_SceneRenderGraph->CalculateSceneAABB();
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsLight();
+    ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+
     while (!glfwWindowShouldClose(m_Window))
     {
         processWindowInput(m_Window);
 
         m_SceneRenderGraph->ExecuteCommandBuffer();
+
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        {
+            ImGui::Begin("Custom Renderer", (bool*)1);
+            ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
+        }
+        ImGui::End();
+        // Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         checkOpenGLError();
 
@@ -141,6 +169,11 @@ int main()
 
     // Cleanup
     m_SceneRenderGraph->Cleanup();
+
+    // ImGui Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;
