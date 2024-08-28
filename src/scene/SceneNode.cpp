@@ -20,11 +20,11 @@ glm::mat4 SceneNode::GetModelMatrix()
     SceneNode::Ptr currentParent = m_Parent.lock();
     while (currentParent)
     {
-        model = currentParent->ModelMatrix * model;
+        model = currentParent->Transform * currentParent->ModelMatrix * model;
         currentParent = currentParent->m_Parent.lock();
     }
 
-    return model;
+    return Transform * model;
 }
 
 void SceneNode::SetOverrideMaterial(Material::Ptr mat)
@@ -36,17 +36,17 @@ void SceneNode::SetOverrideMaterial(Material::Ptr mat)
 
 void SceneNode::Translate(const glm::vec3 &p)
 {
-    ModelMatrix = glm::translate(ModelMatrix, p);
+    Transform = glm::translate(Transform, p);
 }
 
 void SceneNode::Rotate(const glm::vec3 &axis, const float &radians)
 {
-    ModelMatrix = glm::rotate(ModelMatrix, radians, axis);
+    Transform = glm::rotate(Transform, radians, axis);
 }
 
 void SceneNode::Scale(const glm::vec3 &scale)
 {
-    ModelMatrix = glm::scale(ModelMatrix, scale);
+    Transform = glm::scale(Transform, scale);
 }
 
 void SceneNode::AddChild(SceneNode::Ptr node)
