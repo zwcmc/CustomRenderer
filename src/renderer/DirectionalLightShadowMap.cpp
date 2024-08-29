@@ -27,7 +27,7 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
 
     // Slope-Scale Depth Bias
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(2.2f, 4.0f);
+    glPolygonOffset(1.1f, 4.0f);
 
     light->GetShadowMapRT()->Bind();
     m_DirectionalShadowCasterMat->Use();
@@ -42,17 +42,11 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
 
     // FIT_TO_SCENE cascades
     float fCameraNearFarRange = viewCamera->GetFar() - viewCamera->GetNear();
-    float fFrustumIntervalBegin = -viewCamera->GetNear();
+    float fFrustumIntervalBegin = viewCamera->GetNear();
     float fFrustumIntervalEnd = fCameraNearFarRange;
 
     for (int iCascadeIndex = 0; iCascadeIndex < cascadesCnt; ++iCascadeIndex)
     {
-        //// Different slope-scale depth bias for different cascade
-        //if (iCascadeIndex <= 0)
-        //    glPolygonOffset(2.2f, 4.0f);
-        //else
-        //    glPolygonOffset(2.2f, 4.0f);
-
         int cascadeResolution = m_UseCascadeShadowMaps ? shadowMapResolution >> 1 : shadowMapResolution;
 
         if (m_UseCascadeShadowMaps)
@@ -65,7 +59,7 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
         // Calculate a tight light camera projection to fit the camera view frustum
         // Calculate 8 corner points of view frustum first
         BoundingFrustum viewFrustum(viewCameraProjection);
-        viewFrustum.Near = fFrustumIntervalBegin;
+        viewFrustum.Near = -fFrustumIntervalBegin;
         viewFrustum.Far = -fFrustumIntervalEnd;
 
         std::vector<vec3> frustumPoints = viewFrustum.GetCorners();

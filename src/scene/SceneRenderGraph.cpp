@@ -61,7 +61,7 @@ void SceneRenderGraph::Init()
 
     // Directional Shadow Map
     m_DirectionalShadowMap = DirectionalLightShadowMap::New();
-    m_DirectionalShadowMap->SetCascadeShadowMapsEnabled(true);
+    m_DirectionalShadowMap->SetCascadeShadowMapsEnabled(false);
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
     m_DebuggingAABBMat->SetDoubleSided(true);

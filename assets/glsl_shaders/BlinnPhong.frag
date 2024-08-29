@@ -69,14 +69,14 @@ void main()
             vec4 cascadeTexCoordsClamp;
             cascadeTexCoordsClamp.xy = CascadeScalesAndOffsets[iCurrentCascadeIndex].zw; // x: min x, y: min y
             cascadeTexCoordsClamp.zw = cascadeTexCoordsClamp.xy + 0.5;  // z: max x, w: max y
-            shadowAtten = SampleShadowMapTent5x5(uShadowMap, shadowCoord, cascadeTexCoordsClamp);
+            shadowAtten = SampleShadowMapPCFTent(uShadowMap, shadowCoord, cascadeTexCoordsClamp);
         }
         else
         {
             shadowCoord = ShadowProjections[iCurrentCascadeIndex] * fs_in.vTexShadow;
             // Perspective division
             shadowCoord.xyzw /= shadowCoord.w;
-            shadowAtten = SampleShadowMapTent5x5(uShadowMap, shadowCoord, vec4(vec2(0.0), vec2(1.0)));
+            shadowAtten = SampleShadowMapPCFTent(uShadowMap, shadowCoord, vec4(vec2(0.0), vec2(1.0)));
         }
     }
     vec3 radiance = MainLightColor * shadowAtten;
@@ -88,5 +88,5 @@ void main()
 
     vec3 color = ambient + diffuse + specular;
 
-    OutColor = vec4(color, 1.0) * CascadeColors[iCurrentCascadeIndex];
+    OutColor = vec4(color, 1.0); // * CascadeColors[iCurrentCascadeIndex];
 }

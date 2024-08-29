@@ -57,20 +57,7 @@ float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     return shadow / float(POISSON_SAMPLE_NUM);
 }
 
-float SampleShadowMapTent3x3(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
-{
-    float fetchesWeights[4];
-    vec2 fetchesUV[4];
-
-    SampleShadow_ComputeSamples_Tent_3x3(MAIN_SHADOWMAP_SIZE, shadowCoord.xy, fetchesWeights, fetchesUV);
-
-    return fetchesWeights[0] * SampleShadowMap(shadowmap, vec4(fetchesUV[0], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[1] * SampleShadowMap(shadowmap, vec4(fetchesUV[1], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[2] * SampleShadowMap(shadowmap, vec4(fetchesUV[2], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[3] * SampleShadowMap(shadowmap, vec4(fetchesUV[3], shadowCoord.zw), cascadeTexCoordsClamp);
-}
-
-float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
+float SampleShadowMapPCFTent(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
 {
     float fetchesWeights[9];
     vec2 fetchesUV[9];
@@ -86,31 +73,6 @@ float SampleShadowMapTent5x5(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 c
             + fetchesWeights[6] * SampleShadowMap(shadowmap, vec4(fetchesUV[6], shadowCoord.zw), cascadeTexCoordsClamp)
             + fetchesWeights[7] * SampleShadowMap(shadowmap, vec4(fetchesUV[7], shadowCoord.zw), cascadeTexCoordsClamp)
             + fetchesWeights[8] * SampleShadowMap(shadowmap, vec4(fetchesUV[8], shadowCoord.zw), cascadeTexCoordsClamp);
-}
-
-float SampleShadowMapTent7x7(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
-{
-    float fetchesWeights[16];
-    vec2 fetchesUV[16];
-
-    SampleShadow_ComputeSamples_Tent_7x7(MAIN_SHADOWMAP_SIZE, shadowCoord.xy, fetchesWeights, fetchesUV);
-
-    return fetchesWeights[0] * SampleShadowMap(shadowmap, vec4(fetchesUV[0], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[1] * SampleShadowMap(shadowmap, vec4(fetchesUV[1], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[2] * SampleShadowMap(shadowmap, vec4(fetchesUV[2], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[3] * SampleShadowMap(shadowmap, vec4(fetchesUV[3], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[4] * SampleShadowMap(shadowmap, vec4(fetchesUV[4], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[5] * SampleShadowMap(shadowmap, vec4(fetchesUV[5], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[6] * SampleShadowMap(shadowmap, vec4(fetchesUV[6], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[7] * SampleShadowMap(shadowmap, vec4(fetchesUV[7], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[8] * SampleShadowMap(shadowmap, vec4(fetchesUV[8], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[9] * SampleShadowMap(shadowmap, vec4(fetchesUV[9], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[10] * SampleShadowMap(shadowmap, vec4(fetchesUV[10], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[11] * SampleShadowMap(shadowmap, vec4(fetchesUV[11], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[12] * SampleShadowMap(shadowmap, vec4(fetchesUV[12], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[13] * SampleShadowMap(shadowmap, vec4(fetchesUV[13], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[14] * SampleShadowMap(shadowmap, vec4(fetchesUV[14], shadowCoord.zw), cascadeTexCoordsClamp)
-            + fetchesWeights[15] * SampleShadowMap(shadowmap, vec4(fetchesUV[15], shadowCoord.zw), cascadeTexCoordsClamp);
 }
 
 #endif
