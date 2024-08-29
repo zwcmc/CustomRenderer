@@ -32,6 +32,34 @@ const vec4 CascadeColors[4] = vec4[4]
     vec4(1.0, 0.0, 1.0, 1.0)
 );
 
+void CalculateRightAndUpTexelDepthDeltas(in vec3 texShadowView, in mat3 shadowProjection, out float upTextDepthWeight, out float rightTextDepthWeight)
+{
+    vec3 vShadowTexDDX = dFdx(texShadowView);
+    vec3 vShadowTexDDY = dFdy(texShadowView);
+
+    vShadowTexDDX = shadowProjection * vShadowTexDDX;
+    vShadowTexDDY = shadowProjection * vShadowTexDDY;
+
+    mat2 matScreenToShadow = mat2(vShadowTexDDX.xy, vShadowTexDDY.xy);
+    float fDeterminant = determinant(matScreenToShadow);
+
+    float fInvDeterminant = 1.0 / fDeterminant;
+
+    mat2 matShadowToScreen = mat2(
+        matScreenToShadow[1][1] * fInvDeterminant, matScreenToShadow[0][1] * -fInvDeterminant,
+        matScreenToShadow[1][0] * -fInvDeterminant, matScreenToShadow[0][0] * fInvDeterminant
+    );
+
+    vec2 vRightShadowTexelLocation = vec2(1.0/2048.0, 0.0);
+    vec2 vUpShadowTexelLocation = vec2(0.0, 1.0/2048.0);
+
+    vec2 vRightTexelDepthRatio = matShadowToScreen * vRightShadowTexelLocation;
+    vec2 vUpTexelDepthRatio = matShadowToScreen * vUpShadowTexelLocation;
+
+    upTextDepthWeight = vUpTexelDepthRatio.x * vShadowTexDDX.z + vUpTexelDepthRatio.y * vShadowTexDDY.z;
+    rightTextDepthWeight = vRightTexelDepthRatio.x * vShadowTexDDX.z + vRightTexelDepthRatio.y * vShadowTexDDY.z;
+}
+
 void main()
 {
     vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
