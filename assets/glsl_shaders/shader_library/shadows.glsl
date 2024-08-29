@@ -6,8 +6,8 @@
 
 // Should match shadowmap render target size in C++ file: { 1.0 / width, 1.0 / height, width, height }
 #define MAIN_SHADOWMAP_SIZE vec4(0.00048828125, 0.00048828125, 2048.0, 2048.0)
-
 #define POISSON_SAMPLE_NUM 20
+#define FIXED_DEPTH_OFFSET 5e-3
 
 float Rand_2to1(vec2 uv)
 { 
@@ -41,6 +41,9 @@ void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_S
 float SampleShadowMap(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 cascadeTexCoordsClamp)
 {
     ClampTexCoordsToCascadeForPCF(shadowCoord, cascadeTexCoordsClamp);
+
+    shadowCoord.z -= FIXED_DEPTH_OFFSET;
+
     return texture(shadowmap, shadowCoord.xyz);
 }
 
@@ -52,7 +55,7 @@ float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     float shadow = 0.0;
     for (int i = 0; i < POISSON_SAMPLE_NUM; ++i)
     {
-        shadow += texture(shadowmap, vec3(shadowCoord.xy + poissonUV[i] * MAIN_SHADOWMAP_SIZE.xy, shadowCoord.z));
+        shadow += SampleShadowMap(shadowmap, vec4(shadowCoord.xy + poissonUV[i] * MAIN_SHADOWMAP_SIZE.xy, shadowCoord.zw), vec4(vec2(0.0), vec2(1.0)));
     }
     return shadow / float(POISSON_SAMPLE_NUM);
 }
