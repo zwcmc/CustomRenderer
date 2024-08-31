@@ -288,8 +288,8 @@ Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
 
 Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
-    Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
-    // Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
+    // Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
+    Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
 
     // Base map
     aiString texturePath;
@@ -306,9 +306,13 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     // Base color
     aiColor4D color;
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_DIFFUSE, &color))
+    {
         mat->AddOrSetVector("uBaseColor", glm::vec4(color.r, color.g, color.b, color.a));
+    }
     else
+    {
         mat->AddOrSetVector("uBaseColor", glm::vec4(1.0f));
+    }
 
     // Normal map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
@@ -326,13 +330,19 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->AddOrSetFloat("uEmissiveMapSet", 1.0f);
     }
     else
+    {
         mat->AddOrSetFloat("uEmissiveMapSet", -1.0f);
+    }
     
     // Emission color
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_EMISSIVE, &color))
+    {
         mat->AddOrSetVector("uEmissiveColor", glm::vec3(color.r, color.g, color.b));
+    }
     else
+    {
         mat->AddOrSetVector("uEmissiveColor", glm::vec3(1.0f));
+    }
 
     // Metallic roughness texture
     // aiTextureType_METALNESS or aiTextureType_DIFFUSE_ROUGHNESS
@@ -342,20 +352,30 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->AddOrSetFloat("uMetallicRoughnessMapSet", 1.0f);
     }
     else
+    {
         mat->AddOrSetFloat("uMetallicRoughnessMapSet", -1.0f);
+    }
     
     // Metallic factor
     ai_real valueFactor;
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_METALLIC_FACTOR, &valueFactor))
+    {
         mat->AddOrSetFloat("uMetallicFactor", valueFactor);
+    }
     else
+    {
         mat->AddOrSetFloat("uMetallicFactor", 0.0f);
+    }
     
     // Roughness factor
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_ROUGHNESS_FACTOR, &valueFactor))
+    {
         mat->AddOrSetFloat("uRoughnessFactor", valueFactor);
+    }
     else
-        mat->AddOrSetFloat("uRoughnessFactor", 0.8f);
+    {
+        mat->AddOrSetFloat("uRoughnessFactor", 0.9f);
+    }
 
     // Occlusion map
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_LIGHTMAP, 0, &texturePath))
@@ -364,14 +384,20 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->AddOrSetFloat("uOcclusionMapSet", 1.0f);
     }
     else
+    {
         mat->AddOrSetFloat("uOcclusionMapSet", -1.0f);
+    }
 
     // Cull face
     int two_sided;
     if((AI_SUCCESS == aiGetMaterialInteger(aMaterial, AI_MATKEY_TWOSIDED, &two_sided)) && two_sided)
+    {
         mat->SetDoubleSided(true);
+    }
     else
+    {
         mat->SetDoubleSided(false);
+    }
 
     aiString alphaMode("OPAQUE");
     Material::AlphaMode mode = Material::AlphaMode::DEFAULT_OPAQUE;
@@ -379,9 +405,13 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     {
         std::string m = alphaMode.C_Str();
         if (m == "MASK")
+        {
             mode = Material::AlphaMode::MASK;
+        }
         else if (m == "BLEND")
+        {
             mode = Material::AlphaMode::BLEND;
+        }
     }
     mat->SetAlphaMode(mode);
     mat->AddOrSetFloat("uAlphaBlendSet", mode == Material::AlphaMode::BLEND ? 1.0f : -1.0f);
@@ -389,9 +419,13 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     
     // Alpha cuteoff
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_GLTF_ALPHACUTOFF, &valueFactor))
+    {
         mat->AddOrSetFloat("uAlphaCutoff", valueFactor);
+    }
     else
+    {
         mat->AddOrSetFloat("uAlphaCutoff", 0.5f);
+    }
 
     return mat;
 }

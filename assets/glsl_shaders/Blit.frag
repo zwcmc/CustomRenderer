@@ -6,11 +6,11 @@ out vec4 OutColor;
 
 in vec2 UV0;
 
-uniform sampler2D uSource;
+uniform sampler2D uSourceTex;
 
 void main()
 {
-    vec4 color = texture(uSource, UV0);
+    vec4 color = texture(uSourceTex, UV0);
 
     // HDR tonemapping
     color.rgb = NeutralTonemapping(color.rgb);

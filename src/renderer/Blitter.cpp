@@ -14,7 +14,7 @@ void Blitter::BlitToTarget(Texture2D::Ptr source, RenderTarget::Ptr target, Mate
     if (blitMat == nullptr)
         blitMat = Mat;
 
-    source->SetTextureName("uSource");
+    source->SetTextureName("uSourceTex");
     blitMat->AddOrSetTexture(source);
 
     blitMat->Use();
@@ -34,7 +34,7 @@ void Blitter::BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::P
         blitMat = Mat;
 
     // Setup source texture
-    source->GetColorTexture(0)->SetTextureName("uSource");
+    source->GetColorTexture(0)->SetTextureName("uSourceTex");
     blitMat->AddOrSetTexture(source->GetColorTexture(0));
     // Setup source texture texel size
     glm::u32vec2 textureSize = source->GetColorTexture(0)->GetSize();

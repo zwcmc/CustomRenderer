@@ -6,6 +6,7 @@ in VertexData
     vec2 UV0;
     vec3 Normal;
     vec3 PositionWS;
+    vec4 TexShadowView;
 } fs_in;
 
 uniform sampler2D uBaseMap;
@@ -36,10 +37,12 @@ uniform samplerCube uPrefilteredCubemap;
 uniform sampler2D uBRDFLUT;
 
 uniform sampler2DShadow uShadowMap;
+uniform float uShadowMapSet;
 
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
+#include "shader_library/shadows.glsl"
 
 void main()
 {
@@ -76,6 +79,10 @@ void main()
 
     // Main light shadow
     float shadowAtten = 1.0;
+    if (uShadowMapSet > 0.0)
+    {
+        shadowAtten = SampleShadowMapPCFTent(uShadowMap, fs_in.TexShadowView);
+    }
 
     vec3 radiance = MainLightColor * shadowAtten;
 
@@ -129,5 +136,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
-    OutColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0);
+    OutColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
 }

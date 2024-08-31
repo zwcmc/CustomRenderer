@@ -6,8 +6,7 @@ in VertexData
     vec2 UV0;
     vec3 Normal;
     vec3 PositionWS;
-    // float Depth;
-    vec4 vTexShadow;
+    vec4 TexShadowView;
 } fs_in;
 
 uniform sampler2D uBaseMap;
@@ -23,14 +22,6 @@ uniform float uShadowMapSet;
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
 #include "shader_library/shadows.glsl"
-
-const vec4 CascadeColors[4] = vec4[4]
-(
-    vec4(1.0, 0.0, 0.0, 1.0),
-    vec4(0.0, 1.0, 0.0, 1.0),
-    vec4(0.0, 0.0, 1.0, 1.0),
-    vec4(1.0, 0.0, 1.0, 1.0)
-);
 
 void CalculateRightAndUpTexelDepthDeltas(in vec3 texShadowView, in mat3 shadowProjection, out float upTextDepthWeight, out float rightTextDepthWeight)
 {
@@ -72,42 +63,9 @@ void main()
     float NdotL = max(dot(N, L), 0.0);
 
     float shadowAtten = 1.0;
-    int iCurrentCascadeIndex = 0;
     if (uShadowMapSet > 0.0)
     {
-        int CASCADE_COUNT_FLAG = int(CascadeParams.x);
-        vec4 shadowCoord = vec4(0.0);
-
-        if (CASCADE_COUNT_FLAG > 1)
-        {
-            int iCascadeFound = 0;
-            for (int iCascadeIndex = 0; iCascadeIndex < CASCADE_COUNT_FLAG && iCascadeFound == 0; ++iCascadeIndex)
-            {
-                shadowCoord = ShadowProjections[iCascadeIndex] * fs_in.vTexShadow;
-                // Perspective division
-                shadowCoord.xyzw /= shadowCoord.w;
-                if (min(shadowCoord.x, shadowCoord.y) > CascadeParams.y && max(shadowCoord.x, shadowCoord.y) < CascadeParams.z)
-                {
-                    iCurrentCascadeIndex = iCascadeIndex;
-                    iCascadeFound = 1;
-                }
-            }
-            shadowCoord.xy = shadowCoord.xy * CascadeScalesAndOffsets[iCurrentCascadeIndex].xy + CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
-            // Min and max texcoord coordinates of the cascade
-            vec4 cascadeTexCoordsClamp; // { x: minX, y: minY, z: maxX, w: maxY }
-            cascadeTexCoordsClamp.xy = CascadeScalesAndOffsets[iCurrentCascadeIndex].zw;
-            cascadeTexCoordsClamp.zw = cascadeTexCoordsClamp.xy + 0.5;
-
-            shadowAtten = SampleShadowMapPCFTent(uShadowMap, shadowCoord, cascadeTexCoordsClamp);
-        }
-        else
-        {
-            shadowCoord = ShadowProjections[iCurrentCascadeIndex] * fs_in.vTexShadow;
-            // Perspective division
-            shadowCoord.xyzw /= shadowCoord.w;
-
-            shadowAtten = SampleShadowMapPCFTent(uShadowMap, shadowCoord, vec4(vec2(0.0), vec2(1.0)));
-        }
+        shadowAtten = SampleShadowMapPCFTent(uShadowMap, fs_in.TexShadowView);
     }
 
     vec3 radiance = MainLightColor * shadowAtten;
@@ -119,5 +77,5 @@ void main()
 
     vec3 color = ambient + diffuse + specular;
 
-    OutColor = vec4(color, 1.0); // * CascadeColors[iCurrentCascadeIndex];
+    OutColor = vec4(color, 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
 }

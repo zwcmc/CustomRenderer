@@ -11,11 +11,10 @@ uniform mat3 uModelMatrixInverse;
 
 out VertexData
 {
-    vec2 UV0;
-    vec3 Normal;
-    vec3 PositionWS;
-    // float Depth;
-    vec4 vTexShadow;
+    vec2 UV0; // Texcoord 0
+    vec3 Normal; // Normal in world space
+    vec3 PositionWS; // Position in world spcae
+    vec4 TexShadowView; // Position in light shadow view space
 } vs_out;
 
 void main()
@@ -27,9 +26,7 @@ void main()
 
     vs_out.PositionWS = vec3(uModelMatrix * vec4(vPosition, 1.0));
 
-    // vs_out.Depth = (ViewMatrix * vec4(vs_out.PositionWS, 1.0)).z;
-
-    vs_out.vTexShadow = ShadowView * vec4(vs_out.PositionWS, 1.0);
+    vs_out.TexShadowView = ShadowView * vec4(vs_out.PositionWS, 1.0);
 
     gl_Position = ProjectionMatrix * ViewMatrix * vec4(vs_out.PositionWS, 1.0);
 }

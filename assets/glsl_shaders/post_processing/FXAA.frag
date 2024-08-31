@@ -11,7 +11,7 @@ const float SEARCH_STEPS[FXAA_EXTRA_EDGE_SEARCH_STEPS] = float[FXAA_EXTRA_EDGE_S
 
 in vec2 UV0;
 
-uniform sampler2D uSource;
+uniform sampler2D uSourceTex;
 uniform vec4 uSourceTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
 
 #include "common/functions.glsl"
@@ -19,12 +19,12 @@ uniform vec4 uSourceTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w
 vec4 FXAATexOffset(vec2 uv, vec2 offset)
 {
     vec2 rcpPixels = uSourceTexelSize.xy;
-    return texture(uSource, uv + offset * rcpPixels);
+    return texture(uSourceTex, uv + offset * rcpPixels);
 }
 
 vec4 FXAATex(vec2 uv)
 {
-    return texture(uSource, uv);
+    return texture(uSourceTex, uv);
 }
 
 void main()

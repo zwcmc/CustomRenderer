@@ -102,21 +102,19 @@ int main()
     // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
     // SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/cube/cube2.gltf");
-
-    sceneNode->Translate(glm::vec3(4.0f, 0.0, -5.0f));
     m_SceneRenderGraph->AddSceneNode(sceneNode);
 
-    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(marry);
+//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+//    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+//    m_SceneRenderGraph->AddSceneNode(marry);
+//
+//    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+//    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
+//    m_SceneRenderGraph->AddSceneNode(marry2);
 
-    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
-    m_SceneRenderGraph->AddSceneNode(marry2);
-
-    SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-    floor->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(floor);
+    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(ground);
 
     // Get the real size in pixels
     int realWidth, realHeight;
@@ -152,7 +150,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
-            ImGui::Begin("Custom Renderer", (bool*)1);
+            ImGui::Begin("Stats", (bool*)1);
             ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
         }
         ImGui::End();
