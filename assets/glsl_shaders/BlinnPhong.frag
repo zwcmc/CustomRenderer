@@ -50,8 +50,8 @@ void CalculateRightAndUpTexelDepthDeltas(in vec3 texShadowView, in mat3 shadowPr
         matScreenToShadow[1][0] * -fInvDeterminant, matScreenToShadow[0][0] * fInvDeterminant
     );
 
-    vec2 vRightShadowTexelLocation = vec2(1.0/2048.0, 0.0);
-    vec2 vUpShadowTexelLocation = vec2(0.0, 1.0/2048.0);
+    vec2 vRightShadowTexelLocation = vec2(ShadowMapTexelSize.x, 0.0);
+    vec2 vUpShadowTexelLocation = vec2(0.0, ShadowMapTexelSize.y);
 
     vec2 vRightTexelDepthRatio = matShadowToScreen * vRightShadowTexelLocation;
     vec2 vUpTexelDepthRatio = matShadowToScreen * vUpShadowTexelLocation;

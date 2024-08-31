@@ -2,10 +2,9 @@
 #define SHADOWS_GLSL
 
 #include "common/constants.glsl"
+#include "common/uniforms.glsl"
 #include "shader_library/unity_shadow_sampling_tent.glsl"
 
-// Should match shadowmap render target size in C++ file: { 1.0 / width, 1.0 / height, width, height }
-#define MAIN_SHADOWMAP_SIZE vec4(0.00048828125, 0.00048828125, 2048.0, 2048.0)
 #define POISSON_SAMPLE_NUM 20
 #define FIXED_DEPTH_OFFSET 5e-3
 
@@ -19,7 +18,7 @@ float Rand_2to1(vec2 uv)
 
 void ClampTexCoordsToCascadeForPCF(inout vec4 shadowCoord, vec4 clampRange)
 {
-    shadowCoord.xy = clamp(shadowCoord.xy, clampRange.xy + MAIN_SHADOWMAP_SIZE.xy, clampRange.zw - MAIN_SHADOWMAP_SIZE.xy);
+    shadowCoord.xy = clamp(shadowCoord.xy, clampRange.xy + ShadowMapTexelSize.xy, clampRange.zw - ShadowMapTexelSize.xy);
 }
 
 void PoissonDiskSamples(const in vec2 randomSeed, out vec2 poissonDisk[POISSON_SAMPLE_NUM])
@@ -55,7 +54,7 @@ float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 shadowCoord)
     float shadow = 0.0;
     for (int i = 0; i < POISSON_SAMPLE_NUM; ++i)
     {
-        shadow += SampleShadowMap(shadowmap, vec4(shadowCoord.xy + poissonUV[i] * MAIN_SHADOWMAP_SIZE.xy, shadowCoord.zw), vec4(vec2(0.0), vec2(1.0)));
+        shadow += SampleShadowMap(shadowmap, vec4(shadowCoord.xy + poissonUV[i] * ShadowMapTexelSize.xy, shadowCoord.zw), vec4(vec2(0.0), vec2(1.0)));
     }
     return shadow / float(POISSON_SAMPLE_NUM);
 }
@@ -65,7 +64,7 @@ float SampleShadowMapPCFTent(sampler2DShadow shadowmap, vec4 shadowCoord, vec4 c
     float fetchesWeights[9];
     vec2 fetchesUV[9];
 
-    SampleShadow_ComputeSamples_Tent_5x5(MAIN_SHADOWMAP_SIZE, shadowCoord.xy, fetchesWeights, fetchesUV);
+    SampleShadow_ComputeSamples_Tent_5x5(ShadowMapTexelSize, shadowCoord.xy, fetchesWeights, fetchesUV);
 
     return fetchesWeights[0] * SampleShadowMap(shadowmap, vec4(fetchesUV[0], shadowCoord.zw), cascadeTexCoordsClamp)
             + fetchesWeights[1] * SampleShadowMap(shadowmap, vec4(fetchesUV[1], shadowCoord.zw), cascadeTexCoordsClamp)

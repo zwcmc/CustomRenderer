@@ -90,7 +90,8 @@ private:
     //     mat4 ShadowView;                       // 64 bytes;   byte offset = 432;
     //     vec4 CascadeScalesAndOffsets[4];       // 64 bytes;   byte offset = 496;
     //     vec4 CascadeParams;                    // 16 bytes;   byte offset = 560;
-    // };                                         // Total bytes = 576
+    //     vec4 ShadowMapTexelSize;               // 16 bytes;    byte offset = 576;
+    // };                                         // Total bytes = 592
 
     Material::Ptr m_DebuggingAABBMat;
 };

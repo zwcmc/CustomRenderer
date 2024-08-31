@@ -42,7 +42,7 @@ void SceneRenderGraph::Init()
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, 576, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 592, nullptr, GL_STATIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -61,7 +61,7 @@ void SceneRenderGraph::Init()
 
     // Directional Shadow Map
     m_DirectionalShadowMap = DirectionalLightShadowMap::New();
-    m_DirectionalShadowMap->SetCascadeShadowMapsEnabled(false);
+    m_DirectionalShadowMap->SetCascadeShadowMapsEnabled(true);
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
     m_DebuggingAABBMat->SetDoubleSided(true);
@@ -182,6 +182,10 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         glBufferSubData(GL_UNIFORM_BUFFER, 496, 64, &(m_DirectionalShadowMap->GetCascadeScalesAndOffsets()[0].x));
         glBufferSubData(GL_UNIFORM_BUFFER, 560, 16, &(m_DirectionalShadowMap->GetShadowCascadeParams()));
     }
+
+    glm::u32vec2 shadowMapSize = light->GetShadowMapSize();
+    glm::vec4 shadowMapTexelSize = glm::vec4(1.0f / shadowMapSize.x, 1.0f / shadowMapSize.y, shadowMapSize.x, shadowMapSize.y);
+    glBufferSubData(GL_UNIFORM_BUFFER, 576, 16, &shadowMapTexelSize.x);
 
     // Set float[4];
     // glBufferSubData(GL_UNIFORM_BUFFER, 496, 64, &cascadeScales); does not work?
