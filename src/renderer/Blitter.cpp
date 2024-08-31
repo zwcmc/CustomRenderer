@@ -24,20 +24,21 @@ void Blitter::BlitToTarget(Texture2D::Ptr source, RenderTarget::Ptr target, Mate
     glBindVertexArray(0);
 }
 
-void Blitter::BlitToCamera(Texture2D::Ptr source, glm::u32vec2 size, Material::Ptr blitMat)
+void Blitter::BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::Ptr targetCamera, Material::Ptr blitMat)
 {
     assert(source != nullptr);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    glViewport(0, 0, size.x, size.y);
+    targetCamera->BindCameraTarget();
 
     if (blitMat == nullptr)
         blitMat = Mat;
 
-    source->SetTextureName("uSource");
-    blitMat->AddOrSetTexture(source);
+    // Setup source texture
+    source->GetColorTexture(0)->SetTextureName("uSource");
+    blitMat->AddOrSetTexture(source->GetColorTexture(0));
+    // Setup source texture texel size
+    glm::u32vec2 textureSize = source->GetColorTexture(0)->GetSize();
+    blitMat->AddOrSetVector("uSourceTexelSize", glm::vec4(1.0f / textureSize.x, 1.0f / textureSize.y, textureSize.x, textureSize.y));
 
     blitMat->Use();
 

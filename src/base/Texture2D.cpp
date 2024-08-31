@@ -28,6 +28,8 @@ void Texture2D::SetWrapMode(GLenum wrapS, GLenum wrapT)
 
 void Texture2D::SetSize(const glm::u32vec2 &size)
 {
+    m_Size = size;
+
     Bind();
     if (m_Target == GL_TEXTURE_2D)
     {

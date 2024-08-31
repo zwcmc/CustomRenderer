@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <glad/glad.h>
+
 Camera::Camera(const glm::vec3 &eye, const glm::vec3 &lookAt, const glm::vec3 &upVector)
     : m_EyePosition(eye), m_LookAt(lookAt), m_UpVector(upVector)
 {
@@ -72,4 +74,11 @@ float& Camera::GetNear()
 float& Camera::GetFar()
 {
     return m_ZFar;
+}
+
+void Camera::BindCameraTarget()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glViewport(0, 0, m_ScreenSize.x, m_ScreenSize.y);
 }

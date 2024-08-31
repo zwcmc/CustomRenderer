@@ -58,6 +58,7 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
         std::cerr << "Framebuffer not complete!" << std::endl;
     }
 
+    // Unbind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

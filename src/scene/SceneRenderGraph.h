@@ -20,6 +20,7 @@
 
 #include "renderer/EnvironmentIBL.h"
 #include "renderer/DirectionalLightShadowMap.h"
+#include "renderer/PostProcessing.h"
 
 using namespace glm;
 
@@ -75,8 +76,11 @@ private:
     // Environment IBL
     EnvironmentIBL::Ptr m_EnvIBL;
 
-    // Directional Shadow Map
+    // Directional shadow map
     DirectionalLightShadowMap::Ptr m_DirectionalShadowMap;
+    
+    // Post processing
+    PostProcessing::Ptr m_PostProcessing;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms

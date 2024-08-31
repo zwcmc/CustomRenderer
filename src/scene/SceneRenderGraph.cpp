@@ -49,7 +49,7 @@ void SceneRenderGraph::Init()
     // Mesh for rendering lights
     m_LightMesh = Sphere::New(16, 16, 0.02f);
 
-    // Init Blitter
+    // Initialize Blitter
     Blitter::Init();
 
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
@@ -59,9 +59,12 @@ void SceneRenderGraph::Init()
     // Add render the skybox commands
     BuildSkyboxRenderCommands();
 
-    // Directional Shadow Map
+    // Directional shadow map
     m_DirectionalShadowMap = DirectionalLightShadowMap::New();
     m_DirectionalShadowMap->SetCascadeShadowMapsEnabled(true);
+    
+    // Post processing
+    m_PostProcessing = PostProcessing::New();
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
     m_DebuggingAABBMat->SetDoubleSided(true);
@@ -160,22 +163,23 @@ void SceneRenderGraph::CalculateSceneAABB()
 
 void SceneRenderGraph::ExecuteCommandBuffer()
 {
-    DirectionalLight::Ptr light = m_MainLight;
+    DirectionalLight::Ptr currentLight = m_MainLight;
+    Camera::Ptr currentCamera = m_Camera;
 
     // Render shadow map first
-    if (light->IsCastShadow())
-        m_DirectionalShadowMap->RenderShadowMap(m_Camera, light, m_CommandBuffer->GetShadowCasterCommands(), m_Scene);
+    if (currentLight->IsCastShadow())
+        m_DirectionalShadowMap->RenderShadowMap(currentCamera, currentLight, m_CommandBuffer->GetShadowCasterCommands(), m_Scene);
 
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(m_Camera->GetViewMatrix()[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(m_Camera->GetProjectionMatrix()[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(light->GetLightPosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(light->GetLightColor().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(m_Camera->GetEyePosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(currentCamera->GetViewMatrix()[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(currentCamera->GetProjectionMatrix()[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(currentLight->GetLightPosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(currentLight->GetLightColor().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(currentCamera->GetEyePosition().x));
     
     // Set light cascade data
-    if (light->IsCastShadow())
+    if (currentLight->IsCastShadow())
     {
         glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(m_DirectionalShadowMap->GetShadowProjections()[0][0].x));
         glBufferSubData(GL_UNIFORM_BUFFER, 432, 64, &(m_DirectionalShadowMap->GetLightCameraView()[0].x));
@@ -183,7 +187,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
         glBufferSubData(GL_UNIFORM_BUFFER, 560, 16, &(m_DirectionalShadowMap->GetShadowCascadeParams()));
     }
 
-    glm::u32vec2 shadowMapSize = light->GetShadowMapSize();
+    glm::u32vec2 shadowMapSize = currentLight->GetShadowMapSize();
     glm::vec4 shadowMapTexelSize = glm::vec4(1.0f / shadowMapSize.x, 1.0f / shadowMapSize.y, shadowMapSize.x, shadowMapSize.y);
     glBufferSubData(GL_UNIFORM_BUFFER, 576, 16, &shadowMapTexelSize.x);
 
@@ -194,7 +198,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Blitter::BlitToCamera(light->GetShadowMapRT()->GetShadowMapTexture(), m_RenderSize); return;
+//    Blitter::BlitToCameraTarget(currentLight->GetShadowMapRT()->GetShadowMapTexture(), currentCamera); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();
@@ -204,7 +208,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     for (size_t i = 0; i < opaqueCommands.size(); ++i)
     {
        RenderCommand::Ptr command = opaqueCommands[i];
-       RenderCommand(command, light);
+       RenderCommand(command, currentLight);
     }
 
     // Skybox start ----------------
@@ -218,7 +222,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     for (size_t i = 0; i < skyboxCommands.size(); ++i)
     {
         RenderCommand::Ptr command = skyboxCommands[i];
-        RenderCommand(command, light);
+        RenderCommand(command, currentLight);
     }
     // Depth write on
     glDepthMask(GL_TRUE);
@@ -231,7 +235,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     for (size_t i = 0; i < transparentCommands.size(); ++i)
     {
        RenderCommand::Ptr command = transparentCommands[i];
-       RenderCommand(command, light);
+       RenderCommand(command, currentLight);
     }
 
     // Debugging AABB
@@ -246,7 +250,8 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    Blitter::BlitToCamera(m_IntermediateRT->GetColorTexture(0), m_RenderSize);
+//    Blitter::BlitToCameraTarget(m_IntermediateRT->GetColorTexture(0), currentCamera);
+    m_PostProcessing->Render(m_IntermediateRT, currentCamera);
 }
 
 void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr light)

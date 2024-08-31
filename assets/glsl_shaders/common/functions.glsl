@@ -4,6 +4,11 @@
 #include "common/constants.glsl"
 #include "common/uniforms.glsl"
 
+float Rcp(float x)
+{
+    return 1.0 / x;
+}
+
 float Sqr(float x)
 {
     return x * x;
@@ -12,6 +17,11 @@ float Sqr(float x)
 float Pow5(float x)
 {
     return Sqr(x) * Sqr(x) * x;
+}
+
+float Luminance(vec4 rgba)
+{
+    return dot(rgba.rgb, vec3(0.299, 0.587, 0.114));
 }
 
 // The specific texture is not indicated when loading glTF, so the sRGB conversion for the texture can only be specified in the shader

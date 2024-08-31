@@ -123,6 +123,7 @@ void EnvironmentIBL::RenderToCubemap(TextureCube::Ptr cubemap, unsigned int mipL
     {
         std::cerr << "FrameBuffer is not complete!" << std::endl;
     }
+    // Unbind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glm::mat4 captureProjection = glm::perspective((float)M_PI / 2.0f, (float)width / height, 0.1f, 10.0f);
