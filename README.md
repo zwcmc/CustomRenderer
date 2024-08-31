@@ -42,7 +42,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [ ] VSM (Variance Shadow Maps)
   - [ ] PCSS (Percentage Closer Soft Shadow)
 - [ ] Bloom
-- [ ] FXAA
+- [x] FXAA
 - [ ] MSAA
 - [ ] Deferred Rendering
 - [ ] SSAO
