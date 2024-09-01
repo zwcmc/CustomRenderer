@@ -99,7 +99,7 @@ void EnvironmentIBL::GenerateCubemaps()
 
 void EnvironmentIBL::GenerateBRDFLUT()
 {
-    m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
+    m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_FLOAT, 1);
     m_BRDFLUTRenderTarget->GetColorTexture(0)->SetTextureName("uBRDFLUT");
     Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "glsl_shaders/Blit.vert", "glsl_shaders/GenerateBRDFLUT.frag");
 
