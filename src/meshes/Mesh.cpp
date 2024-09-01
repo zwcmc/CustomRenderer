@@ -50,6 +50,16 @@ Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords
     InitBuffers();
 }
 
+Mesh::~Mesh()
+{
+    if (m_VertexArrayID)
+    {
+        glDeleteVertexArrays(1, &m_VertexArrayID);
+        glDeleteBuffers(1, &m_VertexBufferID);
+        glDeleteBuffers(1, &m_ElementBufferID);
+    }
+}
+
 void Mesh::InitMesh(const std::vector<vec3> &vertices)
 {
     m_VertexArrayID = 0;

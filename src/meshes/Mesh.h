@@ -20,6 +20,8 @@ public:
     Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals);
     Mesh(const std::vector<vec3> &vertices, const std::vector<vec2> &texcoords, const std::vector<vec3> &normals, const std::vector<unsigned int> &indices);
 
+    ~Mesh();
+
     void InitMesh(const std::vector<vec3> &vertices);
     void InitMesh(const std::vector<vec3>& vertices, const std::vector<vec2> &texcoords);
     void InitMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices);

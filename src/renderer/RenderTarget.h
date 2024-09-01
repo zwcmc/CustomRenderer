@@ -12,6 +12,8 @@ class RenderTarget
 public:
     RenderTarget(const unsigned int &width, const unsigned int &height, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1, bool depthAndStencil = false, bool isShadowMap = false);
     RenderTarget(const glm::u32vec2 &size, GLenum type = GL_UNSIGNED_BYTE, unsigned int colorAttachmentsNum = 1, bool depthAndStencil = false, bool isShadowMap = false);
+    
+    ~RenderTarget();
 
     Texture2D::Ptr GetColorTexture(const unsigned int &index);
     Texture2D::Ptr GetDepthAndStencilTexture();
@@ -19,6 +21,7 @@ public:
 
     glm::u32vec2& GetSize() { return m_Size; }
     void SetSize(const glm::u32vec2 &size);
+    void SetSize(const unsigned int &width, const unsigned int &height);
     void Bind();
 
 private:

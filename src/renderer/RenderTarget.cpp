@@ -62,6 +62,12 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+RenderTarget::~RenderTarget()
+{
+    glDeleteFramebuffers(1, &m_FrameBufferID);
+    m_ColorAttachments.clear();
+}
+
 Texture2D::Ptr RenderTarget::GetColorTexture(const unsigned int &index)
 {
     if (index < m_ColorAttachments.size())
@@ -97,6 +103,21 @@ void RenderTarget::SetSize(const glm::u32vec2 &size)
     if (m_HasDepthAndStencil)
     {
         m_DepthStencilAttachment->SetSize(size);
+    }
+}
+
+void RenderTarget::SetSize(const unsigned int &width, const unsigned int &height)
+{
+    m_Size = glm::u32vec2(width, height);
+    
+    for (unsigned int i = 0; i < m_ColorAttachments.size(); ++i)
+    {
+        m_ColorAttachments[i]->SetSize(m_Size);
+    }
+
+    if (m_HasDepthAndStencil)
+    {
+        m_DepthStencilAttachment->SetSize(m_Size);
     }
 }
 
