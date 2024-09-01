@@ -59,7 +59,7 @@ vec3 NeutralTonemapping(vec3 color)
     float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
     color -= offset;
 
-    float peak = max(color.r, max(color.g, color.b));
+    float peak = Max3(color.r, color.g, color.b);
     if (peak < startCompression) return color;
 
     const float d = 1.0 - startCompression;

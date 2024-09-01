@@ -15,6 +15,7 @@ public:
     void SetOrthographic(const float &left, const float &right, const float &bottom, const float &top, const float &zNear, const float &zFar);
 
     void SetScreenSize(const int &width, const int &height);
+    glm::u32vec2& GetScreenSize();
     
     glm::mat4& GetViewMatrix();
     glm::mat4& GetProjectionMatrix();

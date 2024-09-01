@@ -1,5 +1,7 @@
-#version 410 core
-out vec4 OutColor;
+#ifndef FXAA_GLSL
+#define FXAA_GLSL
+
+#include "common/functions.glsl"
 
 #define FXAA_QUALITY_SUBPIX 0.75
 #define FXAA_QUALITY_EDGE_THRESHOLD 0.15
@@ -9,42 +11,33 @@ out vec4 OutColor;
 #define FXAA_EXTRA_EDGE_SEARCH_STEP_SIZES 1.5, 2.0, 4.0, 12.0
 const float SEARCH_STEPS[FXAA_EXTRA_EDGE_SEARCH_STEPS] = float[FXAA_EXTRA_EDGE_SEARCH_STEPS]( FXAA_EXTRA_EDGE_SEARCH_STEP_SIZES );
 
-in vec2 UV0;
-
-uniform sampler2D uSourceTex;
-uniform vec4 uSourceTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
-
-#include "common/functions.glsl"
-#include "shader_library/tonemapping.glsl"
-
-vec4 FXAATexOffset(vec2 uv, vec2 offset)
+vec4 FXAATexOffset(sampler2D tex, vec4 texTexelSize, vec2 uv, vec2 offset)
 {
-    vec2 rcpPixels = uSourceTexelSize.xy;
-    return texture(uSourceTex, uv + offset * rcpPixels);
+    vec2 rcpPixels = texTexelSize.xy;
+    return texture(tex, uv + offset * rcpPixels);
 }
 
-vec4 FXAATex(vec2 uv)
+vec4 FXAATex(sampler2D tex, vec2 uv)
 {
-    return texture(uSourceTex, uv);
+    return texture(tex, uv);
 }
 
-void main()
+vec4 ApplyFXAA(vec4 color, sampler2D sourceTex, vec4 sourceTexelSize, vec2 uv)
 {
-    vec2 posM = UV0;
+    vec2 posM = uv;
 
     // Luminance of the current pixel
-    vec4 rgbyM = FXAATex(posM);
-    float lumaM = Luminance(rgbyM);
+    float lumaM = Luminance(color);
 
     // ----------------
     // 1. Compute the edge
     // ----------------
 
     // Luminances of the neighboring pixels at the bottom, right, top, and left
-    float lumaS = Luminance(FXAATexOffset(posM, vec2(0.0, -1.0)));
-    float lumaE = Luminance(FXAATexOffset(posM, vec2(1.0, 0.0)));
-    float lumaN = Luminance(FXAATexOffset(posM, vec2(0.0, 1.0)));
-    float lumaW = Luminance(FXAATexOffset(posM, vec2(-1.0, 0.0)));
+    float lumaS = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(0.0, -1.0)));
+    float lumaE = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(1.0, 0.0)));
+    float lumaN = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(0.0, 1.0)));
+    float lumaW = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(-1.0, 0.0)));
 
     // Calculate the min and max luminances
     float maxSM = max(lumaS, lumaM);
@@ -64,13 +57,7 @@ void main()
     float rangeMaxClamped = max(FXAA_QUALITY_EDGE_THRESHOLD_MIN, rangeMaxScaled);
     if (range < rangeMaxClamped)
     {
-        // HDR tonemapping
-        rgbyM.rgb = NeutralTonemapping(rgbyM.rgb);
-        // Gamma correction in final blit
-        rgbyM = GammaCorrection(rgbyM);
-
-        OutColor = rgbyM;
-        return;
+        return color;
     }
 
     // ----------------
@@ -78,10 +65,10 @@ void main()
     // ----------------
 
     // Luminances of the neighboring pixels at the left-top, right-bottom, right-top, and left-bottom
-    float lumaNW = Luminance(FXAATexOffset(posM, vec2(-1.0, 1.0)));
-    float lumaSE = Luminance(FXAATexOffset(posM, vec2(1.0, -1.0)));
-    float lumaNE = Luminance(FXAATexOffset(posM, vec2(1.0, 1.0)));
-    float lumaSW = Luminance(FXAATexOffset(posM, vec2(-1.0, -1.0)));
+    float lumaNW = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(-1.0, 1.0)));
+    float lumaSE = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(1.0, -1.0)));
+    float lumaNE = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(1.0, 1.0)));
+    float lumaSW = Luminance(FXAATexOffset(sourceTex, sourceTexelSize, posM, vec2(-1.0, -1.0)));
 
     // Compute the direction of the edge
     // Horizontal weight = abs((N + S) - 2.0 * M)) * 2.0 + abs((NE + SE) - 2.0 * E)) + abs((NW + SW) - 2.0 * W));
@@ -137,8 +124,8 @@ void main()
     // ----------------
 
     // Determine the one pixel offset distance to the edge
-    float lengthSign = uSourceTexelSize.x;
-    if (horzSpan) lengthSign = uSourceTexelSize.y;
+    float lengthSign = sourceTexelSize.x;
+    if (horzSpan) lengthSign = sourceTexelSize.y;
 
     // Indicate the sign of the offset according to the gradients in two opposite directions
     if (!horzSpan) lumaN = lumaE;
@@ -157,8 +144,8 @@ void main()
 
     // Search one step offset
     vec2 offNP;
-    offNP.x = (!horzSpan) ? 0.0 : uSourceTexelSize.x;
-    offNP.y = (horzSpan) ? 0.0 : uSourceTexelSize.y;
+    offNP.x = (!horzSpan) ? 0.0 : sourceTexelSize.x;
+    offNP.y = (horzSpan) ? 0.0 : sourceTexelSize.y;
 
     // Search in both positive and negative directions
     // The first search in the negative direction
@@ -171,8 +158,8 @@ void main()
     posP.y = posB.y + offNP.y * FXAA_EDGE_SEARCH_STEP0;
 
     // Compute the gradient in both directions
-    float lumaEndN = Luminance(FXAATex(posN));
-    float lumaEndP = Luminance(FXAATex(posP));
+    float lumaEndN = Luminance(FXAATex(sourceTex, posN));
+    float lumaEndP = Luminance(FXAATex(sourceTex, posP));
     float lumaNN = lumaN + lumaM;
     float lumaSS = lumaS + lumaM;
     if (!pairN) lumaNN = lumaSS;
@@ -195,8 +182,8 @@ void main()
         if (!doneN) posN.y -= offNP.y * SEARCH_STEPS[i];
         if (!doneP) posP.x += offNP.x * SEARCH_STEPS[i];
         if (!doneP) posP.y += offNP.y * SEARCH_STEPS[i];
-        if (!doneN) lumaEndN = Luminance(FXAATex(posN));
-        if (!doneP) lumaEndP = Luminance(FXAATex(posP));
+        if (!doneN) lumaEndN = Luminance(FXAATex(sourceTex, posN));
+        if (!doneP) lumaEndP = Luminance(FXAATex(sourceTex, posP));
         if (!doneN) lumaEndN -= lumaNN * 0.5;
         if (!doneP) lumaEndP -= lumaNN * 0.5;
         doneN = abs(lumaEndN) >= gradientScaled;
@@ -239,12 +226,7 @@ void main()
     if (!horzSpan) posM.x += pixelOffsetSubpix * lengthSign;
     if (horzSpan) posM.y += pixelOffsetSubpix * lengthSign;
 
-    vec4 color = vec4(FXAATex(posM).rgb, rgbyM.a);
-
-    // HDR tonemapping
-    color.rgb = NeutralTonemapping(color.rgb);
-    // Gamma correction in final blit
-    color = GammaCorrection(color);
-
-    OutColor = color;
+    return vec4(FXAATex(sourceTex, posM).rgb, color.a);
 }
+
+#endif

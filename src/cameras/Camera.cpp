@@ -51,6 +51,11 @@ void Camera::SetScreenSize(const int &width, const int &height)
     }
 }
 
+glm::u32vec2& Camera::GetScreenSize()
+{
+    return m_ScreenSize;
+}
+
 glm::mat4& Camera::GetViewMatrix()
 {
     return m_View;

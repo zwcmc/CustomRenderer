@@ -18,6 +18,8 @@
 
 #include "scene/SceneRenderGraph.h"
 
+#include "utility/StatsRecorder.h"
+
 //#include <iomanip>
 
 const int WIDTH = 1280;
@@ -108,13 +110,13 @@ int main()
     marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(marry);
 
-//    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
-//    m_SceneRenderGraph->AddSceneNode(marry2);
+    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
+    m_SceneRenderGraph->AddSceneNode(marry2);
 
-//    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-//    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-//    m_SceneRenderGraph->AddSceneNode(ground);
+    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(ground);
 
     // Get the real size in pixels
     int realWidth, realHeight;
@@ -152,6 +154,11 @@ int main()
         {
             ImGui::Begin("Stats", (bool*)1);
             ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
+            ImGui::Checkbox("Bloom On", &StatsRecorder::BloomOn);
+            ImGui::SliderFloat("Threshold", &StatsRecorder::BloomThreshold, 0.0f, 10.0f);
+            ImGui::SliderFloat("Scatter", &StatsRecorder::BloomScatter, 0.0f, 1.0f);
+            
+            ImGui::Checkbox("FXAA On", &StatsRecorder::FXAAOn);
         }
         ImGui::End();
         // Rendering

@@ -19,6 +19,11 @@ float Pow5(float x)
     return Sqr(x) * Sqr(x) * x;
 }
 
+float Max3(float x, float y, float z)
+{
+    return max(x, max(y, z));
+}
+
 float Luminance(vec4 rgba)
 {
     return dot(rgba.rgb, vec3(0.299, 0.587, 0.114));
