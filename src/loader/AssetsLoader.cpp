@@ -4,8 +4,6 @@
 #include <stb_image.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <ktx.h>
-
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/GltfMaterial.h>
@@ -106,61 +104,6 @@ Texture2D::Ptr AssetsLoader::LoadHDRTexture(const std::string &textureName, cons
     stbi_set_flip_vertically_on_load(false);
 
     return texture;
-}
-
-Texture2D::Ptr AssetsLoader::LoadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap)
-{
-    ktxTexture* kTexture;
-    KTX_error_code result;
-
-    std::string newPath = GetAssetsPath() + filePath;
-    result = ktxTexture_CreateFromNamedFile(newPath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
-
-    assert(result == KTX_SUCCESS);
-
-    Texture2D::Ptr texture = Texture2D::New(textureName);
-    texture->InitTexture2D(kTexture, useMipmap);
-    ktxTexture_Destroy(kTexture);
-    return texture;
-}
-
-TextureCube::Ptr AssetsLoader::LoadCubemapKTX(const std::string &textureName, const std::string &filePath)
-{
-    ktxTexture* kTexture;
-    KTX_error_code result;
-
-    std::string newPath = GetAssetsPath() + filePath;
-    result = ktxTexture_CreateFromNamedFile(newPath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
-
-    assert(result == KTX_SUCCESS);
-
-    // must be a cubemap texture
-    assert(kTexture->numFaces == 6);
-
-    TextureCube::Ptr textureCube = TextureCube::New(textureName);
-    textureCube->InitTextureCube(kTexture);
-
-    ktxTexture_Destroy(kTexture);
-
-    return textureCube;
-}
-
-void AssetsLoader::InitCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath)
-{
-    ktxTexture *kTexture;
-    KTX_error_code result;
-
-    std::string newPath = GetAssetsPath() + filePath;
-    result = ktxTexture_CreateFromNamedFile(newPath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
-
-    assert(result == KTX_SUCCESS);
-
-    // must be a cubemap texture
-    assert(kTexture->numFaces == 6);
-
-    cubemap->InitTextureCube(kTexture);
-
-    ktxTexture_Destroy(kTexture);
 }
 
 std::string AssetsLoader::ReadShader(std::ifstream &file, const std::string &name)

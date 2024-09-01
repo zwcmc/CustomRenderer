@@ -82,35 +82,9 @@ target_link_libraries(${PROJECT_NAME} glfw)
 add_subdirectory(third_party/glm)
 target_link_libraries(${PROJECT_NAME} glm)
 
-# ktx
-include_directories(third_party/glad/include)
-include_directories(third_party/ktx/include)
-include_directories(third_party/ktx/lib)
-set(KTX_DIR third_party/ktx/lib)
-set(KTX_SOURCES
-    ${KTX_DIR}/texture.c
-    ${KTX_DIR}/hashlist.c
-    ${KTX_DIR}/checkheader.c
-    ${KTX_DIR}/swap.c
-    ${KTX_DIR}/memstream.c
-    ${KTX_DIR}/filestream.c
-    ${KTX_DIR}/etcdec.cxx
-    ${KTX_DIR}/etcunpack.cxx
-    ${KTX_DIR}/glloader.c
-    # ${KTX_DIR}/writer.c
-)
-add_library(ktx STATIC ${KTX_SOURCES})
-target_link_libraries(${PROJECT_NAME} ktx)
-# define KTX_OPENGL for ktx in glloader.c
-add_definitions(-DKTX_OPENGL=1)
-
 # assimp
 add_subdirectory(third_party/assimp)
 target_link_libraries(${PROJECT_NAME} assimp)
-
-# # imgui
-# add_subdirectory(third_party/imgui)
-# target_link_libraries(${PROJECT_NAME} imgui)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE third_party/glad/include)

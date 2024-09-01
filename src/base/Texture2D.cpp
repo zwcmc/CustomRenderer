@@ -71,46 +71,6 @@ void Texture2D::InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
     Unbind();
 }
 
-void Texture2D::InitTexture2D(ktxTexture* kTexture, bool useMipmap)
-{
-    m_Size = glm::u32vec2(kTexture->baseWidth, kTexture->baseHeight);
-    m_InternalFormat = kTexture->glInternalformat;
-    m_Format = kTexture->glFormat;
-    m_Type = kTexture->glType;
-
-    glGenTextures(1, &m_TextureID);
-
-    Bind();
-    
-    if (useMipmap)
-    {
-        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    }
-    else
-    {
-        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    GLenum glerror;
-    KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
-
-    if (result != KTX_SUCCESS)
-    {
-        std::cerr << "Create Texture2D from KTX file failed, texture name:  " << m_TextureName << ", error: " << glerror << std::endl;
-    }
-    
-    if (useMipmap)
-    {
-        glGenerateMipmap(m_Target);
-    }
-
-    Unbind();
-}
-
 void Texture2D::InitShadowMap(const glm::u32vec2 &size)
 {
     m_Size = size;

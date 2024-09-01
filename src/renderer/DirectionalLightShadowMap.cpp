@@ -77,7 +77,7 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
         std::vector<vec3> sceneAABBPointsLightSpace;
         sceneAABBPointsLightSpace.resize(8);
         for (int index = 0; index < 8; ++index)
-            sceneAABBPointsLightSpace[index] = make_vec3(lightCameraView * vec4(sceneAABBPoints[index], 1.0f));
+            sceneAABBPointsLightSpace[index] = glm::make_vec3(lightCameraView * vec4(sceneAABBPoints[index], 1.0f));
 
         // Compute the near and far plane
         // Near and far plane are negative in OpenGL right-hand coordinate
@@ -149,9 +149,9 @@ void DirectionalLightShadowMap::ComputeShadowProjectionFitViewFrustum(std::vecto
     for (size_t i = 0; i < 8; ++i)
     {
         // Transform the frustum from camera view space to world space
-        frustumPoints[i] = make_vec3(inverseCameraView * vec4(frustumPoints[i], 1.0f));
+        frustumPoints[i] = glm::make_vec3(inverseCameraView * vec4(frustumPoints[i], 1.0f));
         // Transform the frustum from world space to light view space
-        tempTranslatedPoint = make_vec3(lightView * vec4(frustumPoints[i], 1.0f));
+        tempTranslatedPoint = glm::make_vec3(lightView * vec4(frustumPoints[i], 1.0f));
         // Find the min and max
         lightCameraOrthographicMin = min(tempTranslatedPoint, lightCameraOrthographicMin);
         lightCameraOrthographicMax = max(tempTranslatedPoint, lightCameraOrthographicMax);

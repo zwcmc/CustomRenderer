@@ -51,11 +51,7 @@ void EnvironmentIBL::LoadEnvironmentCubemap(const std::string &cubemapPath)
         return;
     }
 
-    if (fileExt == "ktx" || fileExt == "ktx2")
-    {
-        AssetsLoader::InitCubemapKTX(m_EnvironmentCubemap, cubemapPath);
-    }
-    else if (fileExt == "hdr")
+    if (fileExt == "hdr")
     {
         Texture2D::Ptr environmentMap = AssetsLoader::LoadHDRTexture("uHDRMap", cubemapPath);
         m_EnvironmentCubemap->DefaultInit(environmentMap->GetSize().y, environmentMap->GetSize().y, GL_RGB32F, GL_RGB, GL_FLOAT);

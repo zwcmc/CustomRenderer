@@ -20,9 +20,6 @@ public:
     static Shader::Ptr LoadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
     static Texture2D::Ptr LoadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
     static Texture2D::Ptr LoadHDRTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static Texture2D::Ptr LoadTextureKTX(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static TextureCube::Ptr LoadCubemapKTX(const std::string &textureName, const std::string &filePath);
-    static void InitCubemapKTX(TextureCube::Ptr cubemap, const std::string &filePath);
     static SceneNode::Ptr LoadModel(const std::string &filePath, const bool &ingoreAABBCalculation = false);
 
 private:
