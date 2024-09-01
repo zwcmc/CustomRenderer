@@ -18,8 +18,8 @@ std::map<std::string, Texture2D::Ptr> AssetsLoader::assimpTextures = {};
 
 Shader::Ptr AssetsLoader::LoadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath)
 {
-    std::string vsPath = GetAssetsPath() + vsFilePath;
-    std::string fsPath = GetAssetsPath() + fsFilePath;
+    std::string vsPath = GetShaderPath() + vsFilePath;
+    std::string fsPath = GetShaderPath() + fsFilePath;
 
     std::ifstream vsFile, fsFile;
     vsFile.open(vsPath);
@@ -231,8 +231,8 @@ Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec
 
 Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
-    // Material::Ptr mat = Material::New("Blinn-Phong", "glsl_shaders/BlinnPhong.vert", "glsl_shaders/BlinnPhong.frag");
-    Material::Ptr mat = Material::New("PBR", "glsl_shaders/PBRLit.vert", "glsl_shaders/PBRLit.frag");
+    // Material::Ptr mat = Material::New("Blinn-Phong", "BlinnPhong.vert", "BlinnPhong.frag");
+    Material::Ptr mat = Material::New("PBR", "PBRLit.vert", "PBRLit.frag");
 
     // Base map
     aiString texturePath;

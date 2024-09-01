@@ -69,7 +69,7 @@ void Blitter::Init()
         glGenVertexArrays(1, &BlitVAO);
 
     if (Mat == nullptr)
-        Mat = Material::New("Blit", "glsl_shaders/Blit.vert", "glsl_shaders/Blit.frag");
+        Mat = Material::New("Blit", "post_processing/Blit.vert", "post_processing/Blit.frag");
 }
 
 void Blitter::Cleanup()

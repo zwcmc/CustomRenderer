@@ -66,7 +66,7 @@ void SceneRenderGraph::Init()
     // Post processing
     m_PostProcessing = PostProcessing::New();
 
-    m_DebuggingAABBMat = Material::New("Draw AABB", "glsl_shaders/utils/DrawBoundingBox.vert", "glsl_shaders/utils/DrawBoundingBox.frag");
+    m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vert", "utils/DrawBoundingBox.frag");
     m_DebuggingAABBMat->SetDoubleSided(true);
 }
 
@@ -112,7 +112,7 @@ void SceneRenderGraph::AddSceneNode(SceneNode::Ptr sceneNode)
 void SceneRenderGraph::AddRenderLightCommand(Light::Ptr light)
 {
     // TODO: All lights can share a single material
-    Material::Ptr lightMat = Material::New("Emissive", "glsl_shaders/Emissive.vert", "glsl_shaders/Emissive.frag");
+    Material::Ptr lightMat = Material::New("Emissive", "Emissive.vert", "Emissive.frag");
     lightMat->SetCastShadows(false);
     lightMat->AddOrSetVector("uEmissiveColor", light->GetLightColor());
 
