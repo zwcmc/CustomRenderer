@@ -15,6 +15,7 @@ uniform sampler2D uSourceTex;
 uniform vec4 uSourceTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
 
 #include "common/functions.glsl"
+#include "shader_library/tonemapping.glsl"
 
 vec4 FXAATexOffset(vec2 uv, vec2 offset)
 {
@@ -63,6 +64,11 @@ void main()
     float rangeMaxClamped = max(FXAA_QUALITY_EDGE_THRESHOLD_MIN, rangeMaxScaled);
     if (range < rangeMaxClamped)
     {
+        // HDR tonemapping
+        rgbyM.rgb = NeutralTonemapping(rgbyM.rgb);
+        // Gamma correction in final blit
+        rgbyM = GammaCorrection(rgbyM);
+
         OutColor = rgbyM;
         return;
     }
@@ -233,5 +239,12 @@ void main()
     if (!horzSpan) posM.x += pixelOffsetSubpix * lengthSign;
     if (horzSpan) posM.y += pixelOffsetSubpix * lengthSign;
 
-    OutColor = vec4(FXAATex(posM).rgb, rgbyM.a);
+    vec4 color = vec4(FXAATex(posM).rgb, rgbyM.a);
+
+    // HDR tonemapping
+    color.rgb = NeutralTonemapping(color.rgb);
+    // Gamma correction in final blit
+    color = GammaCorrection(color);
+
+    OutColor = color;
 }

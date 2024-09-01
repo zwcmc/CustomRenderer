@@ -9,6 +9,6 @@ in vec3 UVW;
 
 void main()
 {
-    vec3 color = texture(uEnvironmentCubemap, UVW).rgb;
+    vec3 color = textureLod(uEnvironmentCubemap, UVW, 0.0).rgb;
     OutColor = vec4(color, 1.0);
 }

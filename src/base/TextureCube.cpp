@@ -17,6 +17,19 @@ void TextureCube::InitTextureCube(ktxTexture* kTexture, bool useMipmap)
         glGenTextures(1, &m_TextureID);
 
     Bind();
+    
+    if (useMipmap)
+    {
+        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
+    else
+    {
+        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     GLenum glerror;
     KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
@@ -25,20 +38,10 @@ void TextureCube::InitTextureCube(ktxTexture* kTexture, bool useMipmap)
     {
         std::cerr << "Create TextureCube from KTX file failed, texture name:  " << m_TextureName << ", error: " << glerror << std::endl;
     }
-
-    glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(m_Target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
+    
     if (useMipmap)
     {
-        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(m_Target);
-    }
-    else
-    {
-        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
     Unbind();
@@ -56,6 +59,14 @@ void TextureCube::DefaultInit(const unsigned int &width, const unsigned int &hei
 
     Bind();
 
+    if (useMipmap)
+    {
+        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
+    else
+    {
+        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
     glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -65,15 +76,10 @@ void TextureCube::DefaultInit(const unsigned int &width, const unsigned int &hei
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, nullptr);
     }
-
+    
     if (useMipmap)
     {
-        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(m_Target);
-    }
-    else
-    {
-        glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
     Unbind();

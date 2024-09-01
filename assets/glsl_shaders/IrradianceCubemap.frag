@@ -11,11 +11,11 @@ void main()
 {
     vec3 N = normalize(UVW);
     vec3 up = vec3(0.0, 1.0, 0.0);
-    vec3 right = cross(up, N);
-    up = cross(N, right);
+    vec3 right = normalize(cross(up, N));
+    up = normalize(cross(N, right));
 
     vec3 irradiance = vec3(0.0);
-    float sampleDelta = 0.05;
+    float sampleDelta = 0.025;
     float nrSamples = 0.0;
     for (float phi = 0.0; phi < M_TAU; phi += sampleDelta)
     {

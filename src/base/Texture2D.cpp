@@ -47,13 +47,10 @@ void Texture2D::InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
     glGenTextures(1, &m_TextureID);
 
     Bind();
-
-    glTexImage2D(m_Target, 0, m_InternalFormat, size.x, size.y, 0, format, type, data);
-
+    
     if (useMipmap)
     {
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glGenerateMipmap(m_Target);
     }
     else
     {
@@ -63,6 +60,13 @@ void Texture2D::InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
 
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexImage2D(m_Target, 0, m_InternalFormat, size.x, size.y, 0, format, type, data);
+    
+    if (useMipmap)
+    {
+        glGenerateMipmap(m_Target);
+    }
 
     Unbind();
 }
@@ -77,19 +81,10 @@ void Texture2D::InitTexture2D(ktxTexture* kTexture, bool useMipmap)
     glGenTextures(1, &m_TextureID);
 
     Bind();
-
-    GLenum glerror;
-    KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
-
-    if (result != KTX_SUCCESS)
-    {
-        std::cerr << "Create Texture2D from KTX file failed, texture name:  " << m_TextureName << ", error: " << glerror << std::endl;
-    }
-
+    
     if (useMipmap)
     {
         glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glGenerateMipmap(m_Target);
     }
     else
     {
@@ -99,6 +94,19 @@ void Texture2D::InitTexture2D(ktxTexture* kTexture, bool useMipmap)
 
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    GLenum glerror;
+    KTX_error_code result = ktxTexture_GLUpload(kTexture, &m_TextureID, &m_Target, &glerror);
+
+    if (result != KTX_SUCCESS)
+    {
+        std::cerr << "Create Texture2D from KTX file failed, texture name:  " << m_TextureName << ", error: " << glerror << std::endl;
+    }
+    
+    if (useMipmap)
+    {
+        glGenerateMipmap(m_Target);
+    }
 
     Unbind();
 }
@@ -113,9 +121,7 @@ void Texture2D::InitShadowMap(const glm::u32vec2 &size)
     glGenTextures(1, &m_TextureID);
 
     Bind();
-
-    glTexImage2D(m_Target, 0, m_InternalFormat, m_Size.x, m_Size.y, 0, m_Format, m_Type, nullptr);
-
+    
     glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -124,6 +130,8 @@ void Texture2D::InitShadowMap(const glm::u32vec2 &size)
 
     glTexParameteri(m_Target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     glTexParameteri(m_Target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+
+    glTexImage2D(m_Target, 0, m_InternalFormat, m_Size.x, m_Size.y, 0, m_Format, m_Type, nullptr);
 
     Unbind();
 }

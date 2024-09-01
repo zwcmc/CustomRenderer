@@ -16,7 +16,7 @@ vec2 BRDF(float NdotV, float roughness)
     V.y = 0.0;
     V.z = NdotV;                     // cos
 
-    const uint NumSamples = 1024u;
+    const uint NumSamples = 4096u;
 
     vec2 LUT = vec2(0.0);
     for (uint i = 0u; i < NumSamples; ++i)

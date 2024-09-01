@@ -51,7 +51,7 @@ void EnvironmentIBL::LoadEnvironmentCubemap(const std::string &cubemapPath)
         return;
     }
 
-    if (fileExt == "ktx")
+    if (fileExt == "ktx" || fileExt == "ktx2")
     {
         AssetsLoader::InitCubemapKTX(m_EnvironmentCubemap, cubemapPath);
     }
@@ -77,7 +77,7 @@ void EnvironmentIBL::GenerateCubemaps()
 {
     // Diffuse irradiance
     m_IrradianceCubemap = TextureCube::New("uIrradianceCubemap");
-    m_IrradianceCubemap->DefaultInit(64, 64, GL_RGB32F, GL_RGB, GL_FLOAT);
+    m_IrradianceCubemap->DefaultInit(32, 32, GL_RGB32F, GL_RGB, GL_FLOAT);
 
     Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "glsl_shaders/Cube.vert", "glsl_shaders/IrradianceCubemap.frag");
     cubemapConvolutionMat->AddOrSetTextureCube(m_EnvironmentCubemap);
@@ -86,13 +86,14 @@ void EnvironmentIBL::GenerateCubemaps()
 
     // Specular IBL
     m_PrefilteredCubemap = TextureCube::New("uPrefilteredCubemap");
-    m_PrefilteredCubemap->DefaultInit(512, 512, GL_RGBA32F, GL_RGB, GL_FLOAT, true);
+    m_PrefilteredCubemap->DefaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT, true);
 
     Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "glsl_shaders/Cube.vert", "glsl_shaders/PrefilteredCubemap.frag");
     cubemapPrefilteredMat->AddOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->SetOverrideMaterial(cubemapPrefilteredMat);
 
     const uint32_t numMips = static_cast<uint32_t>(floor(std::log2(512))) + 1;
+    std::cout << "Pre-filtered environment cubemap mipmap nums is: " << numMips << std::endl;
     for (unsigned int mip = 0; mip < numMips; ++mip)
     {
         cubemapPrefilteredMat->AddOrSetFloat("uRoughness", (float)(mip) / (numMips - 1));

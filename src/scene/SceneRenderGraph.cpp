@@ -55,7 +55,7 @@ void SceneRenderGraph::Init()
     m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Environment IBL
-    m_EnvIBL = EnvironmentIBL::New("textures/environments/venice_sunset.hdr", m_GlobalUniformBufferID);
+    m_EnvIBL = EnvironmentIBL::New("textures/environments/papermill.hdr", m_GlobalUniformBufferID);
     // Add render the skybox commands
     BuildSkyboxRenderCommands();
 
