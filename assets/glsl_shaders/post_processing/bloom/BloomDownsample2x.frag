@@ -34,10 +34,10 @@ void main()
     float w3 = uw.y * vw.y * (1.0 / 16.0);
 
     // Solve fireflies
-    w0 /= (1.0 + Max3(c0.r, c0.g, c0.b));
-    w1 /= (1.0 + Max3(c1.r, c1.g, c1.b));
-    w2 /= (1.0 + Max3(c2.r, c2.g, c2.b));
-    w3 /= (1.0 + Max3(c3.r, c3.g, c3.b));
+    w0 /= (1.0 + Max3(c0));
+    w1 /= (1.0 + Max3(c1));
+    w2 /= (1.0 + Max3(c2));
+    w3 /= (1.0 + Max3(c3));
     float w = 1.0 / (w0 + w1 + w2 + w3);
     w0 *= w;
     w1 *= w;
@@ -46,17 +46,25 @@ void main()
 
     vec3 c = c0 * w0 + c1 * w1 + c2 * w2 + c3 * w3;
 
+    // Thresholding from HDRP
     // const float k_Softness = 0.5;
-    // float threshold = pow(1.0, 2.2);
+    // float threshold = 1.0;
     // float knee = threshold * k_Softness + 1e-5;
     // vec3 curve = vec3(threshold - knee, knee * 2.0, 0.25 / knee);
     // // Pixel brightness
-    // float br = Max3(c.r, c.g, c.b);
+    // float br = Max3(c);
     // // Under-threshold part
     // float rq = clamp(br - curve.x, 0.0, curve.y);
     // rq = curve.z * rq * rq;
     // // Combine and apply the brightness response curve
     // c *= max(rq, br - threshold) / max(br, 1e-4);
+
+    // Thresholding from filament
+    // threshold everything below 1.0
+    c = max(vec3(0.0), c - 1.0);
+    // crush everything above 1
+    highp float f = Max3(c);
+    c *= 1.0 / (1.0 + f * 0.01);
 
     OutColor = vec4(c, 1.0);
 }
