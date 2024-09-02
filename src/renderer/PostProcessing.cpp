@@ -9,10 +9,11 @@
 
 PostProcessing::PostProcessing()
 {
-    m_BloomPrefilter = Material::New("Bloom Prefilter", "post_processing/Blit.vert", "post_processing/BloomPrefilter.frag");
-    m_BloomBlurHorizontal = Material::New("Bloom Blur Horizontal", "post_processing/Blit.vert", "post_processing/BloomBlurHorizontal.frag");
-    m_BloomBlurVertical = Material::New("Bloom Blur Vertical", "post_processing/Blit.vert", "post_processing/BloomBlurVertical.frag");
-    m_BloomUpsample = Material::New("Bloom Upsample", "post_processing/Blit.vert", "post_processing/BloomUpsample.frag");
+    m_BloomPrefilter = Material::New("Bloom Prefilter", "post_processing/Blit.vert", "post_processing/bloom/BloomPrefilter.frag");
+
+    m_BloomBlurHorizontal = Material::New("Bloom Blur Horizontal", "post_processing/Blit.vert", "post_processing/bloom/BloomBlurHorizontal.frag");
+    m_BloomBlurVertical = Material::New("Bloom Blur Vertical", "post_processing/Blit.vert", "post_processing/bloom/BloomBlurVertical.frag");
+    m_BloomUpsample = Material::New("Bloom Upsample", "post_processing/Blit.vert", "post_processing/bloom/BloomUpsample.frag");
     
     m_CombinePostMat = Material::New("Combine Post", "post_processing/Blit.vert", "post_processing/CombinePost.frag");
     
@@ -83,7 +84,7 @@ void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Pt
         th = glm::max(1, th >> 1);
     }
 
-    // Prefilter lumiance texture
+    // 2x downsampling and pre-filtering
     m_BloomPrefilter->AddOrSetFloat("uBloomThreshold", StatsRecorder::BloomThreshold);
     Blitter::BlitToTarget(source, m_BloomMipDown[0], m_BloomPrefilter);
     

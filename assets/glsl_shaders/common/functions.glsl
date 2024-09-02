@@ -26,7 +26,7 @@ float Max3(float x, float y, float z)
 
 float Luminance(vec4 rgba)
 {
-    return dot(rgba.rgb, vec3(0.299, 0.587, 0.114));
+    return dot(rgba.rgb, vec3(0.2126729, 0.7151522, 0.0721750));
 }
 
 // The specific texture is not indicated when loading glTF, so the sRGB conversion for the texture can only be specified in the shader
