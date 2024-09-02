@@ -45,7 +45,7 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     // Combine post-processing
     RenderTarget::Ptr finalRT = RenderTarget::New(source->GetSize(), GL_FLOAT, 1);
     Blitter::BlitToTarget(source, finalRT, m_CombinePostMat);
-    
+
     // Blit to camera
     bool fxaaActive = StatsRecorder::FXAAOn;
     m_FinalPostMat->AddOrSetFloat("uFXAASet", fxaaActive ? 1.0f : -1.0f);

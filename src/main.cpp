@@ -29,6 +29,7 @@ float m_LastX = WIDTH / 2.0f;
 float m_LastY = HEIGHT / 2.0f;
 bool m_LeftMouseButtonPressed = false;
 bool m_RightMouseButtonPressed = false;
+bool m_MouseOverImGui = false;
 
 GLFWwindow* m_Window;
 SceneRenderGraph::Ptr m_SceneRenderGraph;
@@ -103,7 +104,6 @@ int main()
 //    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
 //    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
 //    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-//    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/cube/cube2.gltf");
 //    m_SceneRenderGraph->AddSceneNode(sceneNode);
 
     SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
@@ -137,9 +137,10 @@ int main()
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui::StyleColorsLight();
+    ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init("#version 410");
+    ImGuiIO &io = ImGui::GetIO(); (void)io;
 
     while (!glfwWindowShouldClose(m_Window))
     {
@@ -165,6 +166,9 @@ int main()
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        // Check whether to dispatch mouse/keyboard to Dear ImGui or my application
+        m_MouseOverImGui = io.WantCaptureMouse;
+        
         checkOpenGLError();
 
         glfwSwapBuffers(m_Window);
@@ -248,6 +252,11 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 
 void cursorPositionCallback(GLFWwindow* window, double x, double y)
 {
+    if (m_MouseOverImGui)
+    {
+        return;
+    }
+
     float xpos = static_cast<float>(x);
     float ypos = static_cast<float>(y);
 
