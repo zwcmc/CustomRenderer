@@ -41,7 +41,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [x] PCF (Percentage Closer Filter)
   - [ ] VSM (Variance Shadow Maps)
   - [ ] PCSS (Percentage Closer Soft Shadow)
-- [ ] Bloom
+- [x] Bloom
 - [x] FXAA
 - [ ] MSAA
 - [ ] Deferred Rendering
