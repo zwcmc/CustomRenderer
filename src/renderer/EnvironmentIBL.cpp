@@ -54,7 +54,7 @@ void EnvironmentIBL::LoadEnvironmentCubemap(const std::string &cubemapPath)
     if (fileExt == "hdr")
     {
         Texture2D::Ptr environmentMap = AssetsLoader::LoadHDRTexture("uHDRMap", cubemapPath);
-        m_EnvironmentCubemap->DefaultInit(environmentMap->GetSize().y, environmentMap->GetSize().y, GL_RGB32F, GL_RGB, GL_FLOAT);
+        m_EnvironmentCubemap->DefaultInit(environmentMap->GetSize().y, environmentMap->GetSize().y, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
 
         // Equirectangular map to a cubemap
         Material::Ptr capMat = Material::New("HDR_to_Cubemap", "environment/Cube.vert", "environment/HDRToCubemap.frag");
@@ -73,7 +73,7 @@ void EnvironmentIBL::GenerateCubemaps()
 {
     // Diffuse irradiance
     m_IrradianceCubemap = TextureCube::New("uIrradianceCubemap");
-    m_IrradianceCubemap->DefaultInit(32, 32, GL_RGB32F, GL_RGB, GL_FLOAT);
+    m_IrradianceCubemap->DefaultInit(32, 32, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
 
     Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "environment/Cube.vert", "environment/IrradianceCubemap.frag");
     cubemapConvolutionMat->AddOrSetTextureCube(m_EnvironmentCubemap);
@@ -82,7 +82,7 @@ void EnvironmentIBL::GenerateCubemaps()
 
     // Specular IBL
     m_PrefilteredCubemap = TextureCube::New("uPrefilteredCubemap");
-    m_PrefilteredCubemap->DefaultInit(512, 512, GL_RGB32F, GL_RGB, GL_FLOAT, true);
+    m_PrefilteredCubemap->DefaultInit(512, 512, GL_RGB16F, GL_RGB, GL_HALF_FLOAT, true);
 
     Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "environment/Cube.vert", "environment/PrefilteredCubemap.frag");
     cubemapPrefilteredMat->AddOrSetTextureCube(m_EnvironmentCubemap);
@@ -99,7 +99,7 @@ void EnvironmentIBL::GenerateCubemaps()
 
 void EnvironmentIBL::GenerateBRDFLUT()
 {
-    m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_FLOAT, 1);
+    m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
     m_BRDFLUTRenderTarget->GetColorTexture(0)->SetTextureName("uBRDFLUT");
     Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "post_processing/Blit.vert", "environment/GenerateBRDFLUT.frag");
 

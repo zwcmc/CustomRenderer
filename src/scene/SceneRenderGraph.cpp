@@ -52,7 +52,7 @@ void SceneRenderGraph::Init()
     // Initialize Blitter
     Blitter::Init();
 
-    m_IntermediateRT = RenderTarget::New(1, 1, GL_FLOAT, 1, true);
+    m_IntermediateRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1, true);
 
     // Environment IBL
     m_EnvIBL = EnvironmentIBL::New("textures/environments/papermill.hdr", m_GlobalUniformBufferID);

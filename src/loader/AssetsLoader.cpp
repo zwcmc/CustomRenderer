@@ -82,12 +82,12 @@ Texture2D::Ptr AssetsLoader::LoadHDRTexture(const std::string &textureName, cons
             GLenum internalFormat, format = 0;
             if (components == 3)
             {
-                internalFormat = GL_RGB32F;
+                internalFormat = GL_RGB16F;
                 format = GL_RGB;
             }
             else if (components == 4)
             {
-                internalFormat = GL_RGBA32F;
+                internalFormat = GL_RGB16F;
                 format = GL_RGBA;
             }
 

@@ -31,7 +31,7 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     if (bloomActive)
     {
         // Bloom
-        RenderTarget::Ptr bloom = RenderTarget::New(1, 1, GL_FLOAT, 1);
+        RenderTarget::Ptr bloom = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1);
         SetupBloom(source, bloom);
         
         m_CombinePostMat->AddOrSetFloat("uBloomSet", 1.0f);
@@ -43,7 +43,7 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     }
 
     // Combine post-processing
-    RenderTarget::Ptr finalRT = RenderTarget::New(source->GetSize(), GL_FLOAT, 1);
+    RenderTarget::Ptr finalRT = RenderTarget::New(source->GetSize(), GL_HALF_FLOAT, 1);
     Blitter::BlitToTarget(source, finalRT, m_CombinePostMat);
 
     // Blit to camera
@@ -120,7 +120,7 @@ void PostProcessing::ReAllocateOrReSetSizeBloomRT(RenderTarget::Ptr &rt, const u
 {
     if (rt == nullptr)
     {
-        rt = RenderTarget::New(width, height, GL_FLOAT, 1);
+        rt = RenderTarget::New(width, height, GL_HALF_FLOAT, 1);
     }
     else
     {
