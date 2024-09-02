@@ -10,6 +10,7 @@ in vec2 UV0;
 uniform sampler2D uSourceTex;
 
 uniform float uFXAASet;
+uniform float uToneMappingSet;
 
 void main()
 {
@@ -26,7 +27,10 @@ void main()
     }
 
     // HDR tonemapping
-    color.rgb = ACESFilm(color.rgb);
+    if (uToneMappingSet > 0.0)
+    {
+        color.rgb = ACESFilm(color.rgb);
+    }
 
     // Gamma correction in final blit
     color = GammaCorrection(color);

@@ -26,7 +26,7 @@ private:
     std::vector<RenderTarget::Ptr> m_BloomMipUp;
     std::vector<RenderTarget::Ptr> m_BloomMipDown;
 
-    Material::Ptr m_BloomPrefilter;
+    Material::Ptr m_BloomDownsample2xMat;
     Material::Ptr m_BloomBlurHorizontal;
     Material::Ptr m_BloomBlurVertical;
     Material::Ptr m_BloomUpsample;

@@ -8,6 +8,8 @@ uniform sampler2D uSourceTex;
 uniform float uBloomSet;
 uniform sampler2D uBloomTex;
 
+uniform float uBloomIntensity;
+
 void main()
 {
     vec2 uv = UV0;
@@ -18,7 +20,7 @@ void main()
     if (uBloomSet > 0.0)
     {
         bloom = texture(uBloomTex, uv).rgb;
-        color.rgb += bloom;
+        color.rgb += bloom * uBloomIntensity;
     }
 
     OutColor = color;

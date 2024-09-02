@@ -9,7 +9,7 @@
 
 PostProcessing::PostProcessing()
 {
-    m_BloomPrefilter = Material::New("Bloom Prefilter", "post_processing/Blit.vert", "post_processing/bloom/BloomPrefilter.frag");
+    m_BloomDownsample2xMat = Material::New("Bloom Prefilter", "post_processing/Blit.vert", "post_processing/bloom/BloomDownsample2x.frag");
 
     m_BloomBlurHorizontal = Material::New("Bloom Blur Horizontal", "post_processing/Blit.vert", "post_processing/bloom/BloomBlurHorizontal.frag");
     m_BloomBlurVertical = Material::New("Bloom Blur Vertical", "post_processing/Blit.vert", "post_processing/bloom/BloomBlurVertical.frag");
@@ -44,12 +44,14 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     }
 
     // Combine post-processing
+    m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatsRecorder::BloomIntensity);
     RenderTarget::Ptr finalRT = RenderTarget::New(source->GetSize(), GL_HALF_FLOAT, 1);
     Blitter::BlitToTarget(source, finalRT, m_CombinePostMat);
 
     // Blit to camera
     bool fxaaActive = StatsRecorder::FXAAOn;
     m_FinalPostMat->AddOrSetFloat("uFXAASet", fxaaActive ? 1.0f : -1.0f);
+    m_FinalPostMat->AddOrSetFloat("uToneMappingSet", StatsRecorder::ToneMappingOn ? 1.0 : -1.0);
     Blitter::BlitToCameraTarget(finalRT, targetCamera, m_FinalPostMat);
 }
 
@@ -84,9 +86,8 @@ void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Pt
         th = glm::max(1, th >> 1);
     }
 
-    // 2x downsampling and pre-filtering
-    m_BloomPrefilter->AddOrSetFloat("uBloomThreshold", StatsRecorder::BloomThreshold);
-    Blitter::BlitToTarget(source, m_BloomMipDown[0], m_BloomPrefilter);
+    // 2x downsampling
+    Blitter::BlitToTarget(source, m_BloomMipDown[0], m_BloomDownsample2xMat);
     
     // Downsample - gaussian pyramid
     RenderTarget::Ptr lastDown = m_BloomMipDown[0];
@@ -102,8 +103,8 @@ void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Pt
     }
 
     // Upsample
-    float scatter = glm::mix(0.05f, 0.95f, StatsRecorder::BloomScatter);
-    m_BloomUpsample->AddOrSetFloat("uScatter", scatter);
+//    float scatter = glm::mix(0.0f, 1.0f, StatsRecorder::BloomScatter);
+    m_BloomUpsample->AddOrSetFloat("uScatter", StatsRecorder::BloomScatter);
     for (int i = mipCount - 2; i >= 0; --i)
     {
         RenderTarget::Ptr lowMip = (i == mipCount - 2) ? m_BloomMipDown[i + 1] : m_BloomMipUp[i + 1];
