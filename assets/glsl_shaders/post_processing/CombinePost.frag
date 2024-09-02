@@ -4,7 +4,6 @@ out vec4 OutColor;
 in vec2 UV0;
 
 uniform sampler2D uSourceTex;
-uniform vec4 uSourceTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
 
 uniform float uBloomSet;
 uniform sampler2D uBloomTex;

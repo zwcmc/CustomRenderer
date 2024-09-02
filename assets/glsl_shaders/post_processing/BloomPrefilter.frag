@@ -4,7 +4,6 @@ out vec4 OutColor;
 in vec2 UV0;
 
 uniform sampler2D uSourceTex;
-uniform vec4 uSourceTexelSize;
 
 uniform float uBloomThreshold;
 
@@ -15,7 +14,9 @@ uniform float uBloomThreshold;
 void main()
 {
     vec2 uv = UV0;
-    vec2 texelSize = uSourceTexelSize.xy;
+
+    vec2 size = textureSize(uSourceTex, 0);
+    vec2 texelSize = (vec2(1.0) / size);
 
     vec4 A = texture(uSourceTex, uv + texelSize * vec2(-1.0, -1.0));
     vec4 B = texture(uSourceTex, uv + texelSize * vec2(0.0, -1.0));

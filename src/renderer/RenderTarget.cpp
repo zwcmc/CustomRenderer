@@ -13,9 +13,13 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     // Color attachments
     GLenum internalFormat = GL_RGBA;
     if (type == GL_HALF_FLOAT)
+    {
         internalFormat = GL_RGBA16F; // Using GL_RGBA16F for HDR will suffice
+    }
     else if (type == GL_FLOAT)
+    {
         internalFormat = GL_RGBA32F;
+    }
 
     if (isShadowMap)
     {

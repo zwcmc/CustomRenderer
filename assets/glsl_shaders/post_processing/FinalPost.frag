@@ -8,7 +8,6 @@ in vec2 UV0;
 #include "post_processing/FXAA.glsl"
 
 uniform sampler2D uSourceTex;
-uniform vec4 uSourceTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
 
 uniform float uFXAASet;
 
@@ -16,11 +15,14 @@ void main()
 {
     vec2 uv = UV0;
 
+    vec2 size = textureSize(uSourceTex, 0);
+    vec2 texelSize = vec2(1.0) / size;
+
     vec4 color = texture(uSourceTex, uv);
 
     if (uFXAASet > 0.0)
     {
-        color = ApplyFXAA(color, uSourceTex, uSourceTexelSize, uv);
+        color = ApplyFXAA(color, uSourceTex, texelSize, uv);
     }
 
     // HDR tonemapping

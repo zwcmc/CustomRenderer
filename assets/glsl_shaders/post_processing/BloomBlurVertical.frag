@@ -4,7 +4,6 @@ out vec4 OutColor;
 in vec2 UV0;
 
 uniform sampler2D uSourceTex;
-uniform vec4 uSourceTexelSize;
 
 vec2 ClampUVForBilinear(vec2 uv, vec2 texelSize)
 {
@@ -16,8 +15,9 @@ vec2 ClampUVForBilinear(vec2 uv, vec2 texelSize)
 
 void main()
 {
-    vec2 texelSize = uSourceTexelSize.xy * 2.0;
     vec2 uv = UV0;
+    vec2 size = textureSize(uSourceTex, 0);
+    vec2 texelSize = (vec2(1.0) / size);
 
     // Optimized bilinear 5-tap gaussian on the same-sized source (9-tap equivalent)
     vec3 c0 = texture(uSourceTex, ClampUVForBilinear(uv - vec2(0.0, texelSize.y * 3.23076923), texelSize)).rgb;
