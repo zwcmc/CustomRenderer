@@ -58,13 +58,33 @@ void SceneNode::AddChild(SceneNode::Ptr node)
     m_Children.push_back(node);
 }
 
-void SceneNode::MergeChildrenAABBs(BoundingBox &boundingBox)
+void SceneNode::MergeChildrenAABBs(BoundingBox &boundingBox, bool &firstMerge)
 {
     if (IsAABBCalculated)
-        boundingBox.MergeBoundingBox(AABB, GetModelMatrix());
+    {
+        if (firstMerge)
+        {
+            firstMerge = !firstMerge;
+            
+            BoundingBox::CreateFromBoundingBoxAndTransform(boundingBox, AABB, GetModelMatrix());
+
+//            vec3 bCenter = AABB.Center;
+//            vec3 bExtents = AABB.Extents;
+//            vec3 bMin = bCenter - bExtents;
+//            vec3 bMax = bCenter + bExtents;
+//            bMin = glm::make_vec3(GetModelMatrix() * vec4(bMin, 1.0f));
+//            bMax = glm::make_vec3(GetModelMatrix() * vec4(bMax, 1.0f));
+//
+//            BoundingBox::CreateFromPoints(boundingBox, bMin, bMax);
+        }
+        else
+        {
+            boundingBox.MergeBoundingBox(AABB, GetModelMatrix());
+        }
+    }
 
     for (size_t i = 0; i < m_Children.size(); ++i)
-        m_Children[i]->MergeChildrenAABBs(boundingBox);
+        m_Children[i]->MergeChildrenAABBs(boundingBox, firstMerge);
 }
 
 size_t SceneNode::GetChildrenCount()

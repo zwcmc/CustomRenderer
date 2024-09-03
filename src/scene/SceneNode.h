@@ -33,8 +33,8 @@ public:
     size_t GetChildrenCount();
     SceneNode::Ptr GetChildByIndex(size_t index);
     void AddChild(SceneNode::Ptr node);
-    
-    void MergeChildrenAABBs(BoundingBox &boundingBox);
+
+    void MergeChildrenAABBs(BoundingBox &boundingBox, bool &firstMerge);
 
     std::vector<MeshRender::Ptr> MeshRenders;
     glm::mat4 ModelMatrix;

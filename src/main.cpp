@@ -100,23 +100,24 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->Init();
 
-    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-//    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
-//    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
-//    SceneNode::Ptr sceneNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-    m_SceneRenderGraph->AddSceneNode(sceneNode);
+//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
+//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/FlightHelmet/glTF/FlightHelmet.gltf");
+//    SceneNode::Ptr scenglTFNodeeNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
+//    glTFNode->Translate(glm::vec3(3.0f, 5.0f, 0.0f));
+//    m_SceneRenderGraph->AddSceneNode(glTFNode);
 
-//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-//    m_SceneRenderGraph->AddSceneNode(marry);
-//
-//    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
-//    m_SceneRenderGraph->AddSceneNode(marry2);
-//
-//    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-//    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-//    m_SceneRenderGraph->AddSceneNode(ground);
+    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(marry);
+
+    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
+    m_SceneRenderGraph->AddSceneNode(marry2);
+
+    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(ground);
 
     // Get the real size in pixels
     int realWidth, realHeight;
@@ -131,8 +132,6 @@ int main()
 
     DirectionalLight::Ptr mainLight = DirectionalLight::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(2.0f), true);
     m_SceneRenderGraph->SetMainLight(mainLight);
-    
-    m_SceneRenderGraph->CalculateSceneAABB();
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

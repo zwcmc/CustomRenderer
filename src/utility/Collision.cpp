@@ -77,6 +77,18 @@ namespace Collision
         outBox.Extents = (max - min) * 0.5f;
     }
 
+    void BoundingBox::CreateFromBoundingBoxAndTransform(BoundingBox &outBox, const BoundingBox &b, const glm::mat4 &transform)
+    {
+        vec3 bCenter = b.Center;
+        vec3 bExtents = b.Extents;
+        vec3 bMin = bCenter - bExtents;
+        vec3 bMax = bCenter + bExtents;
+        bMin = glm::make_vec3(transform * vec4(bMin, 1.0f));
+        bMax = glm::make_vec3(transform * vec4(bMax, 1.0f));
+        
+        BoundingBox::CreateFromPoints(outBox, bMin, bMax);
+    }
+
     //----------------------------------------------------------------
     // Bounding frustum
     //----------------------------------------------------------------

@@ -19,7 +19,7 @@ EnvironmentIBL::EnvironmentIBL(const std::string &cubemapPath, const GLuint &uni
     glGenRenderbuffers(1, &m_DepthRenderBufferID);
 
     // Mesh for cubemap
-    m_Cube = AssetsLoader::LoadModel("models/glTF/Box/glTF-Binary/Box.glb", true);
+    m_Cube = AssetsLoader::LoadModel("models/glTF/Box/glTF-Binary/Box.glb", false);
     
     m_SkyboxMat = Material::New("Skybox", "environment/Cube.vert", "environment/Skybox.frag", true);
     m_SkyboxMat->SetCastShadows(false);

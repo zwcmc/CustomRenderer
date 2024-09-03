@@ -20,14 +20,14 @@ public:
     static Shader::Ptr LoadShader(const std::string &name, const std::string &vsFilePath, const std::string &fsFilePath);
     static Texture2D::Ptr LoadTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
     static Texture2D::Ptr LoadHDRTexture(const std::string &textureName, const std::string &filePath, bool useMipmap = false);
-    static SceneNode::Ptr LoadModel(const std::string &filePath, const bool &ingoreAABBCalculation = false);
+    static SceneNode::Ptr LoadModel(const std::string &filePath, const bool &calculateAABB = true);
 
 private:
     AssetsLoader() = default;
 
     static std::string ReadShader(std::ifstream &file, const std::string &name);
-    static SceneNode::Ptr ProcessAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &ingoreAABBCalculation);
-    static Mesh::Ptr ParseMesh(aiMesh* aMesh, const aiScene* aScene, glm::vec3 &aabbMin, glm::vec3 &aabbMax, const bool &ingoreAABBCalculation);
+    static SceneNode::Ptr ProcessAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &calculateAABB);
+    static Mesh::Ptr ParseMesh(aiMesh* aMesh, const aiScene* aScene);
     static Material::Ptr ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
     static Texture2D::Ptr LoadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
 

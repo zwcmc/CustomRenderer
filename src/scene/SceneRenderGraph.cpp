@@ -112,7 +112,7 @@ void SceneRenderGraph::BuildRenderCommands(SceneNode::Ptr sceneNode)
         m_CommandBuffer->PushCommand(sceneNode->MeshRenders[i]->GetMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->GetMaterial(), model);
     }
 
-    // Debugging AABB
+    // Debugging render node AABB
     if (sceneNode->IsAABBCalculated && false)
     {
         m_CommandBuffer->PushDebuggingCommand(AABBCube::New(sceneNode->AABB.GetCorners()), m_DebuggingAABBMat, model);
@@ -126,8 +126,8 @@ void SceneRenderGraph::BuildRenderCommands(SceneNode::Ptr sceneNode)
 
 void SceneRenderGraph::CalculateSceneAABB()
 {
-    m_Scene->MergeChildrenAABBs(m_Scene->AABB);
-    m_Scene->IsAABBCalculated = true;
+    bool firstMerge = true;
+    m_Scene->MergeChildrenAABBs(m_Scene->AABB, firstMerge);
 
     // Debugging camera's frustum
 //    BoundingFrustum bf;
@@ -136,14 +136,17 @@ void SceneRenderGraph::CalculateSceneAABB()
 //    tr = translate(tr, m_Camera->GetEyePosition());
 //    m_CommandBuffer->PushDebuggingCommand(AABBCube::New(bf.GetCorners()), m_DebuggingAABBMat, tr);
 
-    // Debugging AABB
-    // m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, mat4(1.0f));
+    // Debugging scene AABB
+//    m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat);
 }
 
 void SceneRenderGraph::PepareRenderCommands()
 {
     m_CommandBuffer->Clear();
     
+    // Calculate the scene AABB
+    CalculateSceneAABB();
+
     // Build scene render commands
     BuildRenderCommands(m_Scene);
     

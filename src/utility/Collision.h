@@ -28,6 +28,8 @@ namespace Collision
         
         // Create axis-aligned box from min/max points
         static void CreateFromPoints(BoundingBox &outBox, const vec3 &bbMin, const vec3 &bbMax);
+        
+        static void CreateFromBoundingBoxAndTransform(BoundingBox &outBox, const BoundingBox &b, const glm::mat4 &transform = glm::mat4(1.0f));
     };
 
     struct BoundingFrustum
