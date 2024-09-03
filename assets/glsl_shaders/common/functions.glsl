@@ -76,23 +76,23 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     return normalize(sampleVec);
 }
 
-vec3 GetNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
-{
-    vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
+// vec3 GetNormalWS(sampler2D normalMap, vec3 positionWS, vec3 normalWS, vec2 uv)
+// {
+//     vec3 tangentNormal = texture(normalMap, uv).xyz * 2.0 - 1.0;
 
-    vec3 ddxPos = dFdx(positionWS);
-    vec3 ddyPos = dFdy(positionWS);
-    vec2 ddxUV = dFdx(uv);
-    vec2 ddyUV = dFdy(uv);
+//     vec3 ddxPos = dFdx(positionWS);
+//     vec3 ddyPos = dFdy(positionWS);
+//     vec2 ddxUV = dFdx(uv);
+//     vec2 ddyUV = dFdy(uv);
 
-    vec3 N = normalize(normalWS);
-    vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
-    // vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
-    vec3 B = normalize(cross(N, T));
+//     vec3 N = normalize(normalWS);
+//     vec3 T = normalize(ddxPos * ddyUV.t - ddyPos * ddxUV.t);
+//     // vec3 B = normalize(ddyPos * ddxUV.s - ddyPos * ddyUV.s);
+//     vec3 B = normalize(cross(N, T));
 
-    mat3 TBN = mat3(T, B, N);
+//     mat3 TBN = mat3(T, B, N);
 
-    return normalize(TBN * tangentNormal);
-}
+//     return normalize(TBN * tangentNormal);
+// }
 
 #endif

@@ -243,7 +243,7 @@ void SceneRenderGraph::Render()
     std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->GetDebuggingCommands();
     for (size_t i = 0; i < commands.size(); ++i)
     {
-        m_DebuggingAABBMat->SetMatrix("uModelMatrix", commands[i]->Transform);
+        m_DebuggingAABBMat->SetMatrix("uModelMat", commands[i]->Transform);
         RenderMesh(commands[i]->Mesh);
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -284,8 +284,8 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     
     if (!mat->IsUsedForSkybox())
     {
-        mat->SetMatrix("uModelMatrix", command->Transform);
-        mat->SetMatrix("uModelMatrixInverse", mat3x3(inverse(command->Transform)));
+        mat->SetMatrix("uModelMat", command->Transform);
+        mat->SetMatrix("uInverseModelMat", mat3x3(inverse(command->Transform)));
     }
 
     RenderMesh(mesh);

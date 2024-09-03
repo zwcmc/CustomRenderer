@@ -3,6 +3,8 @@
 #include <fstream>
 #include <stb_image.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -142,12 +144,17 @@ SceneNode::Ptr AssetsLoader::LoadModel(const std::string &filePath, const bool &
 
     Assimp::Importer importer;
     
-    // Triangles mode
-    unsigned int pFlags = aiProcess_Triangulate;
+    unsigned int pFlags = aiProcess_Triangulate; // Triangles mode
+    
+    // normals and tangents
+    pFlags |= aiProcess_GenSmoothNormals;
+    pFlags |= aiProcess_CalcTangentSpace;
+
     // topology optimization
     pFlags |= aiProcess_OptimizeMeshes;
     pFlags |= aiProcess_OptimizeGraph;
     pFlags |= aiProcess_JoinIdenticalVertices;
+
     // calculate bounding box
     if (calculateAABB)
     {
@@ -164,7 +171,6 @@ SceneNode::Ptr AssetsLoader::LoadModel(const std::string &filePath, const bool &
 
     std::string directory = filePath.substr(0, filePath.find_last_of("/"));
 
-
     AssetsLoader::assimpTextures.clear();
     return AssetsLoader::ProcessAssimpNode(scene->mRootNode, scene, directory, calculateAABB);
 }
@@ -179,29 +185,34 @@ SceneNode::Ptr AssetsLoader::ProcessAssimpNode(aiNode* aNode, const aiScene* aSc
     for (size_t i = 0; i < aNode->mNumMeshes; ++i)
     {
         aiMesh* assimpMesh = aScene->mMeshes[aNode->mMeshes[i]];
-        aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
-
-        Mesh::Ptr mesh = AssetsLoader::ParseMesh(assimpMesh, aScene);
-        Material::Ptr mat = AssetsLoader::ParseMaterial(assimpMat, aScene, directory);
         
-        if (calculateAABB)
+        const size_t numVertices = assimpMesh->mNumVertices;
+        if (numVertices > 0)
         {
-            glm::vec3 min = glm::vec3(assimpMesh->mAABB.mMin.x, assimpMesh->mAABB.mMin.y, assimpMesh->mAABB.mMin.z);
-            glm::vec3 max = glm::vec3(assimpMesh->mAABB.mMax.x, assimpMesh->mAABB.mMax.y, assimpMesh->mAABB.mMax.z);
+            Mesh::Ptr mesh = AssetsLoader::ParseMesh(assimpMesh, aScene);
+            if (calculateAABB)
+            {
+                glm::vec3 min = glm::vec3(assimpMesh->mAABB.mMin.x, assimpMesh->mAABB.mMin.y, assimpMesh->mAABB.mMin.z);
+                glm::vec3 max = glm::vec3(assimpMesh->mAABB.mMax.x, assimpMesh->mAABB.mMax.y, assimpMesh->mAABB.mMax.z);
 
-            if (!node->IsAABBCalculated)
-            {
-                node->IsAABBCalculated = true;
-                BoundingBox::CreateFromPoints(nodeAABB, min, max);
+                if (!node->IsAABBCalculated)
+                {
+                    node->IsAABBCalculated = true;
+                    BoundingBox::CreateFromPoints(nodeAABB, min, max);
+                }
+                else
+                {
+                    BoundingBox tempAABB;
+                    BoundingBox::CreateFromPoints(tempAABB, min, max);
+                    nodeAABB.MergeBoundingBox(tempAABB);
+                }
             }
-            else
-            {
-                BoundingBox tempAABB;
-                BoundingBox::CreateFromPoints(tempAABB, min, max);
-                nodeAABB.MergeBoundingBox(tempAABB);
-            }
+            
+            aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
+            Material::Ptr mat = AssetsLoader::ParseMaterial(assimpMat, aScene, directory);
+            
+            node->MeshRenders.push_back(MeshRender::New(mesh, mat));
         }
-        node->MeshRenders.push_back(MeshRender::New(mesh, mat));
     }
     node->AABB = nodeAABB;
 
@@ -216,41 +227,88 @@ SceneNode::Ptr AssetsLoader::ProcessAssimpNode(aiNode* aNode, const aiScene* aSc
 
 Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene)
 {
-    // Vertices
+    const size_t numVertices = aMesh->mNumVertices;
+
+    const glm::vec3* aPositions = reinterpret_cast<const glm::vec3*>(aMesh->mVertices);
+    const glm::vec3* aNormals = reinterpret_cast<const glm::vec3*>(aMesh->mNormals);
+    const glm::vec3* aTangents = reinterpret_cast<const glm::vec3*>(aMesh->mTangents);
+    const glm::vec3* aBitangents = reinterpret_cast<const glm::vec3*>(aMesh->mBitangents);
+    const glm::vec3* aTexCoord0 = reinterpret_cast<const glm::vec3*>(aMesh->mTextureCoords[0]);
+
+    // Vertex data
     std::vector<vec3> vertices;
     std::vector<vec2> texcoords;
     std::vector<vec3> normals;
+    std::vector<vec4> tangents;
     std::vector<unsigned int> indices;
 
-    vertices.resize(aMesh->mNumVertices);
-    texcoords.resize(aMesh->mNumVertices);
-    normals.resize(aMesh->mNumVertices);
+    vertices.resize(numVertices);
+    texcoords.resize(numVertices);
+    normals.resize(numVertices);
+    tangents.resize(numVertices);
 
     // Assume a constant of 3 vertex indices per face as always "aiProcess_Triangulate" in Assimp's post-processing step
     indices.resize(aMesh->mNumFaces * 3);
 
-    for (size_t i = 0; i < aMesh->mNumVertices; ++i)
+    for (size_t i = 0; i < numVertices; ++i)
     {
-        vertices[i] = glm::vec3(aMesh->mVertices[i].x, aMesh->mVertices[i].y, aMesh->mVertices[i].z);
-        texcoords[i] = aMesh->mTextureCoords[0] ? glm::vec2(aMesh->mTextureCoords[0][i].x, aMesh->mTextureCoords[0][i].y) : glm::vec2(0.0f);
-        normals[i] = glm::vec3(aMesh->mNormals[i].x, aMesh->mNormals[i].y, aMesh->mNormals[i].z);
+        vertices[i] = aPositions[i];
+        texcoords[i] = aTexCoord0 ? glm::vec2(aTexCoord0[i].x, aTexCoord0[i].y) : glm::vec2(0.0f);
+        normals[i] = aNormals[i];
+        
+        
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        if (aTangents)
+        {
+            tangent = aTangents[i];
+            bitangent = aBitangents[i];
+        }
+        else
+        {
+            bitangent = glm::normalize(glm::cross(normals[i], glm::vec3(1.0f, 0.0f, 0.0f)));
+            tangent = glm::normalize(glm::cross(normals[i], bitangent));
+        }
+        glm::quat q = glm::quat_cast(glm::mat3(tangent, glm::cross(normals[i], tangent), normals[i]));
+        q = glm::normalize(q);
+        if (q.w < 0)
+        {
+            q = -q;
+        }
+        
+        const float bias = 1.0f / ((1 << (sizeof(int16_t) * 8 - 1)) - 1);
+        if (q.w < bias)
+        {
+            q.w = bias;
+            
+            const float factor = std::sqrt(1.0 - (double)bias * (double)bias);
+            q.x *= factor;
+            q.y *= factor;
+            q.z *= factor;
+        }
+        
+        if (glm::dot(glm::cross(tangent, normals[i]), bitangent) < 0.0f)
+        {
+            q = -q;
+        }
+        tangents[i] = glm::vec4(q.x, q.y, q.z, q.w);
     }
 
     for (size_t f = 0; f < aMesh->mNumFaces; ++f)
     {
-        aiFace face = aMesh->mFaces[f];
+        const aiFace &face = aMesh->mFaces[f];
         for (size_t i = 0; i < 3; ++i)
         {
             indices[3 * f + i] = face.mIndices[i];
         }
     }
 
-    return Mesh::New(vertices, texcoords, normals, indices);
+    return Mesh::New(vertices, normals, tangents, texcoords, indices);
 }
 
 Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
-    // Material::Ptr mat = Material::New("Blinn-Phong", "BlinnPhong.vert", "BlinnPhong.frag");
+//    Material::Ptr mat = Material::New("Blinn-Phong", "BlinnPhong.vert", "BlinnPhong.frag");
     Material::Ptr mat = Material::New("PBR", "PBRLit.vert", "PBRLit.frag");
 
     // Base map

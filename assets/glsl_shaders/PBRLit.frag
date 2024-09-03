@@ -4,8 +4,9 @@ out vec4 OutColor;
 in VertexData
 {
     vec2 UV0;
-    vec3 Normal;
-    vec3 PositionWS;
+    vec3 WorldNormal;
+    vec4 WorldTangent;
+    vec3 WorldPosition;
     vec4 TexShadowView;
 } fs_in;
 
@@ -66,8 +67,23 @@ void main()
         perceptualRoughness *= metallicRoughness.g;
     }
 
-    vec3 N = uNormalMapSet > 0.0 ? GetNormalWS(uNormalMap, fs_in.PositionWS, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
-    vec3 V = normalize(CameraPosition - fs_in.PositionWS);
+    // vec3 N = uNormalMapSet > 0.0 ? GetNormalWS(uNormalMap, fs_in.WorldPosition, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
+    vec3 N;
+    if (uNormalMapSet > 0.0)
+    {
+        vec3 n = fs_in.WorldNormal;
+        vec3 t = fs_in.WorldTangent.xyz;
+        vec3 b = cross(n, t) * sign(fs_in.WorldTangent.w);
+        mat3 TBN = mat3(t, b, n);
+        vec3 tangentNormal = texture(uNormalMap, fs_in.UV0).xyz * 2.0 - 1.0;
+        N = normalize(TBN * tangentNormal);
+    }
+    else
+    {
+        N = normalize(fs_in.WorldNormal);
+    }
+
+    vec3 V = normalize(CameraPosition - fs_in.WorldPosition);
     vec3 L = normalize(MainLightDirection);
     vec3 H = normalize(L + V);
 
