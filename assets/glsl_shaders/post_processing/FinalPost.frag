@@ -4,7 +4,7 @@ out vec4 OutColor;
 in vec2 UV0;
 
 #include "common/functions.glsl"
-#include "shader_library/tonemapping.glsl"
+#include "post_processing/tonemapping.glsl"
 #include "post_processing/FXAA.glsl"
 
 uniform sampler2D uSourceTex;

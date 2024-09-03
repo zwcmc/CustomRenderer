@@ -3,7 +3,7 @@
 
 #include "common/constants.glsl"
 #include "common/uniforms.glsl"
-#include "shader_library/unity_shadow_sampling_tent.glsl"
+#include "shadows/unity_shadow_sampling_tent.glsl"
 
 #define POISSON_SAMPLE_NUM 20
 #define FIXED_DEPTH_OFFSET 5e-3

@@ -2,7 +2,7 @@
 out vec4 OutColor;
 
 #include "common/functions.glsl"
-#include "shader_library/tonemapping.glsl"
+#include "post_processing/tonemapping.glsl"
 
 in vec2 UV0;
 

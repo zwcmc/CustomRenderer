@@ -21,7 +21,7 @@ uniform float uShadowMapSet;
 
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
-#include "shader_library/shadows.glsl"
+#include "shadows/shadows.glsl"
 
 void CalculateRightAndUpTexelDepthDeltas(in vec3 texShadowView, in mat3 shadowProjection, out float upTextDepthWeight, out float rightTextDepthWeight)
 {

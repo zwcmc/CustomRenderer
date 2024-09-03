@@ -42,7 +42,7 @@ uniform float uShadowMapSet;
 #include "pbr/brdfs.glsl"
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
-#include "shader_library/shadows.glsl"
+#include "shadows/shadows.glsl"
 
 void main()
 {

@@ -8,7 +8,7 @@ using namespace Collision;
 DirectionalLightShadowMap::DirectionalLightShadowMap()
     : m_UseCascadeShadowMaps(false), m_CascadeParams(vec4(0.0f))
 {
-    m_DirectionalShadowCasterMat = Material::New("DirectionalShadowCaster", "ShadowCaster.vert", "ShadowCaster.frag");
+    m_DirectionalShadowCasterMat = Material::New("DirectionalShadowCaster", "shadows/ShadowCaster.vert", "shadows/ShadowCaster.frag");
     m_MatShadowProjections.resize(MAX_CASCADES, mat4(1.0f));
     m_CascadeScalesAndOffsets.resize(MAX_CASCADES, vec4(1.0f, 1.0f, 0.0f, 0.0f));
 }
