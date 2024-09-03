@@ -28,7 +28,7 @@ Shader::Ptr AssetsLoader::LoadShader(const std::string &name, const std::string 
     if (!vsFile.is_open() || !fsFile.is_open())
     {
         std::cerr << "Failed to load shader, path: " + vsPath + " and " + fsPath << std::endl;
-        return Shader::New();
+        return nullptr;
     }
 
     std::string vsSource = ReadShader(vsFile, name);

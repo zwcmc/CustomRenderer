@@ -146,7 +146,7 @@ int main()
     {
         processWindowInput(m_Window);
 
-        m_SceneRenderGraph->ExecuteCommandBuffer();
+        m_SceneRenderGraph->Render();
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();

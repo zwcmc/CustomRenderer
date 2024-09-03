@@ -41,13 +41,16 @@ public:
     void Cleanup();
 
     void AddSceneNode(SceneNode::Ptr sceneNode);
-    void ExecuteCommandBuffer();
+
+    void Render();
+    
     void RenderCommand(RenderCommand::Ptr command, Light::Ptr light);
     void RenderMesh(Mesh::Ptr mesh);
-    
     void CalculateSceneAABB();
 
 private:
+    
+    void PepareRenderCommands();
 
     void AddRenderLightCommand(Light::Ptr light);
     void BuildSkyboxRenderCommands();

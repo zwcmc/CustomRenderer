@@ -20,6 +20,9 @@ EnvironmentIBL::EnvironmentIBL(const std::string &cubemapPath, const GLuint &uni
 
     // Mesh for cubemap
     m_Cube = AssetsLoader::LoadModel("models/glTF/Box/glTF-Binary/Box.glb", true);
+    
+    m_SkyboxMat = Material::New("Skybox", "environment/Cube.vert", "environment/Skybox.frag", true);
+    m_SkyboxMat->SetCastShadows(false);
 
     // Load environment cubemap
     LoadEnvironmentCubemap(cubemapPath);
@@ -67,6 +70,8 @@ void EnvironmentIBL::LoadEnvironmentCubemap(const std::string &cubemapPath)
         std::cerr << "Unsupport cubemap file, path is: " << cubemapPath << std::endl;
         return;
     }
+    
+    m_SkyboxMat->AddOrSetTextureCube(m_EnvironmentCubemap);
 }
 
 void EnvironmentIBL::GenerateCubemaps()
@@ -183,33 +188,39 @@ void EnvironmentIBL::DrawSceneNode(SceneNode::Ptr node)
     {
         MeshRender::Ptr mr = node->MeshRenders[i];
         if (overrideMat)
+        {
             overrideMat->Use();
+        }
         else
+        {
             mr->GetMaterial()->Use();
+        }
 
         Mesh::Ptr mesh = mr->GetMesh();
         glBindVertexArray(mesh->GetVertexArrayID());
 
         if (mesh->GetIndicesCount() > 0)
+        {
             glDrawElements(GL_TRIANGLES, mesh->GetIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        }
         else
+        {
             glDrawArrays(GL_TRIANGLES, 0, mesh->GetVerticesCount());
+        }
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
     }
 
     for (size_t i = 0; i < node->GetChildrenCount(); ++i)
+    {
         DrawSceneNode(node->GetChildByIndex(i));
+    }
 }
 
 SceneNode::Ptr EnvironmentIBL::GetSkyboxRenderNode()
 {
-    Material::Ptr skyboxMat = Material::New("Skybox", "environment/Cube.vert", "environment/Skybox.frag", true);
-    skyboxMat->SetCastShadows(false);
-    skyboxMat->AddOrSetTextureCube(m_EnvironmentCubemap);
-    m_Cube->SetOverrideMaterial(skyboxMat);
-
+    m_Cube->SetOverrideMaterial(m_SkyboxMat);
     return m_Cube;
 }
 

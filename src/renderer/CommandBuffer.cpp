@@ -21,13 +21,19 @@ void CommandBuffer::PushCommand(Mesh::Ptr mesh, Material::Ptr mat, glm::mat4 tra
     cmd->Transform = transform;
 
     if (mat->IsUsedForSkybox())
+    {
         m_SkyboxCommands.push_back(cmd);
+    }
     else
     {
         if (mat->GetAlphaMode() == Material::AlphaMode::BLEND)
+        {
             m_TransparentCommands.push_back(cmd);
+        }
         else
+        {
             m_OpaqueCommands.push_back(cmd);
+        }
     }
 }
 
@@ -39,6 +45,21 @@ void CommandBuffer::PushDebuggingCommand(Mesh::Ptr mesh, Material::Ptr mat, glm:
     cmd->Transform = transform;
 
     m_DebuggingCommands.push_back(cmd);
+}
+
+std::vector<RenderCommand::Ptr>& CommandBuffer::GetOpaqueCommands()
+{
+    return m_OpaqueCommands;
+}
+
+std::vector<RenderCommand::Ptr>& CommandBuffer::GetSkyboxCommands()
+{
+    return m_SkyboxCommands;
+}
+
+std::vector<RenderCommand::Ptr>& CommandBuffer::GetTransparentCommands()
+{
+    return m_TransparentCommands;
 }
 
 std::vector<RenderCommand::Ptr> CommandBuffer::GetShadowCasterCommands()
@@ -59,4 +80,9 @@ std::vector<RenderCommand::Ptr> CommandBuffer::GetShadowCasterCommands()
         }
     }
     return commands;
+}
+
+std::vector<RenderCommand::Ptr>& CommandBuffer::GetDebuggingCommands()
+{
+    return m_DebuggingCommands;
 }

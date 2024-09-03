@@ -87,7 +87,9 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
 
         // Shadow Pancaking
         if (vLightCameraOrthographicMax.z < nearPlane)
+        {
             nearPlane = vLightCameraOrthographicMax.z;
+        }
 
         // Create the tight orthographic projection for the light camera
         m_LightCamera->SetOrthographic(vLightCameraOrthographicMin.x, vLightCameraOrthographicMax.x, vLightCameraOrthographicMin.y, vLightCameraOrthographicMax.y, -nearPlane, -farPlane);
@@ -204,17 +206,6 @@ void DirectionalLightShadowMap::ComputeNearAndFar(float &nearPlane, float &farPl
     Triangle triangleList[16];
     int iTriangleCnt = 1;
 
-    static const int iAABBTriIndexes[] =
-    {
-        0,1,2,  2,3,0,
-        4,5,6,  6,7,4,
-        0,1,5,  5,4,0,
-
-        2,3,7,  7,6,2,
-        0,3,7,  7,4,0,
-        1,2,6,  6,5,1
-    };
-
     int iPointPassesCollision[3];
 
     float fLightCameraOrthographicMinX = lightCameraOrthographicMin.x;
@@ -268,9 +259,13 @@ void DirectionalLightShadowMap::ComputeNearAndFar(float &nearPlane, float &farPl
                         for (size_t triPtIter = 0; triPtIter < 3; ++triPtIter)
                         {
                             if (triangleList[triIter].pt[triPtIter].x > lightCameraOrthographicMin.x)
+                            {
                                 iPointPassesCollision[triPtIter] = 1;
+                            }
                             else
+                            {
                                 iPointPassesCollision[triPtIter] = 0;
+                            }
 
                             iInsideVertCount += iPointPassesCollision[triPtIter];
                         }
@@ -280,9 +275,13 @@ void DirectionalLightShadowMap::ComputeNearAndFar(float &nearPlane, float &farPl
                         for (size_t triPtIter = 0; triPtIter < 3; ++triPtIter)
                         {
                             if (triangleList[triIter].pt[triPtIter].x < lightCameraOrthographicMax.x)
+                            {
                                 iPointPassesCollision[triPtIter] = 1;
+                            }
                             else
+                            {
                                 iPointPassesCollision[triPtIter] = 0;
+                            }
 
                             iInsideVertCount += iPointPassesCollision[triPtIter];
                         }
@@ -292,9 +291,13 @@ void DirectionalLightShadowMap::ComputeNearAndFar(float &nearPlane, float &farPl
                         for (size_t triPtIter = 0; triPtIter < 3; ++triPtIter)
                         {
                             if (triangleList[triIter].pt[triPtIter].y > fLightCameraOrthographicMinY)
+                            {
                                 iPointPassesCollision[triPtIter] = 1;
+                            }
                             else
+                            {
                                 iPointPassesCollision[triPtIter] = 0;
+                            }
 
                             iInsideVertCount += iPointPassesCollision[triPtIter];
                         }
@@ -304,9 +307,13 @@ void DirectionalLightShadowMap::ComputeNearAndFar(float &nearPlane, float &farPl
                         for (size_t triPtIter = 0; triPtIter < 3; ++triPtIter)
                         {
                             if (triangleList[triIter].pt[triPtIter].y < fLightCameraOrthographicMaxY)
+                            {
                                 iPointPassesCollision[triPtIter] = 1;
+                            }
                             else
+                            {
                                 iPointPassesCollision[triPtIter] = 0;
+                            }
 
                             iInsideVertCount += iPointPassesCollision[triPtIter];
                         }
@@ -409,9 +416,13 @@ void DirectionalLightShadowMap::ComputeNearAndFar(float &nearPlane, float &farPl
                 {
                     float fTriangleCoordZ = triangleList[index].pt[vertIndex].z;
                     if (nearPlane < fTriangleCoordZ)
+                    {
                         nearPlane = fTriangleCoordZ;
+                    }
                     if (farPlane > fTriangleCoordZ)
+                    {
                         farPlane = fTriangleCoordZ;
+                    }
                 }
             }
         }

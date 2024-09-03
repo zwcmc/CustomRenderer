@@ -12,7 +12,6 @@ class Shader
 {
     SHARED_PTR(Shader)
 public:
-    Shader();
     Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource);
     ~Shader();
 

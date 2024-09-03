@@ -8,6 +8,7 @@
 #include "base/TextureCube.h"
 #include "renderer/RenderTarget.h"
 #include "scene/SceneNode.h"
+#include "base/Material.h"
 
 class EnvironmentIBL
 {
@@ -37,4 +38,6 @@ public:
     TextureCube::Ptr m_IrradianceCubemap;
     TextureCube::Ptr m_PrefilteredCubemap;
     RenderTarget::Ptr m_BRDFLUTRenderTarget;
+    
+    Material::Ptr m_SkyboxMat;
 };

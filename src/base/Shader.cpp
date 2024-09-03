@@ -2,10 +2,6 @@
 
 #include <vector>
 
-Shader::Shader()
-    : m_ShaderID(0), m_ShaderName("")
-{ }
-
 Shader::Shader(const std::string &name, const std::string &vsSource, const std::string &fsSource)
     : m_ShaderID(0)
 {

@@ -56,8 +56,6 @@ void SceneRenderGraph::Init()
 
     // Environment IBL
     m_EnvIBL = EnvironmentIBL::New("textures/environments/papermill.hdr", m_GlobalUniformBufferID);
-    // Add render the skybox commands
-    BuildSkyboxRenderCommands();
 
     // Directional shadow map
     m_DirectionalShadowMap = DirectionalLightShadowMap::New();
@@ -96,17 +94,11 @@ void SceneRenderGraph::SetCamera(Camera::Ptr camera)
 void SceneRenderGraph::SetMainLight(DirectionalLight::Ptr light)
 {
     m_MainLight = light;
-
-    // Add a new render command for render light
-    // AddRenderLightCommand(m_MainLight);
 }
 
 void SceneRenderGraph::AddSceneNode(SceneNode::Ptr sceneNode)
 {
     m_Scene->AddChild(sceneNode);
-
-    // Build render commands
-    BuildRenderCommands(sceneNode);
 }
 
 void SceneRenderGraph::AddRenderLightCommand(Light::Ptr light)
@@ -135,14 +127,20 @@ void SceneRenderGraph::BuildRenderCommands(SceneNode::Ptr sceneNode)
     mat4 model = sceneNode->GetModelMatrix();
     Material::Ptr overrideMat = sceneNode->OverrideMat;
     for (size_t i = 0; i < sceneNode->MeshRenders.size(); ++i)
+    {
         m_CommandBuffer->PushCommand(sceneNode->MeshRenders[i]->GetMesh(), overrideMat ? overrideMat : sceneNode->MeshRenders[i]->GetMaterial(), model);
+    }
 
     // Debugging AABB
     if (sceneNode->IsAABBCalculated && false)
+    {
         m_CommandBuffer->PushDebuggingCommand(AABBCube::New(sceneNode->AABB.GetCorners()), m_DebuggingAABBMat, model);
+    }
 
     for (size_t i = 0; i < sceneNode->GetChildrenCount(); ++i)
+    {
         BuildRenderCommands(sceneNode->GetChildByIndex(i));
+    }
 }
 
 void SceneRenderGraph::CalculateSceneAABB()
@@ -161,14 +159,30 @@ void SceneRenderGraph::CalculateSceneAABB()
     // m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat, mat4(1.0f));
 }
 
-void SceneRenderGraph::ExecuteCommandBuffer()
+void SceneRenderGraph::PepareRenderCommands()
 {
+    m_CommandBuffer->Clear();
+    
+    // Build scene render commands
+    BuildRenderCommands(m_Scene);
+    
+    // Build skybox render commands
+    BuildSkyboxRenderCommands();
+}
+
+void SceneRenderGraph::Render()
+{
+    // Build render commands
+    PepareRenderCommands();
+
     DirectionalLight::Ptr currentLight = m_MainLight;
     Camera::Ptr currentCamera = m_Camera;
 
     // Render shadow map first
     if (currentLight->IsCastShadow())
+    {
         m_DirectionalShadowMap->RenderShadowMap(currentCamera, currentLight, m_CommandBuffer->GetShadowCasterCommands(), m_Scene);
+    }
 
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
@@ -177,7 +191,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(currentLight->GetLightPosition().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(currentLight->GetLightColor().x));
     glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(currentCamera->GetEyePosition().x));
-    
+
     // Set light cascade data
     if (currentLight->IsCastShadow())
     {
@@ -198,7 +212,7 @@ void SceneRenderGraph::ExecuteCommandBuffer()
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-//    Blitter::BlitToCameraTarget(currentLight->GetShadowMapRT()->GetShadowMapTexture(), currentCamera); return;
+    // Blitter::BlitToCameraTarget(currentLight->GetShadowMapRT()->GetShadowMapTexture(), currentCamera); return;
 
     // Bind intermediate framebuffer
     m_IntermediateRT->Bind();
@@ -250,7 +264,6 @@ void SceneRenderGraph::ExecuteCommandBuffer()
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-//    Blitter::BlitToCameraTarget(m_IntermediateRT->GetColorTexture(0), currentCamera);
     m_PostProcessing->Render(m_IntermediateRT, currentCamera);
 }
 
@@ -262,9 +275,12 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     SetGLCull(!mat->GetDoubleSided());
     SetGLBlend(mat->GetAlphaMode() == Material::AlphaMode::BLEND);
 
-    mat->AddOrSetTextureCube(m_EnvIBL->GetIrradiance());
-    mat->AddOrSetTextureCube(m_EnvIBL->GetPrefiltered());
-    mat->AddOrSetTexture(m_EnvIBL->GetBRDFLUTTexture());
+    if (!mat->IsUsedForSkybox())
+    {
+        mat->AddOrSetTextureCube(m_EnvIBL->GetIrradiance());
+        mat->AddOrSetTextureCube(m_EnvIBL->GetPrefiltered());
+        mat->AddOrSetTexture(m_EnvIBL->GetBRDFLUTTexture());
+    }
 
     if (mat->GetMaterialCastShadows())
     {
@@ -281,8 +297,12 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     }
 
     mat->Use();
-    mat->SetMatrix("uModelMatrix", command->Transform);
-    mat->SetMatrix("uModelMatrixInverse", mat3x3(inverse(command->Transform)));
+    
+    if (!mat->IsUsedForSkybox())
+    {
+        mat->SetMatrix("uModelMatrix", command->Transform);
+        mat->SetMatrix("uModelMatrixInverse", mat3x3(inverse(command->Transform)));
+    }
 
     RenderMesh(mesh);
 }
@@ -292,9 +312,13 @@ void SceneRenderGraph::RenderMesh(Mesh::Ptr mesh)
     glBindVertexArray(mesh->GetVertexArrayID());
 
     if (mesh->GetIndicesCount() > 0)
+    {
         glDrawElements(GL_TRIANGLES, mesh->GetIndicesCount(), GL_UNSIGNED_INT, nullptr);
+    }
     else
+    {
         glDrawArrays(GL_TRIANGLES, 0, mesh->GetVerticesCount());
+    }
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);

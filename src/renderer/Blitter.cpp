@@ -60,6 +60,26 @@ void Blitter::BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::P
     glBindVertexArray(0);
 }
 
+void Blitter::BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::Ptr targetCamera, Material::Ptr blitMat)
+{
+    assert(sourceTex != nullptr);
+    
+    targetCamera->BindCameraTarget();
+
+    if (blitMat == nullptr)
+        blitMat = Mat;
+
+    // Setup source texture
+    sourceTex->SetTextureName("uSourceTex");
+    blitMat->AddOrSetTexture(sourceTex);
+
+    blitMat->Use();
+
+    glBindVertexArray(BlitVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+}
+
 void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitMat)
 {
     assert(target != nullptr);

@@ -51,6 +51,17 @@ private:
     };
     static const int CASCADE_PARTITION_MAX = 100;
     static const int MAX_CASCADES = 4;
+    
+    static constexpr int iAABBTriIndexes[] =
+    {
+        0,1,2,  2,3,0,
+        4,5,6,  6,7,4,
+        0,1,5,  5,4,0,
+
+        2,3,7,  7,6,2,
+        0,3,7,  7,4,0,
+        1,2,6,  6,5,1
+    };
 
     std::vector<mat4> m_MatShadowProjections;
     std::vector<vec4> m_CascadeScalesAndOffsets;
