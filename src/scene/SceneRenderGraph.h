@@ -10,8 +10,6 @@
 #include "cameras/Camera.h"
 #include "lights/DirectionalLight.h"
 
-#include "meshes/Sphere.h"
-
 #include "renderer/RenderCommand.h"
 #include "renderer/CommandBuffer.h"
 #include "renderer/RenderTarget.h"
@@ -52,7 +50,6 @@ private:
     
     void PepareRenderCommands();
 
-    void AddRenderLightCommand(Light::Ptr light);
     void BuildSkyboxRenderCommands();
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
 
@@ -71,8 +68,6 @@ private:
     DirectionalLight::Ptr m_MainLight;
 
     GLuint m_GlobalUniformBufferID;
-
-    Sphere::Ptr m_LightMesh;
 
     RenderTarget::Ptr m_IntermediateRT;
 

@@ -46,9 +46,6 @@ void SceneRenderGraph::Init()
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_GlobalUniformBufferID); // Set global uniform to binding point 0
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Mesh for rendering lights
-    m_LightMesh = Sphere::New(16, 16, 0.02f);
-
     // Initialize Blitter
     Blitter::Init();
 
@@ -99,22 +96,6 @@ void SceneRenderGraph::SetMainLight(DirectionalLight::Ptr light)
 void SceneRenderGraph::AddSceneNode(SceneNode::Ptr sceneNode)
 {
     m_Scene->AddChild(sceneNode);
-}
-
-void SceneRenderGraph::AddRenderLightCommand(Light::Ptr light)
-{
-    // TODO: All lights can share a single material
-    Material::Ptr lightMat = Material::New("Emissive", "Emissive.vert", "Emissive.frag");
-    lightMat->SetCastShadows(false);
-    lightMat->AddOrSetVector("uEmissiveColor", light->GetLightColor());
-
-    // Only need to modify the translation column
-    mat4 transform = mat4(1.0f);
-    vec3 lightPos = light->GetLightPosition();
-    transform[3][0] = lightPos.x;
-    transform[3][1] = lightPos.y;
-    transform[3][2] = lightPos.z;
-    m_CommandBuffer->PushCommand(m_LightMesh, lightMat, transform);
 }
 
 void SceneRenderGraph::BuildSkyboxRenderCommands()
