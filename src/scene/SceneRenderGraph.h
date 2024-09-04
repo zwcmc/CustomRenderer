@@ -52,6 +52,8 @@ private:
 
     void BuildSkyboxRenderCommands();
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
+    
+    glm::mat3 FastCofactor(const glm::mat3 &matrix);
 
     void SetGLCull(bool enable);
     void SetGLBlend(bool enable);

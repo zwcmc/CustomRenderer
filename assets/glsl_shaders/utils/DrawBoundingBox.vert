@@ -4,9 +4,9 @@ layout (location = 0) in vec3 vPosition;
 
 #include "common/uniforms.glsl"
 
-uniform mat4 uModelMat;
+uniform mat4 uModelToWorld;
 
 void main()
 {
-    gl_Position = ProjectionMatrix * ViewMatrix * uModelMat * vec4(vPosition, 1.0);
+    gl_Position = ProjectionMatrix * ViewMatrix * uModelToWorld * vec4(vPosition, 1.0);
 }

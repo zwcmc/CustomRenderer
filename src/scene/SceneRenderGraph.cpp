@@ -243,7 +243,7 @@ void SceneRenderGraph::Render()
     std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->GetDebuggingCommands();
     for (size_t i = 0; i < commands.size(); ++i)
     {
-        m_DebuggingAABBMat->SetMatrix("uModelMat", commands[i]->Transform);
+        m_DebuggingAABBMat->SetMatrix("uModelToWorld", commands[i]->Transform);
         RenderMesh(commands[i]->Mesh);
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -284,11 +284,55 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     
     if (!mat->IsUsedForSkybox())
     {
-        mat->SetMatrix("uModelMat", command->Transform);
-        mat->SetMatrix("uInverseModelMat", mat3x3(inverse(command->Transform)));
+        mat->SetMatrix("uModelToWorld", command->Transform);
+        mat->SetMatrix("uModelNormalToWorld", FastCofactor(mat3x3(command->Transform)));
     }
 
     RenderMesh(mesh);
+}
+
+glm::mat3 SceneRenderGraph::FastCofactor(const glm::mat3 &m)
+{
+    // Assuming the input matrix is:
+    // | a b c |
+    // | d e f |
+    // | g h i |
+    //
+    // The cofactor are
+    // | A B C |
+    // | D E F |
+    // | G H I |
+
+    // Where:
+    // A = (ei - fh), B = (fg - di), C = (dh - eg)
+    // D = (ch - bi), E = (ai - cg), F = (bg - ah)
+    // G = (bf - ce), H = (cd - af), I = (ae - bd)
+
+    // Importantly, matrices are column-major!
+
+    glm::mat3 cof;
+
+    const float a = m[0][0];
+    const float b = m[1][0];
+    const float c = m[2][0];
+    const float d = m[0][1];
+    const float e = m[1][1];
+    const float f = m[2][1];
+    const float g = m[0][2];
+    const float h = m[1][2];
+    const float i = m[2][2];
+
+    cof[0][0] = e * i - f * h; // A
+    cof[0][1] = c * h - b * i; // D
+    cof[0][2] = b * f - c * e; // G
+    cof[1][0] = f * g - d * i; // B
+    cof[1][1] = a * i - c * g; // E
+    cof[1][2] = c * d - a * f; // H
+    cof[2][0] = d * h - e * g; // C
+    cof[2][1] = b * g - a * h; // F
+    cof[2][2] = a * e - b * d; // I
+
+    return cof;
 }
 
 void SceneRenderGraph::RenderMesh(Mesh::Ptr mesh)

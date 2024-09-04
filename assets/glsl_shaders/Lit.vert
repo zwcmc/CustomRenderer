@@ -7,8 +7,8 @@ layout (location = 2) in vec2 vTexcoord0;
 #include "common/uniforms.glsl"
 #include "common/functions.glsl"
 
-uniform mat4 uModelMat;
-uniform mat3 uInverseModelMat;
+uniform mat4 uModelToWorld;
+uniform mat3 uModelNormalToWorld;
 
 out VertexData
 {
@@ -28,12 +28,14 @@ void main()
     vec3 tangent;
     ExtractNormalAndTangent(vTangents, normal, tangent);
 
-    // transpose(uInverseModelMat) * v = v * uInverseModelMat
-    vs_out.WorldNormal = normal * uInverseModelMat;
-    vs_out.WorldTangent.xyz = tangent * uInverseModelMat;
+    // transpose(uModelNormalToWorld) * v = v * uModelNormalToWorld
+    // vs_out.WorldNormal = normal * uModelNormalToWorld;
+    // vs_out.WorldTangent.xyz = tangent * uModelNormalToWorld;
+    vs_out.WorldNormal = uModelNormalToWorld * normal;
+    vs_out.WorldTangent.xyz = uModelNormalToWorld * tangent;
     vs_out.WorldTangent.w = vTangents.w;
 
-    vs_out.WorldPosition = vec3(uModelMat * vec4(vPosition, 1.0));
+    vs_out.WorldPosition = vec3(uModelToWorld * vec4(vPosition, 1.0));
 
     vs_out.TexShadowView = ShadowView * vec4(vs_out.WorldPosition, 1.0);
 
