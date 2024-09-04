@@ -42,17 +42,30 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     {
         m_CombinePostMat->AddOrSetFloat("uBloomSet", -1.0f);
     }
-
-    // Combine post-processing
-    m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatsRecorder::BloomIntensity);
-    RenderTarget::Ptr finalRT = RenderTarget::New(source->GetSize(), GL_HALF_FLOAT, 1);
-    Blitter::BlitToTarget(source, finalRT, m_CombinePostMat);
-
-    // Blit to camera
+    
     bool fxaaActive = StatsRecorder::FXAAOn;
-    m_FinalPostMat->AddOrSetFloat("uFXAASet", fxaaActive ? 1.0f : -1.0f);
-    m_FinalPostMat->AddOrSetFloat("uToneMappingSet", StatsRecorder::ToneMappingOn ? 1.0 : -1.0);
-    Blitter::BlitToCameraTarget(finalRT, targetCamera, m_FinalPostMat);
+    if (fxaaActive)
+    {
+        // Combine post-processing
+        m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatsRecorder::BloomIntensity);
+        m_CombinePostMat->AddOrSetFloat("uBlitToCamera", -1.0f);
+        m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatsRecorder::ToneMappingOn ? 1.0 : -1.0);
+        RenderTarget::Ptr tempRT = RenderTarget::New(source->GetSize(), GL_HALF_FLOAT, 1);
+        Blitter::BlitToTarget(source, tempRT, m_CombinePostMat);
+
+        // Blit to camera with FXAA
+        m_FinalPostMat->AddOrSetFloat("uFXAASet", 1.0f);
+        m_FinalPostMat->AddOrSetFloat("uToneMappingSet", StatsRecorder::ToneMappingOn ? 1.0 : -1.0);
+        Blitter::BlitToCameraTarget(tempRT, targetCamera, m_FinalPostMat);
+    }
+    else
+    {
+        // Combine post-processing
+        m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatsRecorder::BloomIntensity);
+        m_CombinePostMat->AddOrSetFloat("uBlitToCamera", 1.0f);
+        m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatsRecorder::ToneMappingOn ? 1.0 : -1.0);
+        Blitter::BlitToCameraTarget(source, targetCamera, m_CombinePostMat);
+    }
 }
 
 void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Ptr &bloomRT)

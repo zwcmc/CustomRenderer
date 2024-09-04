@@ -15,4 +15,7 @@ layout (std140) uniform GlobalUniforms
     vec4 ShadowMapTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
 };
 
+uniform float uFXAASet;
+uniform float uToneMappingSet;
+
 #endif

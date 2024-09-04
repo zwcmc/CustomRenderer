@@ -22,6 +22,8 @@ void Blitter::BlitToTarget(const Texture2D::Ptr sourceTex, const RenderTarget::P
     glBindVertexArray(BlitVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
+    
+    target->Unbind();
 }
 
 void Blitter::BlitToTarget(const RenderTarget::Ptr source, const RenderTarget::Ptr target, Material::Ptr blitMat)
@@ -94,15 +96,21 @@ void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitM
     glBindVertexArray(BlitVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
+    
+    target->Unbind();
 }
 
 void Blitter::Init()
 {
     if (BlitVAO == 0)
+    {
         glGenVertexArrays(1, &BlitVAO);
+    }
 
     if (Mat == nullptr)
+    {
         Mat = Material::New("Blit", "post_processing/Blit.vert", "post_processing/Blit.frag");
+    }
 }
 
 void Blitter::Cleanup()

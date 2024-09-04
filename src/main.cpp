@@ -107,13 +107,9 @@ int main()
 //    glTFNode->Translate(glm::vec3(3.0f, 5.0f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(glTFNode);
 
-//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-//    m_SceneRenderGraph->AddSceneNode(marry);
-
-    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-    marry2->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
-    m_SceneRenderGraph->AddSceneNode(marry2);
+    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
+    m_SceneRenderGraph->AddSceneNode(marry);
 
     SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
     ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
@@ -152,7 +148,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
-            ImGui::Begin("Stats", (bool*)1);
+            ImGui::Begin("Status", (bool*)1);
             ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
             ImGui::Checkbox("Bloom", &StatsRecorder::BloomOn);
             ImGui::SliderFloat("Intensity", &StatsRecorder::BloomIntensity, 0.0f, 1.0f);

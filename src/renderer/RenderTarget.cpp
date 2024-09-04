@@ -131,3 +131,8 @@ void RenderTarget::Bind()
     glViewport(0, 0, m_Size.x, m_Size.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
+
+void RenderTarget::Unbind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}

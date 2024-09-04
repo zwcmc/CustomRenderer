@@ -9,6 +9,11 @@ uniform float uBloomSet;
 uniform sampler2D uBloomTex;
 
 uniform float uBloomIntensity;
+uniform float uBlitToCamera;
+
+#include "common/functions.glsl"
+#include "common/uniforms.glsl"
+#include "post_processing/tonemapping.glsl"
 
 void main()
 {
@@ -21,6 +26,18 @@ void main()
     {
         bloom = texture(uBloomTex, uv).rgb;
         color.rgb += bloom * uBloomIntensity;
+    }
+
+    if (uBlitToCamera > 0)
+    {
+        // HDR tonemapping
+        if (uToneMappingSet > 0.0)
+        {
+            color.rgb = ACESFilm(color.rgb);
+        }
+
+        // Gamma correction in final blit
+        color = GammaCorrection(color);
     }
 
     OutColor = color;
