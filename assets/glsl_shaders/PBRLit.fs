@@ -56,11 +56,11 @@ uniform float uShadowMapSet;
 
 void main()
 {
-    vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
+    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
 
     if (uAlphaTestSet > 0.0)
     {
-        if (baseColor.a < uAlphaCutoff)
+        if (albedo.a < uAlphaCutoff)
         {
             discard;
         }
@@ -113,8 +113,8 @@ void main()
     vec3 Lo = vec3(0.0);
 
     // Disney BRDF diffuse fd
-    // vec3 Fd = DisneyDiffuse(baseColor.rgb, NdotL, NdotV, LdotH, perceptualRoughness);
-    vec3 Fd = LambertDiffuse(baseColor.rgb);
+    // vec3 Fd = DisneyDiffuse(albedo, NdotL, NdotV, LdotH, perceptualRoughness);
+    vec3 Fd = LambertDiffuse(albedo);
 
     // Disney BRDF specular
     // Specular D
@@ -122,7 +122,7 @@ void main()
     float Ds = GTR2(NdotH, a);
 
     // Specular F
-    vec3 F0 = mix(vec3(0.04), baseColor.rgb, metallic);
+    vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
     float FH = SchlickFresnel(LdotH);
     vec3 Fs = mix(F0, vec3(1.0), FH);
 
@@ -160,5 +160,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
-    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
+    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? albedo.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
 }

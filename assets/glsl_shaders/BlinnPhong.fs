@@ -54,7 +54,7 @@ void CalculateRightAndUpTexelDepthDeltas(in vec3 texShadowView, in mat3 shadowPr
 
 void main()
 {
-    vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
+    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
 
     vec3 N;
     if (uNormalMapSet > 0.0)
@@ -85,8 +85,8 @@ void main()
 
     vec3 radiance = MainLightColor * shadowAtten;
 
-    vec3 ambient = baseColor.rgb * 0.04;
-    vec3 diffuse = baseColor.rgb * radiance * NdotL;
+    vec3 ambient = albedo.rgb * 0.04;
+    vec3 diffuse = albedo.rgb * radiance * NdotL;
     float spec = pow(max(dot(N, H), 0.0), 32.0);
     vec3 specular = vec3(1.0) * radiance * spec;
 

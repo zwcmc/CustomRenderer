@@ -11,19 +11,19 @@ float SchlickFresnel(float u)
     return m2 * m2 * m; // pow(m, 5.0)
 }
 
-vec3 LambertDiffuse(vec3 baseColor)
+vec3 LambertDiffuse(vec4 albedo)
 {
-    return baseColor * INV_PI;
+    return albedo.rgb * INV_PI;
 }
 
-vec3 DisneyDiffuse(vec3 baseColor, float NdotL, float NdotV, float LdotH, float perceptualRoughness)
+vec3 DisneyDiffuse(vec4 albedo, float NdotL, float NdotV, float LdotH, float perceptualRoughness)
 {
     float Fd90 = 0.5 + 2.0 * perceptualRoughness * LdotH * LdotH;
 
     float FL = SchlickFresnel(NdotL);
     float FV = SchlickFresnel(NdotV);
 
-    return baseColor * INV_PI * mix(1.0, Fd90, FL) * mix(1.0, Fd90, FV); // (1.0 / π ) * (1.0 + (Fd90 - 1.0) * FL)(1.0 + (Fd90 - 1.0) * FV)
+    return albedo.rgb * INV_PI * mix(1.0, Fd90, FL) * mix(1.0, Fd90, FV); // (1.0 / π ) * (1.0 + (Fd90 - 1.0) * FL)(1.0 + (Fd90 - 1.0) * FV)
 }
 
 // GTR, Generalized-Trowbridge-Reitz
