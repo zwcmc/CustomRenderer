@@ -109,7 +109,7 @@ void Blitter::Init()
 
     if (Mat == nullptr)
     {
-        Mat = Material::New("Blit", "post_processing/Blit.vert", "post_processing/Blit.frag");
+        Mat = Material::New("Blit", "post_processing/Blit.vs", "post_processing/Blit.fs");
     }
 }
 

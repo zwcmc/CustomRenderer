@@ -21,7 +21,7 @@ EnvironmentIBL::EnvironmentIBL(const std::string &cubemapPath, const GLuint &uni
     // Mesh for cubemap
     m_Cube = AssetsLoader::LoadModel("models/glTF/Box/glTF-Binary/Box.glb", false);
     
-    m_SkyboxMat = Material::New("Skybox", "environment/Cube.vert", "environment/Skybox.frag", true);
+    m_SkyboxMat = Material::New("Skybox", "environment/Cube.vs", "environment/Skybox.fs", true);
     m_SkyboxMat->SetCastShadows(false);
 
     // Load environment cubemap
@@ -60,7 +60,7 @@ void EnvironmentIBL::LoadEnvironmentCubemap(const std::string &cubemapPath)
         m_EnvironmentCubemap->DefaultInit(environmentMap->GetSize().y, environmentMap->GetSize().y, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
 
         // Equirectangular map to a cubemap
-        Material::Ptr capMat = Material::New("HDR_to_Cubemap", "environment/Cube.vert", "environment/HDRToCubemap.frag");
+        Material::Ptr capMat = Material::New("HDR_to_Cubemap", "environment/Cube.vs", "environment/HDRToCubemap.fs");
         capMat->AddOrSetTexture(environmentMap);
         m_Cube->SetOverrideMaterial(capMat);
         RenderToCubemap(m_EnvironmentCubemap, 0);
@@ -80,7 +80,7 @@ void EnvironmentIBL::GenerateCubemaps()
     m_IrradianceCubemap = TextureCube::New("uIrradianceCubemap");
     m_IrradianceCubemap->DefaultInit(32, 32, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
 
-    Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "environment/Cube.vert", "environment/IrradianceCubemap.frag");
+    Material::Ptr cubemapConvolutionMat = Material::New("Cubemap_Convolution", "environment/Cube.vs", "environment/IrradianceCubemap.fs");
     cubemapConvolutionMat->AddOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->SetOverrideMaterial(cubemapConvolutionMat);
     RenderToCubemap(m_IrradianceCubemap, 0);
@@ -89,7 +89,7 @@ void EnvironmentIBL::GenerateCubemaps()
     m_PrefilteredCubemap = TextureCube::New("uPrefilteredCubemap");
     m_PrefilteredCubemap->DefaultInit(512, 512, GL_RGB16F, GL_RGB, GL_HALF_FLOAT, true);
 
-    Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "environment/Cube.vert", "environment/PrefilteredCubemap.frag");
+    Material::Ptr cubemapPrefilteredMat = Material::New("Cubemap_Prefiltered", "environment/Cube.vs", "environment/PrefilteredCubemap.fs");
     cubemapPrefilteredMat->AddOrSetTextureCube(m_EnvironmentCubemap);
     m_Cube->SetOverrideMaterial(cubemapPrefilteredMat);
 
@@ -106,7 +106,7 @@ void EnvironmentIBL::GenerateBRDFLUT()
 {
     m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
     m_BRDFLUTRenderTarget->GetColorTexture(0)->SetTextureName("uBRDFLUT");
-    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "post_processing/Blit.vert", "environment/GenerateBRDFLUT.frag");
+    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "post_processing/Blit.vs", "environment/GenerateBRDFLUT.fs");
 
     Blitter::RenderToTarget(m_BRDFLUTRenderTarget, generateBRDFLUTFMat);
 }

@@ -61,7 +61,7 @@ void SceneRenderGraph::Init()
     // Post processing
     m_PostProcessing = PostProcessing::New();
 
-    m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vert", "utils/DrawBoundingBox.frag");
+    m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vs", "utils/DrawBoundingBox.fs");
     m_DebuggingAABBMat->SetDoubleSided(true);
 }
 

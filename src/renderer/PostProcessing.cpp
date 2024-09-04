@@ -9,15 +9,15 @@
 
 PostProcessing::PostProcessing()
 {
-    m_BloomDownsample2xMat = Material::New("Bloom Prefilter", "post_processing/Blit.vert", "post_processing/bloom/BloomDownsample2x.frag");
+    m_BloomDownsample2xMat = Material::New("Bloom Prefilter", "post_processing/Blit.vs", "post_processing/bloom/BloomDownsample2x.fs");
 
-    m_BloomBlurHorizontal = Material::New("Bloom Blur Horizontal", "post_processing/Blit.vert", "post_processing/bloom/BloomBlurHorizontal.frag");
-    m_BloomBlurVertical = Material::New("Bloom Blur Vertical", "post_processing/Blit.vert", "post_processing/bloom/BloomBlurVertical.frag");
-    m_BloomUpsample = Material::New("Bloom Upsample", "post_processing/Blit.vert", "post_processing/bloom/BloomUpsample.frag");
+    m_BloomBlurHorizontal = Material::New("Bloom Blur Horizontal", "post_processing/Blit.vs", "post_processing/bloom/BloomBlurHorizontal.fs");
+    m_BloomBlurVertical = Material::New("Bloom Blur Vertical", "post_processing/Blit.vs", "post_processing/bloom/BloomBlurVertical.fs");
+    m_BloomUpsample = Material::New("Bloom Upsample", "post_processing/Blit.vs", "post_processing/bloom/BloomUpsample.fs");
     
-    m_CombinePostMat = Material::New("Combine Post", "post_processing/Blit.vert", "post_processing/CombinePost.frag");
+    m_CombinePostMat = Material::New("Combine Post", "post_processing/Blit.vs", "post_processing/CombinePost.fs");
     
-    m_FinalPostMat = Material::New("Final Post", "post_processing/Blit.vert", "post_processing/FinalPost.frag");
+    m_FinalPostMat = Material::New("Final Post", "post_processing/Blit.vs", "post_processing/FinalPost.fs");
 }
 
 PostProcessing::~PostProcessing()
