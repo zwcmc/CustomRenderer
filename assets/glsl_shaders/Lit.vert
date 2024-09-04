@@ -14,7 +14,7 @@ out VertexData
 {
     vec2 UV0;
     vec3 WorldNormal;
-    vec4 WorldTangent; // xyz: tangent, w: sign
+    vec4 WorldTangent; // xyz: tangent, w: the sign of the bitangent
     vec3 WorldPosition;
     vec4 TexShadowView; // Position in light shadow view space
 } vs_out;
@@ -28,9 +28,6 @@ void main()
     vec3 tangent;
     ExtractNormalAndTangent(vTangents, normal, tangent);
 
-    // transpose(uModelNormalToWorld) * v = v * uModelNormalToWorld
-    // vs_out.WorldNormal = normal * uModelNormalToWorld;
-    // vs_out.WorldTangent.xyz = tangent * uModelNormalToWorld;
     vs_out.WorldNormal = uModelNormalToWorld * normal;
     vs_out.WorldTangent.xyz = uModelNormalToWorld * tangent;
     vs_out.WorldTangent.w = vTangents.w;
