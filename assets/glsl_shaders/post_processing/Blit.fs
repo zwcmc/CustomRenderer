@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 #include "common/functions.glsl"
 #include "post_processing/tonemapping.glsl"
@@ -18,5 +18,5 @@ void main()
     // Gamma correction in final blit
     color = GammaCorrection(color);
 
-    OutColor = color;
+    FragColor = color;
 }

@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 in vec2 UV0;
 
@@ -66,5 +66,5 @@ void main()
     highp float f = Max3(c);
     c *= 1.0 / (1.0 + f * 0.01);
 
-    OutColor = vec4(c, 1.0);
+    FragColor = vec4(c, 1.0);
 }

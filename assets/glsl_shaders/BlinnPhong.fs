@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 in VertexData
 {
@@ -92,5 +92,5 @@ void main()
 
     vec3 color = ambient + diffuse + specular;
 
-    OutColor = vec4(color, 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
+    FragColor = vec4(color, 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
 }

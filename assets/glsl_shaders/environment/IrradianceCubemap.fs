@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 #include "common/constants.glsl"
 
@@ -31,5 +31,5 @@ void main()
 
     irradiance = M_PI * irradiance * (1.0 / nrSamples);
 
-    OutColor = vec4(irradiance, 1.0);
+    FragColor = vec4(irradiance, 1.0);
 }

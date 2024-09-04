@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 in vec2 UV0;
 
@@ -33,5 +33,5 @@ void main()
     // Gamma correction in final blit
     color = GammaCorrection(color);
 
-    OutColor = color;
+    FragColor = color;
 }

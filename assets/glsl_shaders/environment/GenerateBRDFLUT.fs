@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 in vec2 UV0;
 
@@ -50,5 +50,5 @@ vec2 BRDF(float NdotV, float roughness)
 
 void main()
 {
-    OutColor = vec4(BRDF(UV0.x, UV0.y), 0.0, 1.0);
+    FragColor = vec4(BRDF(UV0.x, UV0.y), 0.0, 1.0);
 }

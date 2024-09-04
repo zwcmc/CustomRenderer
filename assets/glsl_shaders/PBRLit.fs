@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 in VertexData
 {
@@ -10,33 +10,42 @@ in VertexData
     vec4 TexShadowView;
 } fs_in;
 
+// Albedo
 uniform sampler2D uBaseMap;
 uniform float uBaseMapSet;
 uniform vec4 uBaseColor;
 
+// Normal
 uniform sampler2D uNormalMap;
 uniform float uNormalMapSet;
 
+// Emission
 uniform sampler2D uEmissiveMap;
 uniform float uEmissiveMapSet;
 uniform vec3 uEmissiveColor;
 
+// Metallic and roughness
 uniform sampler2D uMetallicRoughnessMap;
 uniform float uMetallicRoughnessMapSet;
 uniform float uMetallicFactor;
 uniform float uRoughnessFactor;
 
+// Occlusion
 uniform sampler2D uOcclusionMap;
 uniform float uOcclusionMapSet;
 
+// Alpha blend
 uniform float uAlphaBlendSet;
+// Alpha test
 uniform float uAlphaTestSet;
 uniform float uAlphaCutoff;
 
+// IBL
 uniform samplerCube uIrradianceCubemap;
 uniform samplerCube uPrefilteredCubemap;
 uniform sampler2D uBRDFLUT;
 
+// Shadow
 uniform sampler2DShadow uShadowMap;
 uniform float uShadowMapSet;
 
@@ -151,5 +160,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
-    OutColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
+    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
 }

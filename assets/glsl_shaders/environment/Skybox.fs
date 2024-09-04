@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 uniform samplerCube uEnvironmentCubemap;
 
@@ -10,5 +10,5 @@ in vec3 UVW;
 void main()
 {
     vec3 color = textureLod(uEnvironmentCubemap, UVW, 0.0).rgb;
-    OutColor = vec4(color, 1.0);
+    FragColor = vec4(color, 1.0);
 }

@@ -1,5 +1,5 @@
 #version 410 core
-out vec4 OutColor;
+out vec4 FragColor;
 
 in vec2 UV0;
 
@@ -30,5 +30,5 @@ void main()
                 + c2 * 0.22702703
                 + c3 * 0.31621622 + c4 * 0.07027027;
 
-    OutColor = vec4(color, 1.0);
+    FragColor = vec4(color, 1.0);
 }
