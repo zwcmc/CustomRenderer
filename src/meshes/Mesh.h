@@ -13,7 +13,7 @@ class Mesh
     SHARED_PTR(Mesh)
 public:
     Mesh() = default;
-    Mesh(const std::vector<vec3> &vertices, const std::vector<vec3> &normals, const std::vector<vec4> &tangents, const std::vector<vec2> &texcoords0, const std::vector<unsigned int> &indices);
+    Mesh(const std::vector<vec3> &vertices, const std::vector<vec4> &tangents, const std::vector<vec2> &texcoords0, const std::vector<unsigned int> &indices);
     ~Mesh();
 
     void InitMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices);
@@ -28,7 +28,7 @@ private:
     GLuint m_VertexArrayID, m_VertexBufferID, m_ElementBufferID;
 
     std::vector<vec3> m_Vertices;
-    std::vector<vec3> m_Normals;
+//    std::vector<vec3> m_Normals;
     std::vector<vec4> m_Tangents;
     std::vector<vec2> m_Texcoords;
     std::vector<unsigned int> m_Indices;

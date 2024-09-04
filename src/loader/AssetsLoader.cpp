@@ -3,8 +3,6 @@
 #include <fstream>
 #include <stb_image.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -238,13 +236,11 @@ Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene)
     // Vertex data
     std::vector<vec3> vertices;
     std::vector<vec2> texcoords;
-    std::vector<vec3> normals;
-    std::vector<vec4> tangents;
+    std::vector<vec4> tangents; // the orthonormal basis as a quaternion
     std::vector<unsigned int> indices;
 
     vertices.resize(numVertices);
     texcoords.resize(numVertices);
-    normals.resize(numVertices);
     tangents.resize(numVertices);
 
     // Assume a constant of 3 vertex indices per face as always "aiProcess_Triangulate" in Assimp's post-processing step
@@ -254,9 +250,8 @@ Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene)
     {
         vertices[i] = aPositions[i];
         texcoords[i] = aTexCoord0 ? glm::vec2(aTexCoord0[i].x, aTexCoord0[i].y) : glm::vec2(0.0f);
-        normals[i] = aNormals[i];
-        
-        
+
+        glm::vec3 normal = aNormals[i];
         glm::vec3 tangent;
         glm::vec3 bitangent;
         if (aTangents)
@@ -266,32 +261,14 @@ Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene)
         }
         else
         {
-            bitangent = glm::normalize(glm::cross(normals[i], glm::vec3(1.0f, 0.0f, 0.0f)));
-            tangent = glm::normalize(glm::cross(normals[i], bitangent));
+            bitangent = glm::normalize(glm::cross(normal, glm::vec3(1.0f, 0.0f, 0.0f)));
+            tangent = glm::normalize(glm::cross(normal, bitangent));
         }
-        glm::quat q = glm::quat_cast(glm::mat3(tangent, glm::cross(normals[i], tangent), normals[i]));
-        q = glm::normalize(q);
-        if (q.w < 0)
-        {
-            q = -q;
-        }
-        
-        const float bias = 1.0f / ((1 << (sizeof(int16_t) * 8 - 1)) - 1);
-        if (q.w < bias)
-        {
-            q.w = bias;
-            
-            const float factor = std::sqrt(1.0 - (double)bias * (double)bias);
-            q.x *= factor;
-            q.y *= factor;
-            q.z *= factor;
-        }
-        
-        if (glm::dot(glm::cross(tangent, normals[i]), bitangent) < 0.0f)
-        {
-            q = -q;
-        }
-        tangents[i] = glm::vec4(q.x, q.y, q.z, q.w);
+
+        // Encode the orthonormal basis as a quaternion to save space in the attributes, and the sign of the w component preserve the reflection ((n x t) . b <= 0)
+        glm::quat q;
+        EncodeTBN(tangent, bitangent, normal, q);
+        tangents[i] = glm::make_vec4(glm::value_ptr(q));
     }
 
     for (size_t f = 0; f < aMesh->mNumFaces; ++f)
@@ -303,7 +280,40 @@ Mesh::Ptr AssetsLoader::ParseMesh(aiMesh* aMesh, const aiScene* aScene)
         }
     }
 
-    return Mesh::New(vertices, normals, tangents, texcoords, indices);
+    return Mesh::New(vertices, tangents, texcoords, indices);
+}
+
+void AssetsLoader::EncodeTBN(const glm::vec3 &tangent, const glm::vec3 &bitangent, const glm::vec3 &normal, glm::quat &q)
+{
+    // Convert {t, b, n} to a quaternion
+    q = glm::quat_cast(glm::mat3(tangent, glm::cross(normal, tangent), normal));
+    
+    // Ensure q.w is positive
+    q = glm::normalize(q);
+    if (q.w < 0)
+    {
+        q = -q;
+    }
+
+    // Since -0 cannot always be represented on the GPU, computes a bias to ensure w is never 0.0
+    const float bias = 3e-5f;
+    if (q.w < bias)
+    {
+        q.w = bias;
+
+        // Ensure q.xyz is normalized, (q.x)^2 + (q.y)^2 + (q.z)^2 = 1
+        const float factor = std::sqrt(1.0 - (double)bias * (double)bias);
+        q.x *= factor;
+        q.y *= factor;
+        q.z *= factor;
+    }
+    
+    // TBN must form a right handed coord system, some models have symetric UVs.
+    // If there's a reflection ((n x t) . b <= 0), make sure w is negative
+    if (glm::dot(glm::cross(tangent, normal), bitangent) < 0.0f)
+    {
+        q = -q;
+    }
 }
 
 Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)

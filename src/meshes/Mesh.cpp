@@ -1,10 +1,10 @@
 #include "meshes/Mesh.h"
 
-Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec3> &normals, const std::vector<vec4> &tangents, const std::vector<vec2> &texcoords0, const std::vector<unsigned int> &indices)
+Mesh::Mesh(const std::vector<vec3> &vertices, const std::vector<vec4> &tangents, const std::vector<vec2> &texcoords0, const std::vector<unsigned int> &indices)
     : m_VertexArrayID(0), m_VertexBufferID(0), m_ElementBufferID(0)
 {
     m_Vertices = vertices;
-    m_Normals = normals;
+//    m_Normals = normals;
     m_Tangents = tangents;
     m_Texcoords = texcoords0;
     m_Indices = indices;
@@ -49,12 +49,12 @@ void Mesh::InitBuffers()
         data.push_back(m_Vertices[i].y);
         data.push_back(m_Vertices[i].z);
 
-        if (m_Normals.size() > 0)
-        {
-            data.push_back(m_Normals[i].x);
-            data.push_back(m_Normals[i].y);
-            data.push_back(m_Normals[i].z);
-        }
+//        if (m_Normals.size() > 0)
+//        {
+//            data.push_back(m_Normals[i].x);
+//            data.push_back(m_Normals[i].y);
+//            data.push_back(m_Normals[i].z);
+//        }
         
         if (m_Tangents.size() > 0)
         {
@@ -82,7 +82,7 @@ void Mesh::InitBuffers()
     }
 
     GLsizei stride = 3 * sizeof(float);
-    if (m_Normals.size() > 0) stride += 3 * sizeof(float);
+//    if (m_Normals.size() > 0) stride += 3 * sizeof(float);
     if (m_Tangents.size() > 0) stride += 4 * sizeof(float);
     if (m_Texcoords.size() > 0) stride += 2 * sizeof(float);
 
@@ -91,24 +91,24 @@ void Mesh::InitBuffers()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offset);
     offset += 3 * sizeof(float);
 
-    if (m_Normals.size() > 0)
-    {
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
-         offset += 3 * sizeof(float);
-    }
-    
+//    if (m_Normals.size() > 0)
+//    {
+//        glEnableVertexAttribArray(1);
+//        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
+//         offset += 3 * sizeof(float);
+//    }
+
     if (m_Tangents.size() > 0)
     {
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset);
          offset += 4 * sizeof(float);
     }
     
     if (m_Texcoords.size() > 0)
     {
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offset);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)offset);
 //        offset += 2 * sizeof(float);
     }
 

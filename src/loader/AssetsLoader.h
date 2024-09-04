@@ -28,6 +28,10 @@ private:
     static std::string ReadShader(std::ifstream &file, const std::string &name);
     static SceneNode::Ptr ProcessAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &calculateAABB);
     static Mesh::Ptr ParseMesh(aiMesh* aMesh, const aiScene* aScene);
+    
+    // Encode the orthonormal basis as a quaternion to save space in the attributes, and the sign of the w component preserve the reflection ((n x t) . b <= 0)
+    static void EncodeTBN(const glm::vec3 &tangent, const glm::vec3 &bitangent, const glm::vec3 &normal, glm::quat &q);
+
     static Material::Ptr ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory);
     static Texture2D::Ptr LoadAssimpTexture(const std::string &textureName, const std::string &directory, const std::string &texturePath);
 

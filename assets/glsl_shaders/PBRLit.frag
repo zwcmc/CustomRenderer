@@ -67,7 +67,6 @@ void main()
         perceptualRoughness *= metallicRoughness.g;
     }
 
-    // vec3 N = uNormalMapSet > 0.0 ? GetNormalWS(uNormalMap, fs_in.WorldPosition, fs_in.Normal, fs_in.UV0) : normalize(fs_in.Normal);
     vec3 N;
     if (uNormalMapSet > 0.0)
     {
