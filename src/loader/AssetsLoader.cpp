@@ -318,8 +318,8 @@ void AssetsLoader::EncodeTBN(const glm::vec3 &tangent, const glm::vec3 &bitangen
 
 Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
-//    Material::Ptr mat = Material::New("Blinn-Phong", "BlinnPhong.vert", "BlinnPhong.frag");
-    Material::Ptr mat = Material::New("PBR", "PBRLit.vert", "PBRLit.frag");
+//    Material::Ptr mat = Material::New("Blinn-Phong", "Lit.vert", "BlinnPhong.frag");
+    Material::Ptr mat = Material::New("PBR", "Lit.vert", "PBRLit.frag");
 
     // Base map
     aiString texturePath;
