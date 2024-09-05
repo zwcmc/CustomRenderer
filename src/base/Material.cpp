@@ -8,16 +8,14 @@ Material::Material(const std::string &shaderName, const std::string &vsPath, con
     m_Shader = AssetsLoader::LoadShader(shaderName, vsPath, fsPath);
     
     if (m_UsedForSkybox)
+    {
         m_DoubleSided = true;
+    }
 }
 
 Material::~Material()
 {
-    m_Textures.clear();
-    m_TextureCubes.clear();
-    m_UniformVec3.clear();
-    m_UniformVec4.clear();
-    m_UniformFloats.clear();
+    ClearUniforms();
 }
 
 void Material::AddOrSetTexture(Texture2D::Ptr texture)
@@ -34,11 +32,6 @@ void Material::AddOrSetTexture(const std::string &propertyName, Texture2D::Ptr t
 {
     texture->SetTextureName(propertyName);
     m_Textures.insert_or_assign(propertyName, texture);
-}
-
-void Material::AddOrSetVector(const std::string &propertyName, const glm::vec3 &value)
-{
-    m_UniformVec3.insert_or_assign(propertyName, value);
 }
 
 void Material::AddOrSetVector(const std::string &propertyName, const glm::vec4 &value)
@@ -75,14 +68,6 @@ void Material::Use()
 {
     m_Shader->Use();
 
-    if (m_UniformVec3.size() > 0)
-    {
-        for (auto &pair : m_UniformVec3)
-        {
-            m_Shader->SetUniformVector(pair.first, pair.second);
-        }
-    }
-
     if (m_UniformVec4.size() > 0)
     {
         for (auto &pair : m_UniformVec4)
@@ -115,4 +100,12 @@ void Material::Use()
             ++unit;
         }
     }
+}
+
+void Material::ClearUniforms()
+{
+    m_Textures.clear();
+    m_TextureCubes.clear();
+    m_UniformVec4.clear();
+    m_UniformFloats.clear();
 }

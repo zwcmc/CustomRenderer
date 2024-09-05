@@ -107,13 +107,13 @@ int main()
 //    glTFNode->Translate(glm::vec3(3.0f, 5.0f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(glTFNode);
 
-//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
-//    m_SceneRenderGraph->AddSceneNode(marry);
-//
-//    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-//    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-//    m_SceneRenderGraph->AddSceneNode(ground);
+    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
+    m_SceneRenderGraph->AddSceneNode(marry);
+
+    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(ground);
 
     // Get the real size in pixels
     int realWidth, realHeight;
@@ -148,9 +148,11 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
-            ImGui::Begin("Status", (bool*)1);
+            ImGui::Begin("Status", (bool*)true);
             ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
-            
+
+            ImGui::Text(StatusRecorder::DeferredRendering ? "Rendering Path: Deferred" : "Rendering Path: Forward");
+
             if (ImGui::TreeNode("Post-processing"))
             {
                 if (ImGui::TreeNode("Bloom"))

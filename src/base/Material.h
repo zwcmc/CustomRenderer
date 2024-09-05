@@ -26,7 +26,6 @@ public:
     void AddOrSetTexture(Texture2D::Ptr texture);
     void AddOrSetTextureCube(TextureCube::Ptr textureCube);
     void AddOrSetTexture(const std::string &propertyName, Texture2D::Ptr texture);
-    void AddOrSetVector(const std::string &propertyName, const glm::vec3 &value);
     void AddOrSetVector(const std::string &propertyName, const glm::vec4 &value);
     void AddOrSetFloat(const std::string &propertyName, const float &value);
 
@@ -47,18 +46,19 @@ public:
     std::string GetShaderName() { return m_Shader->GetName(); }
 
     void Use();
+    
+    void ClearUniforms();
+
 private:
     Shader::Ptr m_Shader;
 
     std::map<std::string, Texture2D::Ptr> m_Textures;
     std::map<std::string, TextureCube::Ptr> m_TextureCubes;
-    std::map<std::string, glm::vec3> m_UniformVec3;
     std::map<std::string, glm::vec4> m_UniformVec4;
     std::map<std::string, float> m_UniformFloats;
 
     bool m_UsedForSkybox;
     bool m_DoubleSided;
     AlphaMode m_AlphaMode;
-
     bool m_CastShadows;
 };

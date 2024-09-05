@@ -9,6 +9,8 @@
 #include "renderer/Blitter.h"
 #include "lights/DirectionalLight.h"
 
+#include "utility/StatusRecorder.h"
+
 using namespace Collision;
 
 SceneRenderGraph::SceneRenderGraph()
@@ -60,6 +62,10 @@ void SceneRenderGraph::Init()
     
     // Post processing
     m_PostProcessing = PostProcessing::New();
+    
+    // Deffered rendering gbuffer
+    m_GBufferRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 4, true);
+    m_DeferredLightingMat = Material::New("Deferred Lighting", "post_processing/Blit.vs", "DeferredLit.fs");
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vs", "utils/DrawBoundingBox.fs");
     m_DebuggingAABBMat->SetDoubleSided(true);
@@ -80,7 +86,9 @@ void SceneRenderGraph::SetRenderSize(const int &width, const int &height)
 
     m_Camera->SetScreenSize(width, height);
 
-    m_IntermediateRT->SetSize(u32vec2(width, height));
+    m_IntermediateRT->SetSize(glm::u32vec2(width, height));
+    
+    m_GBufferRT->SetSize(width, height);
 }
 
 void SceneRenderGraph::SetCamera(Camera::Ptr camera)
@@ -154,30 +162,18 @@ void SceneRenderGraph::PepareRenderCommands()
     BuildSkyboxRenderCommands();
 }
 
-void SceneRenderGraph::Render()
+void SceneRenderGraph::UpdateGlobalUniformsData(const Camera::Ptr camera, const Light::Ptr light)
 {
-    // Build render commands
-    PepareRenderCommands();
-
-    DirectionalLight::Ptr currentLight = m_MainLight;
-    Camera::Ptr currentCamera = m_Camera;
-
-    // Render shadow map first
-    if (currentLight->IsCastShadow())
-    {
-        m_DirectionalShadowMap->RenderShadowMap(currentCamera, currentLight, m_CommandBuffer->GetShadowCasterCommands(), m_Scene);
-    }
-
     // Set global uniforms
     glBindBuffer(GL_UNIFORM_BUFFER, m_GlobalUniformBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(currentCamera->GetViewMatrix()[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(currentCamera->GetProjectionMatrix()[0].x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(currentLight->GetLightPosition().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(currentLight->GetLightColor().x));
-    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(currentCamera->GetEyePosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &(camera->GetViewMatrix()[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &(camera->GetProjectionMatrix()[0].x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 128, 16, &(light->GetLightPosition().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 144, 16, &(light->GetLightColor().x));
+    glBufferSubData(GL_UNIFORM_BUFFER, 160, 16, &(camera->GetEyePosition().x));
 
     // Set light cascade data
-    if (currentLight->IsCastShadow())
+    if (light->IsCastShadow())
     {
         glBufferSubData(GL_UNIFORM_BUFFER, 176, 256, &(m_DirectionalShadowMap->GetShadowProjections()[0][0].x));
         glBufferSubData(GL_UNIFORM_BUFFER, 432, 64, &(m_DirectionalShadowMap->GetLightCameraView()[0].x));
@@ -185,7 +181,7 @@ void SceneRenderGraph::Render()
         glBufferSubData(GL_UNIFORM_BUFFER, 560, 16, &(m_DirectionalShadowMap->GetShadowCascadeParams()));
     }
 
-    glm::u32vec2 shadowMapSize = currentLight->GetShadowMapSize();
+    glm::u32vec2 shadowMapSize = light->GetShadowMapSize();
     glm::vec4 shadowMapTexelSize = glm::vec4(1.0f / shadowMapSize.x, 1.0f / shadowMapSize.y, shadowMapSize.x, shadowMapSize.y);
     glBufferSubData(GL_UNIFORM_BUFFER, 576, 16, &shadowMapTexelSize.x);
 
@@ -195,19 +191,79 @@ void SceneRenderGraph::Render()
     //     glBufferSubData(GL_UNIFORM_BUFFER, 496 + (i * 16), 16, &cascadeScales[i]);
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
 
-    // Blitter::BlitToCameraTarget(currentLight->GetShadowMapRT()->GetShadowMapTexture(), currentCamera); return;
+void SceneRenderGraph::Render()
+{
+    // Build render commands
+    PepareRenderCommands();
 
-    // Bind intermediate framebuffer
-    m_IntermediateRT->Bind();
+    DirectionalLight::Ptr currentLight = m_MainLight;
+    Camera::Ptr currentCamera = m_Camera;
 
-    // Opaque
-    std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->GetOpaqueCommands();
-    for (size_t i = 0; i < opaqueCommands.size(); ++i)
+    // Render shadow map
+    if (currentLight->IsCastShadow())
     {
-       RenderCommand::Ptr command = opaqueCommands[i];
-       RenderCommand(command, currentLight);
+        m_DirectionalShadowMap->RenderShadowMap(currentCamera, currentLight, m_CommandBuffer->GetShadowCasterCommands(), m_Scene);
     }
+
+    UpdateGlobalUniformsData(currentCamera, currentLight);
+    
+    bool isDeferred = StatusRecorder::DeferredRendering;
+    if (isDeferred)
+    {
+        m_GBufferRT->Bind();
+
+        unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+        glDrawBuffers(4, attachments);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        // Opaque
+        std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->GetOpaqueCommands();
+        for (size_t i = 0; i < opaqueCommands.size(); ++i)
+        {
+            RenderCommand::Ptr command = opaqueCommands[i];
+            RenderCommand(command, currentLight);
+        }
+
+        attachments[1] = GL_NONE;
+        attachments[2] = GL_NONE;
+        attachments[3] = GL_NONE;
+        glDrawBuffers(4, attachments);
+        
+        // Bind intermediate framebuffer
+        m_IntermediateRT->Bind();
+
+        // Deferred lighting
+        m_DeferredLightingMat->AddOrSetTexture("uGBuffer0", m_GBufferRT->GetColorTexture(0));
+        m_DeferredLightingMat->AddOrSetTexture("uGBuffer1", m_GBufferRT->GetColorTexture(1));
+        m_DeferredLightingMat->AddOrSetTexture("uGBuffer2", m_GBufferRT->GetColorTexture(2));
+        m_DeferredLightingMat->AddOrSetTexture("uGBuffer3", m_GBufferRT->GetColorTexture(3));
+
+        SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
+
+        Blitter::Render(m_DeferredLightingMat);
+
+        // Copy depth
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GBufferRT->GetFrameBufferID());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_IntermediateRT->GetFrameBufferID());
+        glBlitFramebuffer(0, 0, m_GBufferRT->GetSize().x, m_GBufferRT->GetSize().y, 0, 0, m_IntermediateRT->GetSize().x, m_IntermediateRT->GetSize().y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    }
+    else
+    {
+        // Bind intermediate framebuffer
+        m_IntermediateRT->Bind();
+
+        // Opaque
+        std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->GetOpaqueCommands();
+        for (size_t i = 0; i < opaqueCommands.size(); ++i)
+        {
+           RenderCommand::Ptr command = opaqueCommands[i];
+           RenderCommand(command, currentLight);
+        }
+    }
+    
+//    Blitter::BlitToCameraTarget(m_IntermediateRT->GetColorTexture(0), currentCamera); return;
 
     // Skybox start ----------------
     // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
@@ -259,26 +315,7 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     SetGLCull(!mat->GetDoubleSided());
     SetGLBlend(mat->GetAlphaMode() == Material::AlphaMode::BLEND);
 
-    if (!mat->IsUsedForSkybox())
-    {
-        mat->AddOrSetTextureCube(m_EnvIBL->GetIrradiance());
-        mat->AddOrSetTextureCube(m_EnvIBL->GetPrefiltered());
-        mat->AddOrSetTexture(m_EnvIBL->GetBRDFLUTTexture());
-    }
-
-    if (mat->GetMaterialCastShadows())
-    {
-        if (light->IsCastShadow())
-        {
-            mat->AddOrSetFloat("uShadowMapSet", 1.0f);
-            mat->AddOrSetTexture(light->GetShadowMapRT()->GetShadowMapTexture());
-        }
-        else
-        {
-            mat->AddOrSetFloat("uShadowMapSet", -1.0f);
-            mat->AddOrSetTexture(light->GetEmptyShadowMapTexture());
-        }
-    }
+    SetMatIBLAndShadow(mat, light);
 
     mat->Use();
     
@@ -335,6 +372,30 @@ glm::mat3 SceneRenderGraph::FastCofactor(const glm::mat3 &m)
     return cof;
 }
 
+void SceneRenderGraph::SetMatIBLAndShadow(Material::Ptr &mat, Light::Ptr light)
+{
+    if (!mat->IsUsedForSkybox())
+    {
+        mat->AddOrSetTextureCube(m_EnvIBL->GetIrradiance());
+        mat->AddOrSetTextureCube(m_EnvIBL->GetPrefiltered());
+        mat->AddOrSetTexture(m_EnvIBL->GetBRDFLUTTexture());
+    }
+
+    if (mat->GetMaterialCastShadows())
+    {
+        if (light->IsCastShadow())
+        {
+            mat->AddOrSetFloat("uShadowMapSet", 1.0f);
+            mat->AddOrSetTexture(light->GetShadowMapRT()->GetShadowMapTexture());
+        }
+        else
+        {
+            mat->AddOrSetFloat("uShadowMapSet", -1.0f);
+            mat->AddOrSetTexture(light->GetEmptyShadowMapTexture());
+        }
+    }
+}
+
 void SceneRenderGraph::RenderMesh(Mesh::Ptr mesh)
 {
     glBindVertexArray(mesh->GetVertexArrayID());
@@ -358,9 +419,13 @@ void SceneRenderGraph::SetGLCull(bool enable)
     {
         m_CullFace = enable;
         if (enable)
+        {
             glEnable(GL_CULL_FACE);
+        }
         else
+        {
             glDisable(GL_CULL_FACE);
+        }
     }
 }
 
@@ -370,8 +435,12 @@ void SceneRenderGraph::SetGLBlend(bool enable)
     {
         m_Blend = enable;
         if (enable)
+        {
             glEnable(GL_BLEND);
+        }
         else
+        {
             glDisable(GL_BLEND);
+        }
     }
 }

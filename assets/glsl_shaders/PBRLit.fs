@@ -22,7 +22,7 @@ uniform float uNormalMapSet;
 // Emission
 uniform sampler2D uEmissiveMap;
 uniform float uEmissiveMapSet;
-uniform vec3 uEmissiveColor;
+uniform vec4 uEmissiveColor;
 
 // Metallic and roughness
 uniform sampler2D uMetallicRoughnessMap;
@@ -161,7 +161,7 @@ void main()
     Lo *= occlusion;
 
     // Emissive
-    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, uv)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
+    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, uv)).rgb * uEmissiveColor.rgb : vec3(0.0);
     Lo += emission;
 
     FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? albedo.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];

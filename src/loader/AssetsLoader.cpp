@@ -12,6 +12,8 @@
 
 #include "utility/Collision.h"
 
+#include "utility/StatusRecorder.h"
+
 using namespace Collision;
 
 std::map<std::string, Texture2D::Ptr> AssetsLoader::assimpTextures = {};
@@ -208,7 +210,7 @@ SceneNode::Ptr AssetsLoader::ProcessAssimpNode(aiNode* aNode, const aiScene* aSc
             
             aiMaterial* assimpMat = aScene->mMaterials[assimpMesh->mMaterialIndex];
             Material::Ptr mat = AssetsLoader::ParseMaterial(assimpMat, aScene, directory);
-            
+
             node->MeshRenders.push_back(MeshRender::New(mesh, mat));
         }
     }
@@ -318,8 +320,35 @@ void AssetsLoader::EncodeTBN(const glm::vec3 &tangent, const glm::vec3 &bitangen
 
 Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* aScene, const std::string& directory)
 {
+    // Blend mode
+    aiString alphaMode("OPAQUE");
+    Material::AlphaMode mode = Material::AlphaMode::DEFAULT_OPAQUE;
+    if (AI_SUCCESS == aiGetMaterialString(aMaterial, AI_MATKEY_GLTF_ALPHAMODE, &alphaMode))
+    {
+        std::string m = alphaMode.C_Str();
+        if (m == "MASK")
+        {
+            mode = Material::AlphaMode::MASK;
+        }
+        else if (m == "BLEND")
+        {
+            mode = Material::AlphaMode::BLEND;
+        }
+    }
+
 //    Material::Ptr mat = Material::New("Blinn-Phong", "Lit.vs", "BlinnPhong.fs");
-    Material::Ptr mat = Material::New("PBR", "Lit.vs", "PBRLit.fs");
+//    Material::Ptr mat = Material::New("PBR", "Lit.vs", "PBRLit.fs");
+//    Material::Ptr mat = Material::New("GBuffer", "GBuffer.vs", "GBuffer.fs");
+    
+    Material::Ptr mat;
+    if (mode == Material::AlphaMode::BLEND || !StatusRecorder::DeferredRendering)
+    {
+        mat = Material::New("PBR", "Lit.vs", "PBRLit.fs");
+    }
+    else
+    {
+        mat = Material::New("GBuffer", "GBuffer.vs", "GBuffer.fs");
+    }
 
     // Base map
     aiString texturePath;
@@ -367,11 +396,11 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     // Emission color
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_EMISSIVE, &color))
     {
-        mat->AddOrSetVector("uEmissiveColor", glm::vec3(color.r, color.g, color.b));
+        mat->AddOrSetVector("uEmissiveColor", glm::vec4(color.r, color.g, color.b, 1.0f));
     }
     else
     {
-        mat->AddOrSetVector("uEmissiveColor", glm::vec3(1.0f));
+        mat->AddOrSetVector("uEmissiveColor", glm::vec4(1.0f));
     }
 
     // Metallic roughness texture
@@ -429,20 +458,6 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->SetDoubleSided(false);
     }
 
-    aiString alphaMode("OPAQUE");
-    Material::AlphaMode mode = Material::AlphaMode::DEFAULT_OPAQUE;
-    if (AI_SUCCESS == aiGetMaterialString(aMaterial, AI_MATKEY_GLTF_ALPHAMODE, &alphaMode))
-    {
-        std::string m = alphaMode.C_Str();
-        if (m == "MASK")
-        {
-            mode = Material::AlphaMode::MASK;
-        }
-        else if (m == "BLEND")
-        {
-            mode = Material::AlphaMode::BLEND;
-        }
-    }
     mat->SetAlphaMode(mode);
     mat->AddOrSetFloat("uAlphaBlendSet", mode == Material::AlphaMode::BLEND ? 1.0f : -1.0f);
     mat->AddOrSetFloat("uAlphaTestSet", mode == Material::AlphaMode::MASK ? 1.0f : -1.0f);

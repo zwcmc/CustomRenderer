@@ -49,11 +49,14 @@ public:
 private:
     
     void PepareRenderCommands();
+    void UpdateGlobalUniformsData(const Camera::Ptr camera, const Light::Ptr light);
 
     void BuildSkyboxRenderCommands();
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
-    
+
     glm::mat3 FastCofactor(const glm::mat3 &matrix);
+    
+    void SetMatIBLAndShadow(Material::Ptr &mat, Light::Ptr light);
 
     void SetGLCull(bool enable);
     void SetGLBlend(bool enable);
@@ -81,6 +84,10 @@ private:
     
     // Post processing
     PostProcessing::Ptr m_PostProcessing;
+    
+    // Deferred rendering gbuffer
+    RenderTarget::Ptr m_GBufferRT;
+    Material::Ptr m_DeferredLightingMat;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms

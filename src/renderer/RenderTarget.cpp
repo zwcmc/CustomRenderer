@@ -136,3 +136,8 @@ void RenderTarget::Unbind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+GLuint& RenderTarget::GetFrameBufferID()
+{
+    return m_FrameBufferID;
+}

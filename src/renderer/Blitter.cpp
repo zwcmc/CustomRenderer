@@ -12,7 +12,9 @@ void Blitter::BlitToTarget(const Texture2D::Ptr sourceTex, const RenderTarget::P
     target->Bind();
 
     if (blitMat == nullptr)
+    {
         blitMat = Mat;
+    }
 
     sourceTex->SetTextureName("uSourceTex");
     blitMat->AddOrSetTexture(sourceTex);
@@ -49,7 +51,9 @@ void Blitter::BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::P
     targetCamera->BindCameraTarget();
 
     if (blitMat == nullptr)
+    {
         blitMat = Mat;
+    }
 
     // Setup source texture
     source->GetColorTexture(0)->SetTextureName("uSourceTex");
@@ -69,7 +73,9 @@ void Blitter::BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::P
     targetCamera->BindCameraTarget();
 
     if (blitMat == nullptr)
+    {
         blitMat = Mat;
+    }
 
     // Setup source texture
     sourceTex->SetTextureName("uSourceTex");
@@ -89,7 +95,9 @@ void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitM
     target->Bind();
 
     if (blitMat == nullptr)
+    {
         blitMat = Mat;
+    }
 
     blitMat->Use();
 
@@ -98,6 +106,20 @@ void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitM
     glBindVertexArray(0);
     
     target->Unbind();
+}
+
+void Blitter::Render(Material::Ptr blitMat)
+{
+    if (blitMat == nullptr)
+    {
+        blitMat = Mat;
+    }
+
+    blitMat->Use();
+
+    glBindVertexArray(BlitVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
 }
 
 void Blitter::Init()

@@ -25,6 +25,8 @@ public:
 
     void Bind();
     void Unbind();
+    
+    GLuint& GetFrameBufferID();
 
 private:
     GLuint m_FrameBufferID;

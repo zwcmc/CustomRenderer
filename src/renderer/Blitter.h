@@ -15,6 +15,8 @@ public:
     static void BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::Ptr targetCamera, Material::Ptr blitMat = nullptr);
     static void BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::Ptr targetCamera, Material::Ptr blitMat = nullptr);
     static void RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitMat = nullptr);
+    
+    static void Render(Material::Ptr blitMat = nullptr);
 
     static void Init();
     static void Cleanup();

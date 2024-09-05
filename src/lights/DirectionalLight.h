@@ -17,7 +17,7 @@ public:
     virtual RenderTarget::Ptr GetShadowMapRT() override;
     virtual Texture2D::Ptr GetEmptyShadowMapTexture() override;
     
-    glm::u32vec2& GetShadowMapSize();
+    virtual glm::u32vec2& GetShadowMapSize() override;
     
 private:
     RenderTarget::Ptr m_ShadowMapRT;
