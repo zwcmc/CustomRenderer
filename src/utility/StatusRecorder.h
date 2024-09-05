@@ -3,11 +3,10 @@
 class StatusRecorder
 {
 public:
-    static bool BloomOn;
+    static bool Bloom;
     static float BloomIntensity;
     static float BloomScatter;
-    static bool FXAAOn;
-    static bool ToneMappingOn;
-    
-    static bool DefferedRendering;
+    static bool FXAA;
+    static bool ToneMapping;
+    static bool DeferredRendering;
 };

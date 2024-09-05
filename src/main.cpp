@@ -150,12 +150,27 @@ int main()
         {
             ImGui::Begin("Status", (bool*)1);
             ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
-            ImGui::Checkbox("Bloom", &StatusRecorder::BloomOn);
-            ImGui::SliderFloat("Intensity", &StatusRecorder::BloomIntensity, 0.0f, 1.0f);
-            ImGui::SliderFloat("Scatter", &StatusRecorder::BloomScatter, 0.0f, 1.0f);
-            ImGui::Checkbox("ToneMapping", &StatusRecorder::ToneMappingOn);
             
-            ImGui::Checkbox("FXAA On", &StatusRecorder::FXAAOn);
+            if (ImGui::TreeNode("Post-processing"))
+            {
+                if (ImGui::TreeNode("Bloom"))
+                {
+                    ImGui::Checkbox("Enable", &StatusRecorder::Bloom);
+                    ImGui::SliderFloat("Intensity", &StatusRecorder::BloomIntensity, 0.0f, 1.0f);
+                    ImGui::SliderFloat("Scatter", &StatusRecorder::BloomScatter, 0.0f, 1.0f);
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Color Grading"))
+                {
+                    ImGui::Checkbox("ToneMapping", &StatusRecorder::ToneMapping);
+                    ImGui::TreePop();
+                }
+                
+                ImGui::Checkbox("FXAA", &StatusRecorder::FXAA);
+
+                ImGui::TreePop();
+            }
         }
         ImGui::End();
         // Rendering

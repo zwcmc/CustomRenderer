@@ -28,7 +28,7 @@ PostProcessing::~PostProcessing()
 
 void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr targetCamera)
 {
-    bool bloomActive = StatusRecorder::BloomOn;
+    bool bloomActive = StatusRecorder::Bloom;
     if (bloomActive)
     {
         // Bloom
@@ -43,19 +43,19 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
         m_CombinePostMat->AddOrSetFloat("uBloomSet", -1.0f);
     }
     
-    bool fxaaActive = StatusRecorder::FXAAOn;
+    bool fxaaActive = StatusRecorder::FXAA;
     if (fxaaActive)
     {
         // Combine post-processing
         m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatusRecorder::BloomIntensity);
         m_CombinePostMat->AddOrSetFloat("uBlitToCamera", -1.0f);
-        m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMappingOn ? 1.0 : -1.0);
+        m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMapping ? 1.0 : -1.0);
         RenderTarget::Ptr tempRT = RenderTarget::New(source->GetSize(), GL_HALF_FLOAT, 1);
         Blitter::BlitToTarget(source, tempRT, m_CombinePostMat);
 
         // Blit to camera with FXAA
         m_FinalPostMat->AddOrSetFloat("uFXAASet", 1.0f);
-        m_FinalPostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMappingOn ? 1.0 : -1.0);
+        m_FinalPostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMapping ? 1.0 : -1.0);
         Blitter::BlitToCameraTarget(tempRT, targetCamera, m_FinalPostMat);
     }
     else
@@ -63,7 +63,7 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
         // Combine post-processing
         m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatusRecorder::BloomIntensity);
         m_CombinePostMat->AddOrSetFloat("uBlitToCamera", 1.0f);
-        m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMappingOn ? 1.0 : -1.0);
+        m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMapping ? 1.0 : -1.0);
         Blitter::BlitToCameraTarget(source, targetCamera, m_CombinePostMat);
     }
 }
