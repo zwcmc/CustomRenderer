@@ -37,7 +37,7 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
     {
         for (size_t i = 0; i < colorAttachmentsNum; i++)
         {
-            Texture2D::Ptr colorAttachment = Texture2D::New("_ColorAttachment" + std::to_string(i));
+            Texture2D::Ptr colorAttachment = Texture2D::New("uColorAttachment" + std::to_string(i));
             colorAttachment->InitTexture2D(size, internalFormat, GL_RGBA, type, nullptr);
             colorAttachment->SetWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
@@ -48,7 +48,7 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
         // Create depth attachment if needed
         if (hasDepth)
         {
-            m_DepthAttachment = Texture2D::New("_DepthAttachment");
+            m_DepthAttachment = Texture2D::New("uDepthAttachment");
             m_DepthAttachment->InitTexture2D(size, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_HALF_FLOAT, nullptr);
             m_DepthAttachment->SetWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
