@@ -242,7 +242,7 @@ void SceneRenderGraph::Render()
 
         SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
 
-        Blitter::Render(m_DeferredLightingMat);
+        Blitter::FullScreenRender(m_DeferredLightingMat);
 
         // Copy depth
         glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GBufferRT->GetFrameBufferID());

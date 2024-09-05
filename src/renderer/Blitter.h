@@ -16,11 +16,13 @@ public:
     static void BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::Ptr targetCamera, Material::Ptr blitMat = nullptr);
     static void RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitMat = nullptr);
     
-    static void Render(Material::Ptr blitMat = nullptr);
+    static void FullScreenRender(Material::Ptr blitMat = nullptr);
 
     static void Init();
     static void Cleanup();
-
+private:
+    static void DrawFullScreenTriangle();
+    
     static GLuint BlitVAO;
-    static Material::Ptr Mat;
+    static Material::Ptr DefaultBlitMat;
 };

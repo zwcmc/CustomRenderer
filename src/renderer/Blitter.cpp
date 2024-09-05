@@ -3,7 +3,7 @@
 #include <assert.h>
 
 GLuint Blitter::BlitVAO = 0;
-Material::Ptr Blitter::Mat = nullptr;
+Material::Ptr Blitter::DefaultBlitMat = nullptr;
 
 void Blitter::BlitToTarget(const Texture2D::Ptr sourceTex, const RenderTarget::Ptr target, Material::Ptr blitMat)
 {
@@ -13,7 +13,7 @@ void Blitter::BlitToTarget(const Texture2D::Ptr sourceTex, const RenderTarget::P
 
     if (blitMat == nullptr)
     {
-        blitMat = Mat;
+        blitMat = DefaultBlitMat;
     }
 
     sourceTex->SetTextureName("uSourceTex");
@@ -21,9 +21,7 @@ void Blitter::BlitToTarget(const Texture2D::Ptr sourceTex, const RenderTarget::P
 
     blitMat->Use();
 
-    glBindVertexArray(BlitVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+    DrawFullScreenTriangle();
     
     target->Unbind();
 }
@@ -34,7 +32,7 @@ void Blitter::BlitToTarget(const RenderTarget::Ptr source, const RenderTarget::P
 
     if (blitMat == nullptr)
     {
-        blitMat = Mat;
+        blitMat = DefaultBlitMat;
     }
     
     Texture2D::Ptr sourceTex = source->GetColorTexture(0);
@@ -52,7 +50,7 @@ void Blitter::BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::P
 
     if (blitMat == nullptr)
     {
-        blitMat = Mat;
+        blitMat = DefaultBlitMat;
     }
 
     // Setup source texture
@@ -61,9 +59,7 @@ void Blitter::BlitToCameraTarget(const RenderTarget::Ptr source, const Camera::P
 
     blitMat->Use();
 
-    glBindVertexArray(BlitVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+    DrawFullScreenTriangle();
 }
 
 void Blitter::BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::Ptr targetCamera, Material::Ptr blitMat)
@@ -74,7 +70,7 @@ void Blitter::BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::P
 
     if (blitMat == nullptr)
     {
-        blitMat = Mat;
+        blitMat = DefaultBlitMat;
     }
 
     // Setup source texture
@@ -83,9 +79,7 @@ void Blitter::BlitToCameraTarget(const Texture2D::Ptr sourceTex, const Camera::P
 
     blitMat->Use();
 
-    glBindVertexArray(BlitVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+    DrawFullScreenTriangle();
 }
 
 void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitMat)
@@ -94,32 +88,21 @@ void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr blitM
 
     target->Bind();
 
-    if (blitMat == nullptr)
-    {
-        blitMat = Mat;
-    }
-
-    blitMat->Use();
-
-    glBindVertexArray(BlitVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+    FullScreenRender(blitMat);
     
     target->Unbind();
 }
 
-void Blitter::Render(Material::Ptr blitMat)
+void Blitter::FullScreenRender(Material::Ptr blitMat)
 {
     if (blitMat == nullptr)
     {
-        blitMat = Mat;
+        blitMat = DefaultBlitMat;
     }
 
     blitMat->Use();
 
-    glBindVertexArray(BlitVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+    DrawFullScreenTriangle();
 }
 
 void Blitter::Init()
@@ -129,13 +112,20 @@ void Blitter::Init()
         glGenVertexArrays(1, &BlitVAO);
     }
 
-    if (Mat == nullptr)
+    if (DefaultBlitMat == nullptr)
     {
-        Mat = Material::New("Blit", "utils/FullScreenTriangle.vs", "utils/BlitColor.fs");
+        DefaultBlitMat = Material::New("Blit", "utils/FullScreenTriangle.vs", "utils/BlitColor.fs");
     }
 }
 
 void Blitter::Cleanup()
 {
     glDeleteVertexArrays(1, &BlitVAO);
+}
+
+void Blitter::DrawFullScreenTriangle()
+{
+    glBindVertexArray(BlitVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
 }
