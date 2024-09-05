@@ -65,7 +65,7 @@ void SceneRenderGraph::Init()
     
     // Deffered rendering gbuffer
     m_GBufferRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 4, true);
-    m_DeferredLightingMat = Material::New("Deferred Lighting", "post_processing/Blit.vs", "DeferredLit.fs");
+    m_DeferredLightingMat = Material::New("Deferred Lighting", "utils/FullScreenTriangle.vs", "DeferredLit.fs");
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vs", "utils/DrawBoundingBox.fs");
     m_DebuggingAABBMat->SetDoubleSided(true);

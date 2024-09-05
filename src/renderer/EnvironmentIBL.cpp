@@ -106,7 +106,7 @@ void EnvironmentIBL::GenerateBRDFLUT()
 {
     m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
     m_BRDFLUTRenderTarget->GetColorTexture(0)->SetTextureName("uBRDFLUT");
-    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "post_processing/Blit.vs", "environment/GenerateBRDFLUT.fs");
+    Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "utils/FullScreenTriangle.vs", "environment/GenerateBRDFLUT.fs");
 
     Blitter::RenderToTarget(m_BRDFLUTRenderTarget, generateBRDFLUTFMat);
 }

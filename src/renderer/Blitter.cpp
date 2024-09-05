@@ -131,7 +131,7 @@ void Blitter::Init()
 
     if (Mat == nullptr)
     {
-        Mat = Material::New("Blit", "post_processing/Blit.vs", "post_processing/Blit.fs");
+        Mat = Material::New("Blit", "utils/FullScreenTriangle.vs", "utils/BlitColor.fs");
     }
 }
 
