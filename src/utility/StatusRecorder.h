@@ -1,6 +1,6 @@
 #pragma once
 
-class StatsRecorder
+class StatusRecorder
 {
 public:
     static bool BloomOn;
@@ -8,4 +8,6 @@ public:
     static float BloomScatter;
     static bool FXAAOn;
     static bool ToneMappingOn;
+    
+    static bool DefferedRendering;
 };

@@ -56,8 +56,11 @@ uniform float uShadowMapSet;
 
 void main()
 {
-    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
+    vec2 uv = fs_in.UV0;
 
+    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, uv)) * uBaseColor : uBaseColor;
+
+    // Alpha test
     if (uAlphaTestSet > 0.0)
     {
         if (albedo.a < uAlphaCutoff)
@@ -71,7 +74,7 @@ void main()
     if (uMetallicRoughnessMapSet > 0.0)
     {
         // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
-        vec4 metallicRoughness = texture(uMetallicRoughnessMap, fs_in.UV0);
+        vec4 metallicRoughness = texture(uMetallicRoughnessMap, uv);
         metallic *= metallicRoughness.b;
         perceptualRoughness *= metallicRoughness.g;
     }
@@ -83,7 +86,7 @@ void main()
         vec3 t = fs_in.WorldTangent.xyz;
         vec3 b = cross(n, t) * sign(fs_in.WorldTangent.w);
         mat3 TBN = mat3(t, b, n);
-        vec3 tangentNormal = texture(uNormalMap, fs_in.UV0).xyz * 2.0 - 1.0;
+        vec3 tangentNormal = texture(uNormalMap, uv).xyz * 2.0 - 1.0;
         N = normalize(TBN * tangentNormal);
     }
     else
@@ -150,14 +153,15 @@ void main()
     Lo += prefilteredColor * (F0 * envBRDF.x + envBRDF.y);
 
     // Occlusion
+    float occlusion = 1.0;
     if (uOcclusionMapSet > 0.0)
     {
-        float ao = texture(uOcclusionMap, fs_in.UV0).r;
-        Lo *= ao;
+        occlusion = texture(uOcclusionMap, uv).r;
     }
+    Lo *= occlusion;
 
     // Emissive
-    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, fs_in.UV0)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
+    vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, uv)).rgb * uEmissiveColor : vec3(0.0, 0.0, 0.0);
     Lo += emission;
 
     FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? albedo.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];

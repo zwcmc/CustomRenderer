@@ -10,13 +10,5 @@ uniform sampler2D uSourceTex;
 
 void main()
 {
-    vec4 color = texture(uSourceTex, UV0);
-
-    // HDR tonemapping
-    color.rgb = ACESFilm(color.rgb);
-
-    // Gamma correction in final blit
-    color = GammaCorrection(color);
-
-    FragColor = color;
+    FragColor = texture(uSourceTex, UV0);
 }

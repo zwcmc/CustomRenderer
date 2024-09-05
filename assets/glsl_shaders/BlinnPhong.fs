@@ -54,7 +54,9 @@ void CalculateRightAndUpTexelDepthDeltas(in vec3 texShadowView, in mat3 shadowPr
 
 void main()
 {
-    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, fs_in.UV0)) * uBaseColor : uBaseColor;
+    vec2 uv = fs_in.UV0;
+
+    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, uv)) * uBaseColor : uBaseColor;
 
     vec3 N;
     if (uNormalMapSet > 0.0)
@@ -63,7 +65,7 @@ void main()
         vec3 t = fs_in.WorldTangent.xyz;
         vec3 b = cross(n, t) * sign(fs_in.WorldTangent.w);
         mat3 TBN = mat3(t, b, n);
-        vec3 tangentNormal = texture(uNormalMap, fs_in.UV0).xyz * 2.0 - 1.0;
+        vec3 tangentNormal = texture(uNormalMap, uv).xyz * 2.0 - 1.0;
         N = normalize(TBN * tangentNormal);
     }
     else

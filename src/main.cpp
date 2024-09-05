@@ -18,7 +18,7 @@
 
 #include "scene/SceneRenderGraph.h"
 
-#include "utility/StatsRecorder.h"
+#include "utility/StatusRecorder.h"
 
 //#include <iomanip>
 
@@ -107,13 +107,13 @@ int main()
 //    glTFNode->Translate(glm::vec3(3.0f, 5.0f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(glTFNode);
 
-    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-    marry->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
-    m_SceneRenderGraph->AddSceneNode(marry);
-
-    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(ground);
+//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+//    marry->Translate(glm::vec3(-5.0f, -1.5f, -18.0f));
+//    m_SceneRenderGraph->AddSceneNode(marry);
+//
+//    SceneNode::Ptr ground = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+//    ground->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+//    m_SceneRenderGraph->AddSceneNode(ground);
 
     // Get the real size in pixels
     int realWidth, realHeight;
@@ -150,12 +150,12 @@ int main()
         {
             ImGui::Begin("Status", (bool*)1);
             ImGui::Text("FPS: %.1f(%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
-            ImGui::Checkbox("Bloom", &StatsRecorder::BloomOn);
-            ImGui::SliderFloat("Intensity", &StatsRecorder::BloomIntensity, 0.0f, 1.0f);
-            ImGui::SliderFloat("Scatter", &StatsRecorder::BloomScatter, 0.0f, 1.0f);
-            ImGui::Checkbox("ToneMapping", &StatsRecorder::ToneMappingOn);
+            ImGui::Checkbox("Bloom", &StatusRecorder::BloomOn);
+            ImGui::SliderFloat("Intensity", &StatusRecorder::BloomIntensity, 0.0f, 1.0f);
+            ImGui::SliderFloat("Scatter", &StatusRecorder::BloomScatter, 0.0f, 1.0f);
+            ImGui::Checkbox("ToneMapping", &StatusRecorder::ToneMappingOn);
             
-            ImGui::Checkbox("FXAA On", &StatsRecorder::FXAAOn);
+            ImGui::Checkbox("FXAA On", &StatusRecorder::FXAAOn);
         }
         ImGui::End();
         // Rendering
