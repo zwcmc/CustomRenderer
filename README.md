@@ -44,7 +44,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Bloom
 - [x] FXAA
 - [ ] MSAA
-- [ ] Deferred Rendering
+- [x] Deferred Rendering
 - [ ] SSAO
 - [ ] TAA
 - [ ] SSR
