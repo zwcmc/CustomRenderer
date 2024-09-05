@@ -43,7 +43,6 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
   - [ ] PCSS (Percentage Closer Soft Shadow)
 - [x] Bloom
 - [x] FXAA
-- [ ] MSAA
 - [x] Deferred Rendering
 - [ ] SSAO
 - [ ] TAA
