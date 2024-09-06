@@ -6,7 +6,7 @@ in vec2 UV0;
 #include "common/functions.glsl"
 #include "common/uniforms.glsl"
 #include "post_processing/tonemapping.glsl"
-#include "post_processing/FXAA.glsl"
+#include "post_processing/fxaa.glsl"
 
 uniform sampler2D uSourceTex;
 
