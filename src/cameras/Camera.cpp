@@ -81,9 +81,23 @@ float& Camera::GetFar()
     return m_ZFar;
 }
 
-void Camera::BindCameraTarget()
+void Camera::BindCameraTarget(const bool &clearColor, const bool &clearDepth)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, m_ScreenSize.x, m_ScreenSize.y);
+
+    GLbitfield mask = 0;
+    if (clearColor)
+    {
+        mask |= GL_COLOR_BUFFER_BIT;
+    }
+    if (clearDepth)
+    {
+        mask |= GL_DEPTH_BUFFER_BIT;
+    }
+
+    if (mask)
+    {
+        glClear(mask);
+    }
 }

@@ -130,7 +130,6 @@ void RenderTarget::BindTarget(const bool &clearColor, const bool &clearDepth)
     glViewport(0, 0, m_Size.x, m_Size.y);
     
     GLbitfield mask = 0;
-    
     if (clearColor)
     {
         mask |= GL_COLOR_BUFFER_BIT;

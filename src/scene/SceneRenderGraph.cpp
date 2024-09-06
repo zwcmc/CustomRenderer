@@ -230,27 +230,21 @@ void SceneRenderGraph::Render()
         attachments[2] = GL_NONE;
         attachments[3] = GL_NONE;
         glDrawBuffers(4, attachments);
-        
-        // Bind intermediate framebuffer
-//        m_IntermediateRT->BindTarget(true, true);
+
         // Deferred lighting
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer0", m_GBufferRT->GetColorTexture(0));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer1", m_GBufferRT->GetColorTexture(1));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer2", m_GBufferRT->GetColorTexture(2));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer3", m_GBufferRT->GetColorTexture(3));
-        SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
-        
-        Blitter::RenderToTarget(m_IntermediateRT, m_DeferredLightingMat);
 
-//        Blitter::FullScreenRender(m_DeferredLightingMat);
+        SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
+
+        Blitter::RenderToTarget(m_IntermediateRT, m_DeferredLightingMat);
 
         // Copy depth
         Blitter::CopyDepth(m_GBufferRT, m_IntermediateRT);
-//        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GBufferRT->GetFrameBufferID());
-//        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_IntermediateRT->GetFrameBufferID());
-//        glBlitFramebuffer(0, 0, m_GBufferRT->GetSize().x, m_GBufferRT->GetSize().y, 0, 0, m_IntermediateRT->GetSize().x, m_IntermediateRT->GetSize().y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-//        Blitter::BlitDepth(m_GBufferRT, m_IntermediateRT);
 
+        // Bind intermediate framebuffer
         m_IntermediateRT->BindTarget(false, false);
     }
     else
@@ -266,8 +260,8 @@ void SceneRenderGraph::Render()
            RenderCommand(command, currentLight);
         }
     }
-    
-//    Blitter::BlitToCameraTarget(m_IntermediateRT->GetDepthTexture(), currentCamera); return;
+
+    // Blitter::BlitCamera(m_IntermediateRT->GetDepthTexture(), currentCamera); return;
 
     // Skybox start ----------------
     // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will

@@ -22,8 +22,8 @@ public:
     glm::vec3& GetEyePosition();
     float& GetNear();
     float& GetFar();
-    
-    void BindCameraTarget();
+
+    void BindCameraTarget(const bool &clearColor, const bool &clearDepth);
 
     virtual void Zooming(const float &yoffset) { }
     virtual void Panning(const float &xoffset, const float &yoffset) { }

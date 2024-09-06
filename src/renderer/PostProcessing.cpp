@@ -51,12 +51,12 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
         m_CombinePostMat->AddOrSetFloat("uBlitToCamera", -1.0f);
         m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMapping ? 1.0 : -1.0);
         RenderTarget::Ptr tempRT = RenderTarget::New(source->GetSize(), GL_HALF_FLOAT, 1);
-        Blitter::BlitToTarget(source, tempRT, m_CombinePostMat);
+        Blitter::BlitCameraTexture(source, tempRT, m_CombinePostMat);
 
         // Blit to camera with FXAA
         m_FinalPostMat->AddOrSetFloat("uFXAASet", 1.0f);
         m_FinalPostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMapping ? 1.0 : -1.0);
-        Blitter::BlitToCameraTarget(tempRT, targetCamera, m_FinalPostMat);
+        Blitter::BlitCamera(tempRT, targetCamera, m_FinalPostMat);
     }
     else
     {
@@ -64,7 +64,7 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
         m_CombinePostMat->AddOrSetFloat("uBloomIntensity", StatusRecorder::BloomIntensity);
         m_CombinePostMat->AddOrSetFloat("uBlitToCamera", 1.0f);
         m_CombinePostMat->AddOrSetFloat("uToneMappingSet", StatusRecorder::ToneMapping ? 1.0 : -1.0);
-        Blitter::BlitToCameraTarget(source, targetCamera, m_CombinePostMat);
+        Blitter::BlitCamera(source, targetCamera, m_CombinePostMat);
     }
 }
 
@@ -100,7 +100,7 @@ void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Pt
     }
 
     // 2x downsampling
-    Blitter::BlitToTarget(source, m_BloomMipDown[0], m_BloomDownsample2xMat);
+    Blitter::BlitCameraTexture(source, m_BloomMipDown[0], m_BloomDownsample2xMat);
     
     // Downsample - gaussian pyramid
     RenderTarget::Ptr lastDown = m_BloomMipDown[0];
@@ -108,9 +108,9 @@ void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Pt
     for (size_t i = 1; i < mipCount; ++i)
     {
         // 2x downsampling + 9-tap gaussian
-        Blitter::BlitToTarget(lastDown, m_BloomMipUp[i], m_BloomBlurHorizontal);
+        Blitter::BlitCameraTexture(lastDown, m_BloomMipUp[i], m_BloomBlurHorizontal);
         // 5-tap filter + bilinear filtering
-        Blitter::BlitToTarget(m_BloomMipUp[i], m_BloomMipDown[i], m_BloomBlurVertical);
+        Blitter::BlitCameraTexture(m_BloomMipUp[i], m_BloomMipDown[i], m_BloomBlurVertical);
 
         lastDown = m_BloomMipDown[i];
     }
@@ -125,10 +125,10 @@ void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Pt
         RenderTarget::Ptr dst = m_BloomMipUp[i];
 
         m_BloomUpsample->AddOrSetTexture("uLowSourceTex", lowMip->GetColorTexture(0));
-        Blitter::BlitToTarget(highMip, dst, m_BloomUpsample);
+        Blitter::BlitCameraTexture(highMip, dst, m_BloomUpsample);
     }
     
-    Blitter::BlitToTarget(m_BloomMipUp[0], bloomRT);
+    Blitter::BlitCameraTexture(m_BloomMipUp[0], bloomRT);
 }
 
 void PostProcessing::ReAllocateOrReSetSizeBloomRT(RenderTarget::Ptr &rt, const unsigned int &width, const unsigned int &height)
