@@ -104,17 +104,25 @@ int main()
 //    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
 //    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
 //    m_SceneRenderGraph->AddSceneNode(glTFNode);
+
+    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(marry);
     
-    SceneNode::Ptr objNode = AssetsLoader::LoadModel("models/obj/bunny/bunny.obj");
-    objNode->Scale(glm::vec3(10.0f));
-    m_SceneRenderGraph->AddSceneNode(objNode);
+    SceneNode::Ptr cube = AssetsLoader::LoadModel("models/obj/cube/cube.obj");
+    cube->Translate(glm::vec3(2.0f, -1.0f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(cube);
+    
+    SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    floor->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(floor);
 
     // Get the real size in pixels
     int realWidth, realHeight;
     glfwGetFramebufferSize(m_Window, &realWidth, &realHeight);
     glViewport(0, 0, realWidth, realHeight);
     
-    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 1.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     arcballCamera->SetPerspective(glm::radians(45.0f), realWidth, realHeight, 0.1f, 100.0f);
     m_SceneRenderGraph->SetCamera(arcballCamera);
 
