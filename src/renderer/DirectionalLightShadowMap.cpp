@@ -29,7 +29,7 @@ void DirectionalLightShadowMap::RenderShadowMap(const Camera::Ptr viewCamera, co
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.1f, 4.0f);
 
-    light->GetShadowMapRT()->Bind();
+    light->GetShadowMapRT()->BindTarget(false, true);
     m_DirectionalShadowCasterMat->Use();
 
     int cascadesCnt = m_UseCascadeShadowMaps ? MAX_CASCADES : 1;

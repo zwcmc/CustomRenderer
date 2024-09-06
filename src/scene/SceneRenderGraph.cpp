@@ -212,7 +212,7 @@ void SceneRenderGraph::Render()
     bool isDeferred = StatusRecorder::DeferredRendering;
     if (isDeferred)
     {
-        m_GBufferRT->Bind();
+        m_GBufferRT->BindTarget(true, true);
 
         unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
         glDrawBuffers(4, attachments);
@@ -232,27 +232,31 @@ void SceneRenderGraph::Render()
         glDrawBuffers(4, attachments);
         
         // Bind intermediate framebuffer
-        m_IntermediateRT->Bind();
-
+//        m_IntermediateRT->BindTarget(true, true);
         // Deferred lighting
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer0", m_GBufferRT->GetColorTexture(0));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer1", m_GBufferRT->GetColorTexture(1));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer2", m_GBufferRT->GetColorTexture(2));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer3", m_GBufferRT->GetColorTexture(3));
-
         SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
+        
+        Blitter::RenderToTarget(m_IntermediateRT, m_DeferredLightingMat);
 
-        Blitter::FullScreenRender(m_DeferredLightingMat);
+//        Blitter::FullScreenRender(m_DeferredLightingMat);
 
         // Copy depth
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GBufferRT->GetFrameBufferID());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_IntermediateRT->GetFrameBufferID());
-        glBlitFramebuffer(0, 0, m_GBufferRT->GetSize().x, m_GBufferRT->GetSize().y, 0, 0, m_IntermediateRT->GetSize().x, m_IntermediateRT->GetSize().y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        Blitter::CopyDepth(m_GBufferRT, m_IntermediateRT);
+//        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GBufferRT->GetFrameBufferID());
+//        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_IntermediateRT->GetFrameBufferID());
+//        glBlitFramebuffer(0, 0, m_GBufferRT->GetSize().x, m_GBufferRT->GetSize().y, 0, 0, m_IntermediateRT->GetSize().x, m_IntermediateRT->GetSize().y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+//        Blitter::BlitDepth(m_GBufferRT, m_IntermediateRT);
+
+        m_IntermediateRT->BindTarget(false, false);
     }
     else
     {
         // Bind intermediate framebuffer
-        m_IntermediateRT->Bind();
+        m_IntermediateRT->BindTarget(true, true);
 
         // Opaque
         std::vector<RenderCommand::Ptr> opaqueCommands = m_CommandBuffer->GetOpaqueCommands();
@@ -263,7 +267,7 @@ void SceneRenderGraph::Render()
         }
     }
     
-//    Blitter::BlitToCameraTarget(m_IntermediateRT->GetColorTexture(0), currentCamera); return;
+//    Blitter::BlitToCameraTarget(m_IntermediateRT->GetDepthTexture(), currentCamera); return;
 
     // Skybox start ----------------
     // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will

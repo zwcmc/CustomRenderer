@@ -23,8 +23,8 @@ public:
     void SetSize(const glm::u32vec2 &size);
     void SetSize(const unsigned int &width, const unsigned int &height);
 
-    void Bind();
-    void Unbind();
+    void BindTarget(const bool &clearColor, const bool &clearDepth);
+    void UnbindTarget();
     
     GLuint& GetFrameBufferID();
 
