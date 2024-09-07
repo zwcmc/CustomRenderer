@@ -22,9 +22,11 @@ public:
 
     static void Init();
     static void Cleanup();
+
 private:
+
     static void DrawFullScreenTriangle();
-    
+
     static GLuint BlitVAO;
     static Material::Ptr DefaultBlitMat;
     static Material::Ptr BlitDepthMat;

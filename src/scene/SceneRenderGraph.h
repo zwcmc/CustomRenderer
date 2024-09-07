@@ -20,6 +20,8 @@
 #include "renderer/DirectionalLightShadowMap.h"
 #include "renderer/PostProcessing.h"
 
+#include "renderer/GLStateCache.h"
+
 using namespace glm;
 
 class SceneRenderGraph
@@ -57,12 +59,9 @@ private:
     glm::mat3 FastCofactor(const glm::mat3 &matrix);
     
     void SetMatIBLAndShadow(Material::Ptr &mat, Light::Ptr light);
-
-    void SetGLCull(bool enable);
-    void SetGLBlend(bool enable);
-
-    bool m_CullFace;
-    bool m_Blend;
+    
+    // OpenGL state cache
+    GLStateCache::Ptr m_GLStateCache;
 
     u32vec2 m_RenderSize;
 

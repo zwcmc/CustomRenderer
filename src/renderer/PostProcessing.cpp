@@ -33,8 +33,8 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     {
         // Bloom
         RenderTarget::Ptr bloom = RenderTarget::New(1, 1, GL_HALF_FLOAT, 1);
-        SetupBloom(source, bloom);
-        
+        Bloom(source, bloom);
+
         m_CombinePostMat->AddOrSetFloat("uBloomSet", 1.0f);
         m_CombinePostMat->AddOrSetTexture("uBloomTex", bloom->GetColorTexture(0));
     }
@@ -68,7 +68,7 @@ void PostProcessing::Render(const RenderTarget::Ptr source, const Camera::Ptr ta
     }
 }
 
-void PostProcessing::SetupBloom(const RenderTarget::Ptr source, RenderTarget::Ptr &bloomRT)
+void PostProcessing::Bloom(const RenderTarget::Ptr source, RenderTarget::Ptr &bloomRT)
 {
     glm::u32vec2 size = source->GetSize();
     

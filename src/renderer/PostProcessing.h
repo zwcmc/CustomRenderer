@@ -18,8 +18,8 @@ public:
 
 private:
 
-    void SetupBloom(const RenderTarget::Ptr source, RenderTarget::Ptr &bloomRT);
-    
+    void Bloom(const RenderTarget::Ptr source, RenderTarget::Ptr &bloomRT);
+
     void ReAllocateOrReSetSizeBloomRT(RenderTarget::Ptr &rt, const unsigned int &width, const unsigned int &height);
 
     // Bloom

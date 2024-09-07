@@ -451,11 +451,11 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     int two_sided;
     if((AI_SUCCESS == aiGetMaterialInteger(aMaterial, AI_MATKEY_TWOSIDED, &two_sided)) && two_sided)
     {
-        mat->SetDoubleSided(true);
+        mat->SetRenderFace(Material::RenderFace::BOTH);
     }
     else
     {
-        mat->SetDoubleSided(false);
+        mat->SetRenderFace(Material::RenderFace::FRONT);
     }
 
     mat->SetAlphaMode(mode);

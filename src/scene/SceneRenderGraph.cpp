@@ -14,7 +14,7 @@
 using namespace Collision;
 
 SceneRenderGraph::SceneRenderGraph()
-    : m_GlobalUniformBufferID(0), m_CullFace(true), m_Blend(false), m_RenderSize(u32vec2(1))
+    : m_GlobalUniformBufferID(0), m_RenderSize(u32vec2(1))
 { }
 
 void SceneRenderGraph::Init()
@@ -22,24 +22,10 @@ void SceneRenderGraph::Init()
     m_Scene = SceneNode::New();
 
     m_CommandBuffer = CommandBuffer::New();
-
-    // No seams at cubemap edges
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-    // Set clear color
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-    // Depth test
-    glEnable(GL_DEPTH_TEST);
-
-    // Default cull face state
-    m_CullFace = true;
-    glEnable(GL_CULL_FACE);
-
-    // Default blend state
-    m_Blend = false;
-    glDisable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // OpenGL state
+    m_GLStateCache = GLStateCache::New();
+    m_GLStateCache->InitState();
 
     // Global uniform buffer object
     glGenBuffers(1, &m_GlobalUniformBufferID);
@@ -68,7 +54,7 @@ void SceneRenderGraph::Init()
     m_DeferredLightingMat = Material::New("Deferred Lighting", "utils/FullScreenTriangle.vs", "DeferredLit.fs");
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vs", "utils/DrawBoundingBox.fs");
-    m_DebuggingAABBMat->SetDoubleSided(true);
+    m_DebuggingAABBMat->SetRenderFace(Material::RenderFace::BOTH);
 }
 
 void SceneRenderGraph::Cleanup()
@@ -137,14 +123,14 @@ void SceneRenderGraph::CalculateSceneAABB()
     bool firstMerge = true;
     m_Scene->MergeChildrenAABBs(m_Scene->AABB, firstMerge);
 
-    // Debugging camera's frustum
+//    // Debugging camera's frustum
 //    BoundingFrustum bf;
 //    BoundingFrustum::CreateFromMatrix(bf, m_Camera->GetProjectionMatrix());
 //    mat4 tr = mat4(1.0f);
 //    tr = translate(tr, m_Camera->GetEyePosition());
 //    m_CommandBuffer->PushDebuggingCommand(AABBCube::New(bf.GetCorners()), m_DebuggingAABBMat, tr);
 
-    // Debugging scene AABB
+//    // Debugging scene AABB
 //    m_CommandBuffer->PushDebuggingCommand(AABBCube::New(m_Scene->AABB.GetCorners()), m_DebuggingAABBMat);
 }
 
@@ -197,6 +183,10 @@ void SceneRenderGraph::Render()
 {
     // Build render commands
     PepareRenderCommands();
+    
+    m_GLStateCache->SetDepthTest(true);
+    m_GLStateCache->SetDepthFunc(GL_LESS);
+    m_GLStateCache->SetDepthWriteMask(GL_TRUE);
 
     DirectionalLight::Ptr currentLight = m_MainLight;
     Camera::Ptr currentCamera = m_Camera;
@@ -232,6 +222,8 @@ void SceneRenderGraph::Render()
         glDrawBuffers(4, attachments);
 
         // Deferred lighting
+        m_GLStateCache->SetDepthTest(false);
+
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer0", m_GBufferRT->GetColorTexture(0));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer1", m_GBufferRT->GetColorTexture(1));
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer2", m_GBufferRT->GetColorTexture(2));
@@ -240,6 +232,8 @@ void SceneRenderGraph::Render()
         SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
 
         Blitter::RenderToTarget(m_IntermediateRT, m_DeferredLightingMat);
+        
+        m_GLStateCache->SetDepthTest(true);
 
         // Copy depth
         Blitter::CopyDepth(m_GBufferRT, m_IntermediateRT);
@@ -267,21 +261,29 @@ void SceneRenderGraph::Render()
     // Skybox's depth always is 1.0, is equal to the max depth buffer, rendering skybox after opauqe objects and setting depth func to less&equal will
     // ensure that the skybox is only renderered in pixels that are not covered by the opaque objects.
     // Pixels covered by opaque objects have a depth less than 1.0. Therefore, the depth test will never pass when rendering the skybox.
-    glDepthFunc(GL_LEQUAL);
-    // Depth write off
-    glDepthMask(GL_FALSE);
+    m_GLStateCache->SetDepthWriteMask(GL_FALSE);
+    m_GLStateCache->SetDepthFunc(GL_LEQUAL);
     std::vector<RenderCommand::Ptr> skyboxCommands = m_CommandBuffer->GetSkyboxCommands();
     for (size_t i = 0; i < skyboxCommands.size(); ++i)
     {
         RenderCommand::Ptr command = skyboxCommands[i];
         RenderCommand(command, currentLight);
     }
-    // Depth write on
-    glDepthMask(GL_TRUE);
-    // Set back to less
-    glDepthFunc(GL_LESS);
+    m_GLStateCache->SetDepthWriteMask(GL_TRUE);
+    m_GLStateCache->SetDepthFunc(GL_LESS);
     // Skybox end ----------------
 
+    // Debugging AABB
+    m_GLStateCache->SetPolygonMode(GL_LINE);
+    std::vector<RenderCommand::Ptr> debuggingCommands = m_CommandBuffer->GetDebuggingCommands();
+    for (size_t i = 0; i < debuggingCommands.size(); ++i)
+    {
+        RenderCommand::Ptr command = debuggingCommands[i];
+        RenderCommand(command, currentLight);
+    }
+    m_GLStateCache->SetPolygonMode(GL_FILL);
+
+    m_GLStateCache->SetDepthTest(false);
     // Transparent
     std::vector<RenderCommand::Ptr> transparentCommands = m_CommandBuffer->GetTransparentCommands();
     for (size_t i = 0; i < transparentCommands.size(); ++i)
@@ -289,18 +291,6 @@ void SceneRenderGraph::Render()
        RenderCommand::Ptr command = transparentCommands[i];
        RenderCommand(command, currentLight);
     }
-
-    // Debugging AABB
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    m_DebuggingAABBMat->Use();
-    SetGLCull(!m_DebuggingAABBMat->GetDoubleSided());
-    std::vector<RenderCommand::Ptr> commands = m_CommandBuffer->GetDebuggingCommands();
-    for (size_t i = 0; i < commands.size(); ++i)
-    {
-        m_DebuggingAABBMat->SetMatrix("uModelToWorld", commands[i]->Transform);
-        RenderMesh(commands[i]->Mesh);
-    }
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     m_PostProcessing->Render(m_IntermediateRT, currentCamera);
 }
@@ -310,8 +300,27 @@ void SceneRenderGraph::RenderCommand(RenderCommand::Ptr command, Light::Ptr ligh
     Mesh::Ptr mesh = command->Mesh;
     Material::Ptr mat = command->Material;
 
-    SetGLCull(!mat->GetDoubleSided());
-    SetGLBlend(mat->GetAlphaMode() == Material::AlphaMode::BLEND);
+    Material::RenderFace face = mat->GetRenderFace();
+    if (face == Material::RenderFace::BOTH)
+    {
+        m_GLStateCache->SetCull(false);
+    }
+    else
+    {
+        m_GLStateCache->SetCull(true);
+        m_GLStateCache->SetCullFace(face == Material::RenderFace::FRONT ? GL_BACK : GL_FRONT);
+    }
+    Material::AlphaMode alphaMode = mat->GetAlphaMode();
+    if (alphaMode == Material::AlphaMode::BLEND)
+    {
+        m_GLStateCache->SetBlend(true);
+        m_GLStateCache->SetBlendFactor(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    else
+    {
+        m_GLStateCache->SetBlend(false);
+        m_GLStateCache->SetBlendFactor(GL_ONE, GL_ZERO);
+    }
 
     SetMatIBLAndShadow(mat, light);
 
@@ -409,36 +418,4 @@ void SceneRenderGraph::RenderMesh(Mesh::Ptr mesh)
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
-}
-
-void SceneRenderGraph::SetGLCull(bool enable)
-{
-    if (m_CullFace != enable)
-    {
-        m_CullFace = enable;
-        if (enable)
-        {
-            glEnable(GL_CULL_FACE);
-        }
-        else
-        {
-            glDisable(GL_CULL_FACE);
-        }
-    }
-}
-
-void SceneRenderGraph::SetGLBlend(bool enable)
-{
-    if (m_Blend != enable)
-    {
-        m_Blend = enable;
-        if (enable)
-        {
-            glEnable(GL_BLEND);
-        }
-        else
-        {
-            glDisable(GL_BLEND);
-        }
-    }
 }

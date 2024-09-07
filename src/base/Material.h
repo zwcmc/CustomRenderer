@@ -13,11 +13,18 @@ class Material
 {
     SHARED_PTR(Material)
 public:
-    enum AlphaMode
+    enum class AlphaMode
     {
         DEFAULT_OPAQUE = 0,
         MASK,
         BLEND
+    };
+    
+    enum class RenderFace
+    {
+        FRONT = 0,
+        BACK,
+        BOTH
     };
 
     Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath, bool usedForSkybox = false);
@@ -32,18 +39,16 @@ public:
     void SetMatrix(const std::string &propertyName, const glm::mat3x3 &value);
     void SetMatrix(const std::string &propertyName, const glm::mat4x4& value);
 
-    void SetDoubleSided(bool bDoubleSided);
-    bool GetDoubleSided() { return m_DoubleSided; }
+    void SetRenderFace(RenderFace face);
+    Material::RenderFace GetRenderFace();
 
     void SetAlphaMode(AlphaMode mode);
-    AlphaMode GetAlphaMode() { return m_AlphaMode; }
+    Material::AlphaMode GetAlphaMode();
 
-    bool IsUsedForSkybox() { return m_UsedForSkybox; }
+    bool IsUsedForSkybox();
 
-    void SetCastShadows(bool cast) { m_CastShadows  = cast; }
-    bool GetMaterialCastShadows() { return m_CastShadows; }
-    
-    std::string GetShaderName() { return m_Shader->GetName(); }
+    void SetCastShadows(bool cast);
+    bool GetMaterialCastShadows();
 
     void Use();
     
@@ -58,7 +63,8 @@ private:
     std::map<std::string, float> m_UniformFloats;
 
     bool m_UsedForSkybox;
-    bool m_DoubleSided;
-    AlphaMode m_AlphaMode;
     bool m_CastShadows;
+    
+    RenderFace m_RenderFace;
+    AlphaMode m_AlphaMode;
 };

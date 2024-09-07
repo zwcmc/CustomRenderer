@@ -3,13 +3,13 @@
 #include "loader/AssetsLoader.h"
 
 Material::Material(const std::string &shaderName, const std::string &vsPath, const std::string &fsPath, bool usedForSkybox)
-    : m_DoubleSided(false), m_AlphaMode(AlphaMode::DEFAULT_OPAQUE), m_UsedForSkybox(usedForSkybox), m_CastShadows(true)
+    : m_UsedForSkybox(usedForSkybox), m_CastShadows(true), m_RenderFace(RenderFace::FRONT), m_AlphaMode(AlphaMode::DEFAULT_OPAQUE)
 {
     m_Shader = AssetsLoader::LoadShader(shaderName, vsPath, fsPath);
     
     if (m_UsedForSkybox)
     {
-        m_DoubleSided = true;
+        m_RenderFace = RenderFace::BOTH;
     }
 }
 
@@ -54,14 +54,48 @@ void Material::SetMatrix(const std::string &propertyName, const glm::mat4x4 &val
     m_Shader->SetUniformMatrix(propertyName, value);
 }
 
-void Material::SetDoubleSided(bool bDoubleSided)
+void Material::SetRenderFace(RenderFace face)
 {
-    m_DoubleSided = bDoubleSided;
+    if (m_RenderFace != face)
+    {
+        m_RenderFace = face;
+    }
+}
+
+Material::RenderFace Material::GetRenderFace()
+{
+    return m_RenderFace;
 }
 
 void Material::SetAlphaMode(AlphaMode mode)
 {
-    m_AlphaMode = mode;
+    if (m_AlphaMode != mode)
+    {
+        m_AlphaMode = mode;
+    }
+}
+
+Material::AlphaMode Material::GetAlphaMode()
+{
+    return m_AlphaMode;
+}
+
+bool Material::IsUsedForSkybox()
+{
+    return m_UsedForSkybox;
+}
+
+void Material::SetCastShadows(bool cast)
+{
+    if (m_CastShadows != cast)
+    {
+        m_CastShadows = cast;
+    }
+}
+
+bool Material::GetMaterialCastShadows()
+{
+    return m_CastShadows;
 }
 
 void Material::Use()
