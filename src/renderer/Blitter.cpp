@@ -4,7 +4,7 @@
 
 GLuint Blitter::BlitVAO = 0;
 Material::Ptr Blitter::DefaultBlitMat = nullptr;
-Material::Ptr Blitter::BlitDepthMat = nullptr;
+Material::Ptr Blitter::CopyDepthMat = nullptr;
 
 void Blitter::BlitCameraTexture(const Texture2D::Ptr sourceTex, const RenderTarget::Ptr destination, Material::Ptr material)
 {
@@ -54,11 +54,11 @@ void Blitter::BlitCamera(const RenderTarget::Ptr source, const Camera::Ptr camer
     BlitCamera(source->GetColorTexture(0), camera, material);
 }
 
-void Blitter::RenderToTarget(const RenderTarget::Ptr target, Material::Ptr material)
+void Blitter::RenderToTarget(const RenderTarget::Ptr target, const Material::Ptr material, const bool &clearColor, const bool &clearDepth)
 {
     assert(target != nullptr || material != nullptr);
 
-    target->BindTarget(true, true);
+    target->BindTarget(clearColor, clearDepth);
 
     material->Use();
     DrawFullScreenTriangle();
@@ -70,8 +70,8 @@ void Blitter::CopyDepth(const RenderTarget::Ptr source, const RenderTarget::Ptr 
 {
     destination->BindTarget(false, true);
 
-    BlitDepthMat->AddOrSetTexture(source->GetDepthTexture());
-    BlitDepthMat->Use();
+    CopyDepthMat->AddOrSetTexture(source->GetDepthTexture());
+    CopyDepthMat->Use();
 
     DrawFullScreenTriangle();
     
@@ -101,9 +101,9 @@ void Blitter::Init()
         DefaultBlitMat = Material::New("Blit", "utils/FullScreenTriangle.vs", "utils/BlitColor.fs");
     }
     
-    if (BlitDepthMat == nullptr)
+    if (CopyDepthMat == nullptr)
     {
-        BlitDepthMat = Material::New("Blit Depth", "utils/FullScreenTriangle.vs", "utils/CopyDepth.fs");
+        CopyDepthMat = Material::New("Blit Depth", "utils/FullScreenTriangle.vs", "utils/CopyDepth.fs");
     }
 }
 

@@ -14,9 +14,9 @@ public:
     static void BlitCameraTexture(const RenderTarget::Ptr source, const RenderTarget::Ptr destination, Material::Ptr material = nullptr);
     static void BlitCamera(const Texture2D::Ptr sourceTex, const Camera::Ptr camera, Material::Ptr material = nullptr);
     static void BlitCamera(const RenderTarget::Ptr source, const Camera::Ptr camera, Material::Ptr material = nullptr);
-    
-    static void RenderToTarget(const RenderTarget::Ptr target, Material::Ptr material);
-    
+
+    static void RenderToTarget(const RenderTarget::Ptr target, const Material::Ptr material, const bool &clearColor = true, const bool &clearDepth = true);
+
     static void CopyDepth(const RenderTarget::Ptr source, const RenderTarget::Ptr destination);
     static void BlitDepth(const RenderTarget::Ptr source, const RenderTarget::Ptr destination);
 
@@ -29,5 +29,5 @@ private:
 
     static GLuint BlitVAO;
     static Material::Ptr DefaultBlitMat;
-    static Material::Ptr BlitDepthMat;
+    static Material::Ptr CopyDepthMat;
 };
