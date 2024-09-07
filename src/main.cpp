@@ -100,18 +100,18 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->Init();
 
-//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
 //    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
 //    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-//    m_SceneRenderGraph->AddSceneNode(glTFNode);
+    m_SceneRenderGraph->AddSceneNode(glTFNode);
 
-    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(marry);
+//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+//    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+//    m_SceneRenderGraph->AddSceneNode(marry);
     
-    SceneNode::Ptr cube = AssetsLoader::LoadModel("models/obj/cube/cube.obj");
-    cube->Translate(glm::vec3(2.0f, -1.0f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(cube);
+    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
+    marry2->Translate(glm::vec3(3.0f, -1.5f, -8.0f));
+    m_SceneRenderGraph->AddSceneNode(marry2);
     
     SceneNode::Ptr bunny = AssetsLoader::LoadModel("models/obj/bunny/bunny.obj");
     bunny->Translate(glm::vec3(-2.0f, -2.1f, -1.0f));
