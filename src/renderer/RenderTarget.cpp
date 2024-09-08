@@ -49,8 +49,7 @@ RenderTarget::RenderTarget(const glm::u32vec2 &size, GLenum type, unsigned int c
         if (hasDepth)
         {
             m_DepthAttachment = Texture2D::New("uDepthAttachment");
-            m_DepthAttachment->InitTexture2D(size, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_HALF_FLOAT, nullptr);
-            m_DepthAttachment->SetWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+            m_DepthAttachment->InitDepthTexture2D(size, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_HALF_FLOAT, nullptr);
 
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment->GetTextureID(), 0);
         }
@@ -109,7 +108,7 @@ void RenderTarget::SetSize(const glm::u32vec2 &size)
     }
 }
 
-void RenderTarget::SetSize(const unsigned int &width, const unsigned int &height)
+void RenderTarget::SetSize(const size_t &width, const size_t &height)
 {
     m_Size = glm::u32vec2(width, height);
     

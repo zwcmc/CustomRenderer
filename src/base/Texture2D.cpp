@@ -71,6 +71,28 @@ void Texture2D::InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, G
     Unbind();
 }
 
+void Texture2D::InitDepthTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data)
+{
+    m_Size = size;
+    m_InternalFormat = internalFormat;
+    m_Format = format;
+    m_Type = type;
+
+    glGenTextures(1, &m_TextureID);
+
+    Bind();
+
+    glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(m_Target, 0, m_InternalFormat, size.x, size.y, 0, format, type, data);
+
+    Unbind();
+}
+
 void Texture2D::InitShadowMap(const glm::u32vec2 &size)
 {
     m_Size = size;

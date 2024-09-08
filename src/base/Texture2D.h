@@ -11,6 +11,7 @@ public:
     ~Texture2D() = default;
 
     void InitTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data, bool useMipmap = false);
+    void InitDepthTexture2D(const glm::u32vec2 &size, GLenum internalFormat, GLenum format, GLenum type, void* data);
     void InitShadowMap(const glm::u32vec2 &size);
 
     void SetFilterMode(GLenum minFilter, GLenum magFilter);

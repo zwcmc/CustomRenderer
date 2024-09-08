@@ -93,8 +93,8 @@ void ExtractNormalAndTangent(in vec4 q, out vec3 n, out vec3 t)
         vec3(-2.0,  2.0,  2.0) * q.z * q.zwx;
 }
 
-// Convert nonlinear z-buffer depth to linear 0..1 depth (0 at the camera position, 1 at the far plane).
-highp float LinearizeDepth01(highp float depth)
+// Convert nonlinear z-buffer depth to 0..far linear depth (0 at the camera position, far at the far plane)
+highp float LinearizeDepth(highp float depth)
 {
     // Convert to NDC space
     highp float clipDepth = depth * 2.0 - 1.0;
@@ -107,6 +107,14 @@ highp float LinearizeDepth01(highp float depth)
 
     // The z-coordinate is negative in camera view space, so negate it
     linearDepth = -linearDepth;
+
+    return linearDepth;
+}
+
+// Convert nonlinear z-buffer depth to linear 0..1 depth (0 at the camera position, 1 at the far plane).
+highp float LinearizeDepth01(highp float depth)
+{
+    highp float linearDepth = LinearizeDepth(depth);
 
     // Convert from [0, far] to [0, 1]
     return linearDepth * ZBufferParams.x;
