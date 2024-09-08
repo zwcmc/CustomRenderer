@@ -129,6 +129,7 @@ int main()
     
     ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     arcballCamera->SetPerspective(glm::radians(45.0f), realWidth, realHeight, 0.1f, 100.0f);
+//    arcballCamera->SetOrthographic(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 100.0f);
     m_SceneRenderGraph->SetCamera(arcballCamera);
 
     m_SceneRenderGraph->SetRenderSize(realWidth, realHeight);
