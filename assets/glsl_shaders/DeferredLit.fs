@@ -53,7 +53,7 @@ void main()
     float shadowAtten = 1.0;
     if (uShadowMapSet > 0.0)
     {
-        vec4 texShadowView = ShadowView * vec4(worldPosition, 1.0);
+        vec4 texShadowView = ShadowViewFromWorld * vec4(worldPosition, 1.0);
         shadowAtten = SampleShadowMapPCFTent(uShadowMap, texShadowView);
     }
 

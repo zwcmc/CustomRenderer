@@ -34,7 +34,7 @@ int GetCascadeIndex(in vec4 texShadowView)
         vec4 shadowCoord;
         for (int cascadeIndex = 0; cascadeIndex < cascadeCnt && cascadeFound == 0; ++cascadeIndex)
         {
-            shadowCoord = ShadowProjections[cascadeIndex] * texShadowView;
+            shadowCoord = ShadowClipFromView[cascadeIndex] * texShadowView;
             // Perspective division
             shadowCoord.xyz /= shadowCoord.w;
             if (min(shadowCoord.x, shadowCoord.y) > CascadeParams.y && max(shadowCoord.x, shadowCoord.y) < CascadeParams.z)
@@ -57,7 +57,7 @@ void CalculateShadowCoordAndCascadeClampedTex(in vec4 texShadowView, out vec4 sh
         int cascadeFound = 0;
         for (int cascadeIndex = 0; cascadeIndex < cascadeCnt && cascadeFound == 0; ++cascadeIndex)
         {
-            shadowCoord = ShadowProjections[cascadeIndex] * texShadowView;
+            shadowCoord = ShadowClipFromView[cascadeIndex] * texShadowView;
             // Perspective division
             shadowCoord.xyz /= shadowCoord.w;
             if (min(shadowCoord.x, shadowCoord.y) > CascadeParams.y && max(shadowCoord.x, shadowCoord.y) < CascadeParams.z)
@@ -70,7 +70,7 @@ void CalculateShadowCoordAndCascadeClampedTex(in vec4 texShadowView, out vec4 sh
     }
     else
     {
-        shadowCoord = ShadowProjections[currentCascadeIndex] * texShadowView;
+        shadowCoord = ShadowClipFromView[currentCascadeIndex] * texShadowView;
         // Perspective division
         shadowCoord.xyz /= shadowCoord.w;
     }

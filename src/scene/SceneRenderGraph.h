@@ -91,13 +91,13 @@ private:
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
     // {
-    //     mat4 ViewMatrix;                       // 64 bytes;   byte offset = 0;
-    //     mat4 ProjectionMatrix;                 // 64 bytes;   byte offset = 64;
+    //     mat4 ViewFromWorld;                    // 64 bytes;   byte offset = 0;
+    //     mat4 ClipFromView;                     // 64 bytes;   byte offset = 64;
     //     vec3 MainLightDirection;               // 16 bytes;   byte offset = 128;
     //     vec3 MainLightColor;                   // 16 bytes;   byte offset = 144;
     //     vec3 CameraPosition;                   // 16 bytes;   byte offset = 160;
-    //     mat4 ShadowProjections[4];             // 256 bytes;  byte offset = 176;
-    //     mat4 ShadowView;                       // 64 bytes;   byte offset = 432;
+    //     mat4 ShadowClipFromView[4];            // 256 bytes;  byte offset = 176;
+    //     mat4 ShadowViewFromWorld;              // 64 bytes;   byte offset = 432;
     //     vec4 CascadeScalesAndOffsets[4];       // 64 bytes;   byte offset = 496;
     //     vec4 CascadeParams;                    // 16 bytes;   byte offset = 560;
     //     vec4 ShadowMapTexelSize;               // 16 bytes;    byte offset = 576;

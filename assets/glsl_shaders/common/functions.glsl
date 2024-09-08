@@ -76,6 +76,7 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     return normalize(sampleVec);
 }
 
+// Decode normal from TBN quaternion
 void ExtractNormal(in vec4 q, out vec3 n)
 {
     n = vec3( 0.0,  0.0,  1.0) +
@@ -83,6 +84,7 @@ void ExtractNormal(in vec4 q, out vec3 n)
         vec3( 2.0,  2.0, -2.0) * q.y * q.wzy;
 }
 
+// Decode normal and tangent from TBN quaternion
 void ExtractNormalAndTangent(in vec4 q, out vec3 n, out vec3 t)
 {
     ExtractNormal(q, n);

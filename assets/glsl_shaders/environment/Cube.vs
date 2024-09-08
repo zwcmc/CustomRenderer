@@ -10,7 +10,7 @@ void main()
 {
     UVW = vPosition;
 
-    vec4 clipPos = ProjectionMatrix * mat4(mat3(ViewMatrix)) * vec4(vPosition, 1.0);
+    vec4 clipPos = ClipFromView * mat4(mat3(ViewFromWorld)) * vec4(vPosition, 1.0);
 
     gl_Position = clipPos.xyww;
 }

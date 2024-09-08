@@ -34,7 +34,7 @@ void main()
 
     vs_out.WorldPosition = vec3(uModelToWorld * vec4(vPosition, 1.0));
 
-    vs_out.TexShadowView = ShadowView * vec4(vs_out.WorldPosition, 1.0);
+    vs_out.TexShadowView = ShadowViewFromWorld * vec4(vs_out.WorldPosition, 1.0);
 
-    gl_Position = ProjectionMatrix * ViewMatrix * vec4(vs_out.WorldPosition, 1.0);
+    gl_Position = ClipFromView * ViewFromWorld * vec4(vs_out.WorldPosition, 1.0);
 }

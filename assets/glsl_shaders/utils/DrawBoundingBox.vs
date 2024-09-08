@@ -8,5 +8,5 @@ uniform mat4 uModelToWorld;
 
 void main()
 {
-    gl_Position = ProjectionMatrix * ViewMatrix * uModelToWorld * vec4(vPosition, 1.0);
+    gl_Position = ClipFromView * ViewFromWorld * uModelToWorld * vec4(vPosition, 1.0);
 }

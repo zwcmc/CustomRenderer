@@ -33,5 +33,5 @@ void main()
 
     gbuffer_vs_out.WorldPosition = vec3(uModelToWorld * vec4(vPosition, 1.0));
 
-    gl_Position = ProjectionMatrix * ViewMatrix * vec4(gbuffer_vs_out.WorldPosition, 1.0);
+    gl_Position = ClipFromView * ViewFromWorld * vec4(gbuffer_vs_out.WorldPosition, 1.0);
 }
