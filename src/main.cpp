@@ -237,7 +237,9 @@ void errorCallback(int error, const char* description)
 void resizeCallback(GLFWwindow* window, int width, int height)
 {
     if (width > 0.0f && height > 0.0f)
+    {
         m_SceneRenderGraph->SetRenderSize(width, height);
+    }
 
     glViewport(0, 0, width, height);
 }
@@ -245,7 +247,9 @@ void resizeCallback(GLFWwindow* window, int width, int height)
 void processWindowInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, true);
+    }
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -258,17 +262,25 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_LEFT)
     {
         if (action == GLFW_PRESS)
+        {
             m_LeftMouseButtonPressed = true;
+        }
         else if (action == GLFW_RELEASE)
+        {
             m_LeftMouseButtonPressed = false;
+        }
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT)
     {
         if (action == GLFW_PRESS)
+        {
             m_RightMouseButtonPressed = true;
+        }
         else if (action == GLFW_RELEASE)
+        {
             m_RightMouseButtonPressed = false;
+        }
     }
 }
 
@@ -289,8 +301,12 @@ void cursorPositionCallback(GLFWwindow* window, double x, double y)
     m_LastY = ypos;
 
     if (m_LeftMouseButtonPressed)
+    {
         m_SceneRenderGraph->GetActiveCamera()->Arcballing(dx, dy);
+    }
 
     if (m_RightMouseButtonPressed)
+    {
         m_SceneRenderGraph->GetActiveCamera()->Panning(dx, -dy);
+    }
 }
