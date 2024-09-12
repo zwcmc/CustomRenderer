@@ -43,7 +43,7 @@ uniform float uAlphaCutoff;
 // IBL
 uniform samplerCube uIrradianceCubemap;
 uniform samplerCube uPrefilteredCubemap;
-uniform sampler2D uBRDFLUT;
+uniform sampler2D uIBL_DFG;
 
 // Shadow
 uniform sampler2DShadow uShadowMap;
@@ -58,12 +58,12 @@ void main()
 {
     vec2 uv = fs_in.UV0;
 
-    vec4 albedo = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, uv)) * uBaseColor : uBaseColor;
+    vec4 baseColor = uBaseMapSet > 0.0 ? SRGBtoLINEAR(texture(uBaseMap, uv)) * uBaseColor : uBaseColor;
 
     // Alpha test
     if (uAlphaTestSet > 0.0)
     {
-        if (albedo.a < uAlphaCutoff)
+        if (baseColor.a < uAlphaCutoff)
         {
             discard;
         }
@@ -115,9 +115,13 @@ void main()
 
     vec3 Lo = vec3(0.0);
 
-    // Disney BRDF diffuse fd
-    // vec3 Fd = DisneyDiffuse(albedo, NdotL, NdotV, LdotH, perceptualRoughness);
-    vec3 Fd = LambertDiffuse(albedo);
+    vec3 diffuseColor = baseColor.rgb * (1.0 - metallic);
+    const float reflectance = 0.04; // Assume 4% reflectance
+    vec3 F0 = mix(vec3(reflectance), baseColor.rgb, metallic);
+
+    // Disney BRDF diffuse
+    vec3 Fd = diffuseColor * DisneyDiffuse(NdotL, NdotV, LdotH, perceptualRoughness);
+    // vec3 Fd = diffuseColor * LambertDiffuse();
 
     // Disney BRDF specular
     // Specular D
@@ -125,7 +129,6 @@ void main()
     float Ds = GTR2(NdotH, a);
 
     // Specular F
-    vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
     float FH = SchlickFresnel(LdotH);
     vec3 Fs = mix(F0, vec3(1.0), FH);
 
@@ -135,22 +138,29 @@ void main()
     Gs *= SmithG_GGX(NdotV, alphaG);
 
     // Fr
-    vec3 BRDF = Fd * (1.0 - metallic) + Ds * Fs * Gs;
+    vec3 Fr = Ds * Fs * Gs;
 
-    // Li * Fr * cosine
+    // BRDF
+    vec3 BRDF = Fd + Fr;
+
+    // Lo = Li * BRDF * cosine
     Lo = radiance * BRDF * NdotL;
 
     // Environment IBL
-    // Environment irradiance
-    vec3 irradiance = texture(uIrradianceCubemap, N).rgb;
-    Lo += irradiance * Fd;
-
     // Environment specular
     vec3 R = reflect(-V, N); 
-    const float prefilteredCubeMipLevels = 10.0;
-    vec3 prefilteredColor = textureLod(uPrefilteredCubemap, R, perceptualRoughness * prefilteredCubeMipLevels).rgb;
-    vec2 envBRDF = texture(uBRDFLUT, vec2(max(dot(N, V), 0.0), perceptualRoughness)).rg;
-    Lo += prefilteredColor * (F0 * envBRDF.x + envBRDF.y);
+    float lod = PerceptualRoughnessToLod(perceptualRoughness);
+    vec3 prefilteredRadiance = textureLod(uPrefilteredCubemap, R, lod).rgb;
+    vec2 iblDFG = texture(uIBL_DFG, vec2(NdotV, perceptualRoughness)).rg;
+    vec3 E = F0 * iblDFG.x + iblDFG.y;
+    vec3 iblFr = prefilteredRadiance * E;
+
+    float diffuseAO = 1.0;//texture(uSSAOTexture, uv).r;
+    // Environment irradiance
+    vec3 diffuseIrradiance = texture(uIrradianceCubemap, N).rgb;
+    vec3 iblFd = Fd * diffuseIrradiance * (1.0 - E) * diffuseAO;
+
+    Lo += iblFr + iblFd;
 
     // Occlusion
     float occlusion = 1.0;
@@ -164,5 +174,5 @@ void main()
     vec3 emission = uEmissiveMapSet > 0.0 ? SRGBtoLINEAR(texture(uEmissiveMap, uv)).rgb * uEmissiveColor.rgb : vec3(0.0);
     Lo += emission;
 
-    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? albedo.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
+    FragColor = vec4(Lo, uAlphaBlendSet > 0.0 ? baseColor.a : 1.0); // * CascadeColors[GetCascadeIndex(fs_in.TexShadowView)];
 }

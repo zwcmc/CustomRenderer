@@ -105,7 +105,7 @@ void EnvironmentIBL::GenerateCubemaps()
 void EnvironmentIBL::GenerateBRDFLUT()
 {
     m_BRDFLUTRenderTarget = RenderTarget::New(128, 128, GL_HALF_FLOAT, 1);
-    m_BRDFLUTRenderTarget->GetColorTexture(0)->SetTextureName("uBRDFLUT");
+    m_BRDFLUTRenderTarget->GetColorTexture(0)->SetTextureName("uIBL_DFG");
     Material::Ptr generateBRDFLUTFMat = Material::New("Generate_BRDF_LUT", "utils/FullScreenTriangle.vs", "environment/GenerateBRDFLUT.fs");
 
     Blitter::RenderToTarget(m_BRDFLUTRenderTarget, generateBRDFLUTFMat);

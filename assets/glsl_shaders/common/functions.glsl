@@ -120,4 +120,10 @@ highp float LinearizeDepth01(highp float depth)
     return linearDepth * ZBufferParams.x;
 }
 
+float PerceptualRoughnessToLod(float perceptualRoughness)
+{
+    const float prefilteredCubeMipLevels = 10.0;
+    return perceptualRoughness * prefilteredCubeMipLevels;
+}
+
 #endif
