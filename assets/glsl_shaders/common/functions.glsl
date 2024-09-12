@@ -106,7 +106,7 @@ highp float LinearizeDepth(highp float depth)
     highp float linearDepth = (clipDepth * p[2].z + p[3].z) / (clipDepth * p[2].w + p[3].w);
 
     // The z-coordinate is negative in camera view space, so negate it
-    linearDepth = -linearDepth;
+    // linearDepth = -linearDepth;
 
     return linearDepth;
 }
@@ -116,8 +116,8 @@ highp float LinearizeDepth01(highp float depth)
 {
     highp float linearDepth = LinearizeDepth(depth);
 
-    // Convert from [0, far] to [0, 1]
-    return linearDepth * ZBufferParams.x;
+    // Convert from [0, -far] to [0, 1]
+    return linearDepth * (-ZBufferParams.x);
 }
 
 float PerceptualRoughnessToLod(float perceptualRoughness)
