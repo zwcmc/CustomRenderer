@@ -110,7 +110,6 @@ int main()
 //    m_SceneRenderGraph->AddSceneNode(marry);
     
     SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry2->Translate(glm::vec3(3.0f, -1.5f, -8.0f));
     marry2->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(marry2);
     
@@ -182,12 +181,11 @@ int main()
                     ImGui::Checkbox("ToneMapping", &StatusRecorder::ToneMapping);
                     ImGui::TreePop();
                 }
-                
-                ImGui::Checkbox("FXAA", &StatusRecorder::FXAA);
 
                 ImGui::TreePop();
             }
-            
+
+            ImGui::Checkbox("FXAA", &StatusRecorder::FXAA);
             ImGui::Checkbox("SSAO", &StatusRecorder::SSAO);
         }
         ImGui::End();

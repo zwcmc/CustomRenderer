@@ -6,7 +6,7 @@
 #include "shadows/unity_shadow_sampling_tent.glsl"
 
 #define POISSON_SAMPLE_NUM 20
-#define FIXED_DEPTH_OFFSET 5e-3
+#define FIXED_DEPTH_OFFSET 1e-3
 
 const vec4 CascadeColors[4] = vec4[4]
 (
