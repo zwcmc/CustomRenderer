@@ -54,7 +54,7 @@ void SceneRenderGraph::Init()
     m_DeferredLightingMat = Material::New("Deferred Lighting", "utils/FullScreenTriangle.vs", "DeferredLit.fs");
     
     // SSAO
-    m_SSAO = SSAO::New();
+    m_ScreenSpaceAmbientOcclusion = ScreenSpaceAmbientOcclusion::New();
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vs", "utils/DrawBoundingBox.fs");
     m_DebuggingAABBMat->SetRenderFace(Material::RenderFace::BOTH);
@@ -76,10 +76,10 @@ void SceneRenderGraph::SetRenderSize(const int &width, const int &height)
     m_Camera->SetScreenSize(width, height);
 
     m_IntermediateRT->SetSize(glm::u32vec2(width, height));
-    
+
     m_GBufferRT->SetSize(width, height);
-    
-    m_SSAO->SetRenderTargetSize(width, height);
+
+    m_ScreenSpaceAmbientOcclusion->SetRenderSize(width, height);
 }
 
 void SceneRenderGraph::SetCamera(Camera::Ptr camera)
@@ -229,16 +229,12 @@ void SceneRenderGraph::Render()
         attachments[2] = GL_NONE;
         attachments[3] = GL_NONE;
         glDrawBuffers(4, attachments);
-        
+ 
+        // SSAO
         if (StatusRecorder::SSAO)
         {
-            // SSAO
-            // Copy depth to ssao render target for depth testing to skip pixels at max 1.0 (i.e. the skybox)
-            m_GLStateCache->SetDepthFunc(GL_ALWAYS);
-            m_SSAO->CopyDepth(m_GBufferRT);
-            m_GLStateCache->SetDepthFunc(GL_NOTEQUAL);
-            m_SSAO->Render(m_GBufferRT);
-//            Blitter::BlitCamera(m_SSAO->GetSAO(), currentCamera); return;
+            m_ScreenSpaceAmbientOcclusion->Render(m_GBufferRT, m_GLStateCache);
+//            Blitter::BlitCamera(m_ScreenSpaceAmbientOcclusion->GetFinalSSAO(), currentCamera); return;
         }
 
         m_GLStateCache->SetDepthFunc(GL_ALWAYS);
@@ -255,7 +251,7 @@ void SceneRenderGraph::Render()
         if (StatusRecorder::SSAO)
         {
             m_DeferredLightingMat->AddOrSetFloat("uSSAOSet", 1.0f);
-            m_DeferredLightingMat->AddOrSetTexture("uSSAOTexture", m_SSAO->GetSAO());
+            m_DeferredLightingMat->AddOrSetTexture("uSSAOTexture", m_ScreenSpaceAmbientOcclusion->GetFinalSSAO());
         }
         else
         {

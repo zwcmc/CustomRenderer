@@ -22,7 +22,7 @@
 
 #include "renderer/GLStateCache.h"
 
-#include "renderer/SSAO.h"
+#include "renderer/ScreenSpaceAmbientOcclusion.h"
 
 using namespace glm;
 
@@ -51,7 +51,7 @@ public:
     void CalculateSceneAABB();
 
 private:
-    
+
     void PepareRenderCommands();
     void UpdateGlobalUniformsData(const Camera::Ptr camera, const Light::Ptr light);
 
@@ -59,9 +59,9 @@ private:
     void BuildRenderCommands(SceneNode::Ptr sceneNode);
 
     glm::mat3 FastCofactor(const glm::mat3 &matrix);
-    
+
     void SetMatIBLAndShadow(Material::Ptr &mat, Light::Ptr light);
-    
+
     // OpenGL state cache
     GLStateCache::Ptr m_GLStateCache;
 
@@ -82,16 +82,16 @@ private:
 
     // Directional shadow map
     DirectionalLightShadowMap::Ptr m_DirectionalShadowMap;
-    
+
     // Post processing
     PostProcessing::Ptr m_PostProcessing;
-    
+
     // Deferred rendering gbuffer
     RenderTarget::Ptr m_GBufferRT;
     Material::Ptr m_DeferredLightingMat;
-    
+
     // SSAO
-    SSAO::Ptr m_SSAO;
+    ScreenSpaceAmbientOcclusion::Ptr m_ScreenSpaceAmbientOcclusion;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
