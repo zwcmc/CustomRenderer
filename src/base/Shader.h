@@ -23,6 +23,7 @@ public:
     void SetUniformVector(const std::string &uniformName, const glm::vec4 &value);
     void SetUniformMatrix(const std::string &uniformName, const glm::mat3x3 &value);
     void SetUniformMatrix(const std::string &uniformName, const glm::mat4x4 &value);
+    void SetUniformVectorArray(const std::string &uniformName, size_t size, const std::vector<glm::vec4> &values);
     
     std::string& GetName();
 

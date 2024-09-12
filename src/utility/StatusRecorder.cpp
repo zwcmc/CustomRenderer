@@ -6,3 +6,4 @@ float StatusRecorder::BloomScatter = 0.388f;
 bool StatusRecorder::FXAA = false;
 bool StatusRecorder::ToneMapping = true;
 bool StatusRecorder::DeferredRendering = true;
+bool StatusRecorder::SSAO = true;

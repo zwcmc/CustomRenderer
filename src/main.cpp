@@ -187,6 +187,8 @@ int main()
 
                 ImGui::TreePop();
             }
+            
+            ImGui::Checkbox("SSAO", &StatusRecorder::SSAO);
         }
         ImGui::End();
         // Rendering

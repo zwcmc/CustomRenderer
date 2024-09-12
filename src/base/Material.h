@@ -53,6 +53,8 @@ public:
     void Use();
     
     void ClearUniforms();
+    
+    Shader::Ptr GetShader();
 
 private:
     Shader::Ptr m_Shader;

@@ -50,6 +50,11 @@ void Shader::SetUniformMatrix(const std::string &uniformName, const glm::mat4x4 
     glUniformMatrix4fv(GetUniformLocation(uniformName), 1, GL_FALSE, &(value[0].x));
 }
 
+void Shader::SetUniformVectorArray(const std::string &uniformName, size_t size, const std::vector<glm::vec4> &values)
+{
+    glUniform4fv(GetUniformLocation(uniformName), static_cast<GLsizei>(size), (float*)(&values[0].x));
+}
+
 GLuint Shader::GetUniformLocation(const std::string &uniformName)
 {
     return glGetUniformLocation(m_ShaderID, uniformName.c_str());

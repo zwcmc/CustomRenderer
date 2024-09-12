@@ -9,4 +9,5 @@ public:
     static bool FXAA;
     static bool ToneMapping;
     static bool DeferredRendering;
+    static bool SSAO;
 };

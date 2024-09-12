@@ -143,3 +143,8 @@ void Material::ClearUniforms()
     m_UniformVec4.clear();
     m_UniformFloats.clear();
 }
+
+Shader::Ptr Material::GetShader()
+{
+    return m_Shader;
+}

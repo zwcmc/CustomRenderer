@@ -22,6 +22,8 @@
 
 #include "renderer/GLStateCache.h"
 
+#include "renderer/SSAO.h"
+
 using namespace glm;
 
 class SceneRenderGraph
@@ -87,6 +89,9 @@ private:
     // Deferred rendering gbuffer
     RenderTarget::Ptr m_GBufferRT;
     Material::Ptr m_DeferredLightingMat;
+    
+    // SSAO
+    SSAO::Ptr m_SSAO;
 
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms

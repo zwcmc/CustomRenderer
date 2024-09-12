@@ -52,6 +52,9 @@ void SceneRenderGraph::Init()
     // Deffered rendering gbuffer
     m_GBufferRT = RenderTarget::New(1, 1, GL_HALF_FLOAT, 4, true);
     m_DeferredLightingMat = Material::New("Deferred Lighting", "utils/FullScreenTriangle.vs", "DeferredLit.fs");
+    
+    // SSAO
+    m_SSAO = SSAO::New();
 
     m_DebuggingAABBMat = Material::New("Draw AABB", "utils/DrawBoundingBox.vs", "utils/DrawBoundingBox.fs");
     m_DebuggingAABBMat->SetRenderFace(Material::RenderFace::BOTH);
@@ -75,6 +78,8 @@ void SceneRenderGraph::SetRenderSize(const int &width, const int &height)
     m_IntermediateRT->SetSize(glm::u32vec2(width, height));
     
     m_GBufferRT->SetSize(width, height);
+    
+    m_SSAO->SetRenderTargetSize(width, height);
 }
 
 void SceneRenderGraph::SetCamera(Camera::Ptr camera)
@@ -224,7 +229,19 @@ void SceneRenderGraph::Render()
         attachments[2] = GL_NONE;
         attachments[3] = GL_NONE;
         glDrawBuffers(4, attachments);
+        
+        if (StatusRecorder::SSAO)
+        {
+            // SSAO
+            // Copy depth to ssao render target for depth testing to skip pixels at max 1.0 (i.e. the skybox)
+            m_GLStateCache->SetDepthFunc(GL_ALWAYS);
+            m_SSAO->CopyDepth(m_GBufferRT);
+            m_GLStateCache->SetDepthFunc(GL_NOTEQUAL);
+            m_SSAO->Render(m_GBufferRT);
+//            Blitter::BlitCamera(m_SSAO->GetSAO(), currentCamera); return;
+        }
 
+        m_GLStateCache->SetDepthFunc(GL_ALWAYS);
         // Deferred lighting
         m_GLStateCache->SetDepthTest(false);
 
@@ -234,6 +251,16 @@ void SceneRenderGraph::Render()
         m_DeferredLightingMat->AddOrSetTexture("uGBuffer3", m_GBufferRT->GetColorTexture(3));
 
         SetMatIBLAndShadow(m_DeferredLightingMat, currentLight);
+        
+        if (StatusRecorder::SSAO)
+        {
+            m_DeferredLightingMat->AddOrSetFloat("uSSAOSet", 1.0f);
+            m_DeferredLightingMat->AddOrSetTexture("uSSAOTexture", m_SSAO->GetSAO());
+        }
+        else
+        {
+            m_DeferredLightingMat->AddOrSetFloat("uSSAOSet", -1.0f);
+        }
 
         Blitter::RenderToTarget(m_IntermediateRT, m_DeferredLightingMat);
         

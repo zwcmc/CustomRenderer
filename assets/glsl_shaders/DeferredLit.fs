@@ -18,6 +18,7 @@ uniform sampler2DShadow uShadowMap;
 uniform float uShadowMapSet;
 
 // Screen Space Ambient Occlusion
+uniform float uSSAOSet;
 uniform sampler2D uSSAOTexture;
 
 #include "pbr/brdfs.glsl"
@@ -103,7 +104,11 @@ void main()
     vec3 E = F0 * iblDFG.x + iblDFG.y;
     vec3 iblFr = prefilteredRadiance * E;
 
-    float diffuseAO = texture(uSSAOTexture, uv).r;
+    float diffuseAO = 1.0;
+    if (uSSAOSet > 0.0)
+    {
+        diffuseAO = texture(uSSAOTexture, uv).r;
+    }
     // Environment irradiance
     vec3 diffuseIrradiance = texture(uIrradianceCubemap, N).rgb;
     vec3 iblFd = Fd * diffuseIrradiance * (1.0 - E) * diffuseAO;
