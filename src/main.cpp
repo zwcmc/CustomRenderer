@@ -119,6 +119,11 @@ int main()
     bunny->Scale(glm::vec3(16.0f));
     m_SceneRenderGraph->AddSceneNode(bunny);
     
+    SceneNode::Ptr cube = AssetsLoader::LoadModel("models/obj/cube/cube.obj");
+    cube->Translate(glm::vec3(2.0f, -1.0f, 0.0f));
+    cube->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(30.0f));
+    m_SceneRenderGraph->AddSceneNode(cube);
+    
     SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
     floor->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
     m_SceneRenderGraph->AddSceneNode(floor);
