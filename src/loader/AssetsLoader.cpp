@@ -143,9 +143,9 @@ SceneNode::Ptr AssetsLoader::LoadModel(const std::string &filePath, const bool &
     std::string newPath = GetAssetsPath() + filePath;
 
     Assimp::Importer importer;
-    
+
     unsigned int pFlags = aiProcess_Triangulate; // Triangles mode
-    
+
     // normals and tangents
     pFlags |= aiProcess_GenSmoothNormals;
     pFlags |= aiProcess_CalcTangentSpace;
@@ -289,7 +289,7 @@ void AssetsLoader::EncodeTBN(const glm::vec3 &tangent, const glm::vec3 &bitangen
 {
     // Convert {t, b, n} to a quaternion
     q = glm::quat_cast(glm::mat3(tangent, glm::cross(normal, tangent), normal));
-    
+
     // Ensure q.w is positive
     q = glm::normalize(q);
     if (q.w < 0)
@@ -309,7 +309,7 @@ void AssetsLoader::EncodeTBN(const glm::vec3 &tangent, const glm::vec3 &bitangen
         q.y *= factor;
         q.z *= factor;
     }
-    
+
     // TBN must form a right handed coord system, some models have symetric UVs.
     // If there's a reflection ((n x t) . b <= 0), make sure w is negative
     if (glm::dot(glm::cross(tangent, normal), bitangent) < 0.0f)
@@ -339,7 +339,7 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
 //    Material::Ptr mat = Material::New("Blinn-Phong", "Lit.vs", "BlinnPhong.fs");
 //    Material::Ptr mat = Material::New("PBR", "Lit.vs", "PBRLit.fs");
 //    Material::Ptr mat = Material::New("GBuffer", "GBuffer.vs", "GBuffer.fs");
-    
+
     Material::Ptr mat;
     if (mode == Material::AlphaMode::BLEND || !StatusRecorder::DeferredRendering)
     {
@@ -380,7 +380,9 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
         mat->AddOrSetFloat("uNormalMapSet", 1.0f);
     }
     else
+    {
         mat->AddOrSetFloat("uNormalMapSet", -1.0f);
+    }
 
     // Emission
     if (AI_SUCCESS == aMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
@@ -392,7 +394,7 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     {
         mat->AddOrSetFloat("uEmissiveMapSet", -1.0f);
     }
-    
+
     // Emission color
     if (AI_SUCCESS == aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_EMISSIVE, &color))
     {
@@ -414,7 +416,7 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     {
         mat->AddOrSetFloat("uMetallicRoughnessMapSet", -1.0f);
     }
-    
+
     // Metallic factor
     ai_real valueFactor;
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_METALLIC_FACTOR, &valueFactor))
@@ -425,7 +427,7 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     {
         mat->AddOrSetFloat("uMetallicFactor", 0.0f);
     }
-    
+
     // Roughness factor
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_ROUGHNESS_FACTOR, &valueFactor))
     {
@@ -461,8 +463,8 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     mat->SetAlphaMode(mode);
     mat->AddOrSetFloat("uAlphaBlendSet", mode == Material::AlphaMode::BLEND ? 1.0f : -1.0f);
     mat->AddOrSetFloat("uAlphaTestSet", mode == Material::AlphaMode::MASK ? 1.0f : -1.0f);
-    
-    // Alpha cuteoff
+
+    // Alpha cutoff
     if (AI_SUCCESS == aiGetMaterialFloat(aMaterial, AI_MATKEY_GLTF_ALPHACUTOFF, &valueFactor))
     {
         mat->AddOrSetFloat("uAlphaCutoff", valueFactor);

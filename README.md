@@ -24,7 +24,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Gamma Correction
 - [x] HDR
 - [x] Skybox
-  - [x] With Cubemap texture
+  - [ ] With KTX Cubemap texture
   - [x] With Radiance HDR texture (Need rendered-to-cubemap first)
 - [x] Tonemapping
 - [x] Image Based Lighting
@@ -44,7 +44,7 @@ A customized OpenGL renderer made with C++ and OpenGL 4.1
 - [x] Bloom
 - [x] FXAA
 - [x] Deferred Rendering
-- [ ] SSAO
+- [x] SSAO
 - [ ] TAA
 - [ ] SSR
 
