@@ -259,6 +259,11 @@ void processWindowInput(GLFWwindow* window)
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    if (m_MouseOverImGui)
+    {
+        return;
+    }
+
     m_SceneRenderGraph->GetActiveCamera()->Zooming(static_cast<float>(yoffset));
 }
 
