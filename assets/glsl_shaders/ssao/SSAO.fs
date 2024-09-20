@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec2 UV0;
 
 uniform sampler2D uDepthTexture;
+uniform vec4 uDepthTextureSize; // { x: 1.0/width, y: 1.0/height, z: width, w: height }
 
 #include "common/constants.glsl"
 #include "common/functions.glsl"
@@ -72,8 +73,7 @@ void computeAmbientOcclusionSAO(inout float occlusion, float i, float ssDiskRadi
 
     float ssRadius = max(1.0, tap.z * ssDiskRadius);
 
-    vec2 size = textureSize(uDepthTexture, 0);
-    vec2 uvSamplePos = uv + vec2(ssRadius * tap.xy) * (1.0 / size);
+    vec2 uvSamplePos = uv + vec2(ssRadius * tap.xy) * uDepthTextureSize.xy;
 
     float occlusionDepth = sampleDepthLinear(uDepthTexture, uvSamplePos);
 
@@ -100,8 +100,7 @@ void scalableAmbientObscurance(out float obscurance, vec2 uv, vec3 origin, vec3 
     vec2 tapPosition = startPosition(noise);
     mat2 angleStep = tapAngleStep();
 
-    vec2 size = textureSize(uDepthTexture, 0);
-    float projectionScale = min(0.5 * ClipFromView[0].x * size.x, 0.5 * ClipFromView[1].y * size.y);
+    float projectionScale = min(0.5 * ClipFromView[0].x * uDepthTextureSize.z, 0.5 * ClipFromView[1].y * uDepthTextureSize.w);
 
     float ssDiskRadius = -(projectionScale * RADIUS / origin.z);
 
@@ -124,7 +123,7 @@ void main()
 
     mat4 invProjection = inverse(ClipFromView);
     vec2 positionParams = vec2(invProjection[0][0], invProjection[1][1]) * 2.0;
-    vec2 texel = 1.0 / textureSize(uDepthTexture, 0);
+    vec2 texel = uDepthTextureSize.xy;
     vec3 origin = computeViewSpacePositionFromDepth(uv, z, positionParams);
 
     vec3 normal = computeViewSpaceNormal(uDepthTexture, uv, origin, texel, positionParams);

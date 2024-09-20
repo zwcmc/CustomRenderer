@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec2 UV0;
 
 uniform sampler2D uSourceTex;
+uniform vec4 uSourceTexSize; // { x: 1.0/width, y: 1.0/height, z: width, w: height }
 
 #include "common/functions.glsl"
 
@@ -28,7 +29,7 @@ float GetPackedAO(vec4 p)
 
 float BlurSmall(const highp vec2 uv, const vec2 delta)
 {
-    vec4 p0 = texture(uSourceTex, uv                            );
+    vec4 p0 = texture(uSourceTex, uv                           );
     vec4 p1 = texture(uSourceTex, uv + vec2(-delta.x, -delta.y));
     vec4 p2 = texture(uSourceTex, uv + vec2( delta.x, -delta.y));
     vec4 p3 = texture(uSourceTex, uv + vec2(-delta.x,  delta.y));
@@ -55,9 +56,7 @@ float BlurSmall(const highp vec2 uv, const vec2 delta)
 void main()
 {
     vec2 uv = UV0;
-
-    vec2 size = textureSize(uSourceTex, 0);
-    vec2 texelSize = 1.0 / size;
+    vec2 texelSize = uSourceTexSize.xy;
 
     FragColor = vec4(vec3(1.0) - BlurSmall(uv, texelSize), 1.0);
 }

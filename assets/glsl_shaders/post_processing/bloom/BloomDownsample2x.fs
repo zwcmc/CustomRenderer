@@ -4,19 +4,19 @@ out vec4 FragColor;
 in vec2 UV0;
 
 uniform sampler2D uSourceTex;
+uniform vec4 uSourceTexSize; // { x: 1.0/width, y: 1.0/height, z: width, w: height }
 
 #include "common/functions.glsl"
 
 void main()
 {
-    vec2 size = textureSize(uSourceTex, 0);
-    vec2 texelSize = (vec2(1.0) / size);
+    vec2 texelSize = uSourceTexSize.xy;
 
     // Castaño, 2013, "Shadow Mapping Summary Part 1"
     // 3x3 gaussian filter with 4 linear samples
     // From https://github.com/google/filament
     vec2 offset = vec2(0.5);
-    vec2 uv = (UV0.xy * size) + offset;
+    vec2 uv = (UV0.xy * uSourceTexSize.zw) + offset;
     vec2 base = (floor(uv) - offset) * texelSize;
     vec2 st = fract(uv);
     vec2 uw = vec2(3.0 - 2.0 * st.x, 1.0 + 2.0 * st.x);

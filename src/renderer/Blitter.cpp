@@ -19,6 +19,10 @@ void Blitter::BlitCameraTexture(const Texture2D::Ptr sourceTex, const RenderTarg
 
     sourceTex->SetTextureName("uSourceTex");
     material->AddOrSetTexture(sourceTex);
+    
+    glm::u32vec2 size = sourceTex->GetSize();
+    glm::vec4 textureSize = glm::vec4(1.0f / size.x, 1.0f / size.y, static_cast<float>(size.x), static_cast<float>(size.y));
+    material->AddOrSetVector("uSourceTexSize", textureSize);
 
     material->Use();
 
@@ -43,6 +47,10 @@ void Blitter::BlitCamera(const Texture2D::Ptr sourceTex, const Camera::Ptr camer
     
     sourceTex->SetTextureName("uSourceTex");
     material->AddOrSetTexture(sourceTex);
+    
+    glm::u32vec2 size = sourceTex->GetSize();
+    glm::vec4 textureSize = glm::vec4(1.0f / size.x, 1.0f / size.y, static_cast<float>(size.x), static_cast<float>(size.y));
+    material->AddOrSetVector("uSourceTexSize", textureSize);
 
     material->Use();
 

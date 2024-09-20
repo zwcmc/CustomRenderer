@@ -31,6 +31,11 @@ void ScreenSpaceAmbientOcclusion::Render(const RenderTarget::Ptr source, const G
     glStateCache->SetDepthFunc(GL_NOTEQUAL);
 
     m_SSAOMat->AddOrSetTexture("uDepthTexture", source->GetDepthTexture());
+
+    glm::u32vec2 depthTextureSize = source->GetDepthTexture()->GetSize();
+    glm::vec4 textureSize = glm::vec4(1.0f / depthTextureSize.x, 1.0f / depthTextureSize.y, static_cast<float>(depthTextureSize.x), static_cast<float>(depthTextureSize.y));
+    m_SSAOMat->AddOrSetVector("uDepthTextureSize", textureSize);
+
     Blitter::RenderToTarget(m_SSAORenderTarget, m_SSAOMat, true, false);
 
     glStateCache->SetDepthTest(false);
