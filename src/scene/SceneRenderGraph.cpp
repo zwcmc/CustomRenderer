@@ -177,7 +177,7 @@ void SceneRenderGraph::UpdateGlobalUniformsData(const Camera::Ptr camera, const 
     glBufferSubData(GL_UNIFORM_BUFFER, 576, 16, &shadowMapTexelSize.x);
     
     glBufferSubData(GL_UNIFORM_BUFFER, 592, 64, &(glm::inverse(camera->GetProjectionMatrix())[0].x));
-    glm::vec4 zBufferParams = glm::vec4(1.0f / camera->GetFar(), 0.0f, 0.0f, 0.0f);
+    glm::vec4 zBufferParams = glm::vec4(camera->GetNear(), camera->GetFar(), 0.0f, 0.0f);
     glBufferSubData(GL_UNIFORM_BUFFER, 656, 16, &zBufferParams.x);
 
     // Set float[4];
@@ -234,7 +234,7 @@ void SceneRenderGraph::Render()
         if (StatusRecorder::SSAO)
         {
             m_ScreenSpaceAmbientOcclusion->Render(m_GBufferRT, m_GLStateCache);
-//            Blitter::BlitCamera(m_ScreenSpaceAmbientOcclusion->GetFinalSSAO(), currentCamera); return;
+            // Blitter::BlitCamera(m_ScreenSpaceAmbientOcclusion->GetFinalSSAO(), currentCamera); return;
         }
 
         m_GLStateCache->SetDepthFunc(GL_ALWAYS);

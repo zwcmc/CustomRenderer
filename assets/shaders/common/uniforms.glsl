@@ -14,7 +14,7 @@ layout (std140) uniform GlobalUniforms
     vec4 CascadeParams; // { x: cascades count, y: min border padding (1.0f/bufferSize), z: max border padding (1.0 - 1.0f/bufferSize), w: unused }
     vec4 ShadowMapTexelSize; // { x: 1.0 / width, y: 1.0 / height, z: width, w: height }
     mat4 ViewFromClip;  // inverse projection matrix
-    vec4 ZBufferParams; // { x: 1 / far , yzw; unused }
+    vec4 ZBufferParams; // { x: near (positive), y: far (positive), zw; unused }
 };
 
 uniform float uFXAASet;

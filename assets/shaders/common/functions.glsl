@@ -117,7 +117,7 @@ highp float LinearizeDepth01(highp float depth)
     highp float linearDepth = LinearizeDepth(depth);
 
     // Convert from [0, -far] to [0, 1]
-    return linearDepth * (-ZBufferParams.x);
+    return linearDepth / (-ZBufferParams.y);
 }
 
 float PerceptualRoughnessToLod(float perceptualRoughness)

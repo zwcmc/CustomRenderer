@@ -39,7 +39,7 @@ void ScreenSpaceAmbientOcclusion::Render(const RenderTarget::Ptr source, const G
     Blitter::RenderToTarget(m_SSAORenderTarget, m_SSAOMat, true, false);
 
     glStateCache->SetDepthTest(false);
-    
+
     // bilateral blur horizontal
     glm::u32vec2 size = m_SSAORenderTarget->GetSize();
     glm::vec4 offset = glm::vec4(1.0f / size.x, 0.0f, 0.0f, 0.0f);
