@@ -44,12 +44,8 @@ A customized renderer built with C++ and OpenGL 4.1 Core.
 - [x] Bloom
 - [x] FXAA
 - [x] Deferred Rendering
-- [ ] SSAO
-  - [x] In Deferred Rendering
-  - [ ] In Forward Rendering
-- [ ] SSR
-  - [ ] In Deferred Rendering
-  - [ ] In Forward Rendering
+- [x] SSAO (Deferred Rendering)
+- [ ] SSR (Deferred Rendering)
 - [ ] TAA
 
 ## References
