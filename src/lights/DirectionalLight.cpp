@@ -1,7 +1,7 @@
 #include "lights/DirectionalLight.h"
 
 DirectionalLight::DirectionalLight(const glm::vec3 &direction, const glm::vec3 &color, const bool &castShadows)
-    : Light(direction, color, castShadows), m_ShadowMapSize(glm::u32vec2(2048))
+    : Light(direction, color, castShadows, glm::u32vec2(2048))
 {
     if (castShadows)
     {
@@ -22,9 +22,4 @@ RenderTarget::Ptr DirectionalLight::GetShadowMapRT()
 Texture2D::Ptr DirectionalLight::GetEmptyShadowMapTexture()
 {
     return m_EmptyShadowMapTexture;
-}
-
-glm::u32vec2& DirectionalLight::GetShadowMapSize()
-{
-    return m_ShadowMapSize;
 }
