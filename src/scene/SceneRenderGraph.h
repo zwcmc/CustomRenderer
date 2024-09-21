@@ -93,6 +93,7 @@ private:
     // SSAO
     ScreenSpaceAmbientOcclusion::Ptr m_ScreenSpaceAmbientOcclusion;
 
+    // m_GlobalUniformBufferID
     // Should match GlobalUniforms in Uniforms.glsl
     // struct GlobalUniforms
     // {

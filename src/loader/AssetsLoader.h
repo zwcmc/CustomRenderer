@@ -44,7 +44,7 @@ private:
 #endif
     }
 
-    inline static std::string GetShaderPath() { return GetAssetsPath() + "glsl_shaders/"; }
+    inline static std::string GetShaderPath() { return GetAssetsPath() + "shaders/"; }
     inline static GLenum GetFormat(const int &components)
     {
         GLenum format = 0;
