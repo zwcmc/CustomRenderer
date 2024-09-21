@@ -45,7 +45,7 @@ A customized renderer built with C++ and OpenGL 4.1 Core.
 - [x] FXAA
 - [x] Deferred Rendering
 - [x] SSAO (Deferred Rendering)
-- [ ] SSR (Deferred Rendering)
+- [ ] SSR
 - [ ] TAA
 
 ## References
