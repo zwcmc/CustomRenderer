@@ -16,9 +16,9 @@ public:
     
     bool& IsCastShadow();
     void SetCastShadow(const bool &bCastShadow);
-    
-    virtual RenderTarget::Ptr GetShadowMapRT() { return nullptr; }
-    virtual Texture2D::Ptr GetEmptyShadowMapTexture() { return nullptr; }
+
+    virtual RenderTarget::Ptr GetShadowMapRT() = 0;
+    virtual Texture2D::Ptr GetEmptyShadowMapTexture() = 0;
     glm::u32vec2 &GetShadowMapSize();
 
 protected:
