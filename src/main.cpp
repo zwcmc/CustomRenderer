@@ -100,46 +100,21 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->Init();
 
-//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
-//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/buster_drone/busterDrone.gltf");
-//    SceneNode::Ptr glTFNode = AssetsLoader::LoadModel("models/glTF/DragonAttenuation/glTF/DragonAttenuation.gltf");
-//    m_SceneRenderGraph->AddSceneNode(glTFNode);
-
-//    SceneNode::Ptr marry = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-//    marry->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-//    m_SceneRenderGraph->AddSceneNode(marry);
-    
-    SceneNode::Ptr marry2 = AssetsLoader::LoadModel("models/obj/mary/Marry.obj");
-    marry2->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(marry2);
-    
-    SceneNode::Ptr bunny = AssetsLoader::LoadModel("models/obj/bunny/bunny.obj");
-    bunny->Translate(glm::vec3(-2.0f, -2.1f, -1.0f));
-    bunny->Scale(glm::vec3(16.0f));
-    m_SceneRenderGraph->AddSceneNode(bunny);
-    
-    SceneNode::Ptr cube = AssetsLoader::LoadModel("models/obj/cube/cube.obj");
-    cube->Translate(glm::vec3(2.0f, -1.0f, 0.0f));
-    cube->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(30.0f));
-    m_SceneRenderGraph->AddSceneNode(cube);
-    
-    SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
-    floor->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
-    m_SceneRenderGraph->AddSceneNode(floor);
+    SceneNode::Ptr sponza = AssetsLoader::LoadModel("models/glTF/Sponza/glTF/Sponza.gltf");
+    m_SceneRenderGraph->AddSceneNode(sponza);
 
     // Get the real size in pixels
     int realWidth, realHeight;
     glfwGetFramebufferSize(m_Window, &realWidth, &realHeight);
     glViewport(0, 0, realWidth, realHeight);
     
-    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(9.0f, 1.5f, -0.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     arcballCamera->SetPerspective(glm::radians(60.0f), realWidth, realHeight, 0.1f, 100.0f);
-//    arcballCamera->SetOrthographic(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 100.0f);
     m_SceneRenderGraph->SetCamera(arcballCamera);
 
     m_SceneRenderGraph->SetRenderSize(realWidth, realHeight);
 
-    DirectionalLight::Ptr mainLight = DirectionalLight::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(1.0f), true);
+    DirectionalLight::Ptr mainLight = DirectionalLight::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(1.0f), false);
     m_SceneRenderGraph->SetMainLight(mainLight);
 
     // Setup Dear ImGui context

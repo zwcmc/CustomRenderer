@@ -24,7 +24,7 @@ void ArcballCamera::Panning(const float &xoffset, const float &yoffset)
 
     m_EyePosition -= (xoffset * right + yoffset * up) * CAMERA_PANNING_SPEED;
     m_LookAt -= (xoffset * right + yoffset * up) * CAMERA_PANNING_SPEED;
-    
+
     m_View = glm::lookAt(m_EyePosition, m_LookAt, m_UpVector);
 }
 

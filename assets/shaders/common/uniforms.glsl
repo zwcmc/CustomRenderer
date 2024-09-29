@@ -5,7 +5,7 @@ layout (std140) uniform GlobalUniforms
 {
     mat4 ViewFromWorld; // view matrix
     mat4 ClipFromView;  // projection matrix
-    vec3 MainLightDirection;
+    vec3 MainLightPosition;
     vec3 MainLightColor;
     vec3 CameraPosition;
     mat4 ShadowClipFromView[4];

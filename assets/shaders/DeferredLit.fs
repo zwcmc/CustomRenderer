@@ -45,7 +45,7 @@ void main()
 
     vec3 N = normalize(normalRoughness.xyz);
     vec3 V = normalize(CameraPosition - worldPosition);
-    vec3 L = normalize(MainLightDirection);
+    vec3 L = normalize(MainLightPosition - worldPosition);
     vec3 H = normalize(L + V);
 
     float NdotL = max(dot(N, L), 0.0);

@@ -343,7 +343,7 @@ Material::Ptr AssetsLoader::ParseMaterial(aiMaterial* aMaterial, const aiScene* 
     Material::Ptr mat;
     if (mode == Material::AlphaMode::BLEND || !StatusRecorder::DeferredRendering)
     {
-        mat = Material::New("PBR", "Lit.vs", "PBRLit.fs");
+        mat = Material::New("Blinn-Phong", "Lit.vs", "BlinnPhong.fs");
     }
     else
     {
