@@ -40,7 +40,6 @@ A customized renderer built with C++ and OpenGL 4.1 Core.
 - [x] Bloom
 - [x] FXAA
 - [x] Deferred Rendering
-- [x] SSAO (in Deferred Rendering)
 
 ## To-do List
 
@@ -52,6 +51,7 @@ A customized renderer built with C++ and OpenGL 4.1 Core.
 - [ ] TAA
 - [ ] VSM (Variance Shadow Maps)
 - [ ] PCSS (Percentage Closer Soft Shadow)
+- [ ] SSAO
 
 ## Reference
 
