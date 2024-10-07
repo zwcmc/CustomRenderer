@@ -14,7 +14,7 @@ class Mesh
 public:
     Mesh() = default;
     Mesh(const std::vector<vec3> &vertices, const std::vector<vec4> &tangents, const std::vector<vec2> &texcoords0, const std::vector<unsigned int> &indices);
-    ~Mesh();
+    virtual ~Mesh();
 
     void InitMesh(const std::vector<vec3> &vertices, const std::vector<unsigned int> &indices);
 

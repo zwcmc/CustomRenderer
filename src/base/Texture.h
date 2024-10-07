@@ -12,7 +12,7 @@ class Texture
     SHARED_PTR(Texture)
 public:
     Texture();
-    ~Texture();
+    virtual ~Texture();
 
     void SetTextureName(const std::string &name) { m_TextureName = name; }
     std::string& GetTextureName() { return m_TextureName; }
