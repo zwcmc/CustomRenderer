@@ -100,15 +100,21 @@ int main()
     m_SceneRenderGraph = SceneRenderGraph::New();
     m_SceneRenderGraph->Init();
 
-    SceneNode::Ptr sponza = AssetsLoader::LoadModel("models/glTF/Sponza/glTF/Sponza.gltf");
-    m_SceneRenderGraph->AddSceneNode(sponza);
+    // SceneNode::Ptr sponza = AssetsLoader::LoadModel("models/glTF/Sponza/glTF/Sponza.gltf");
+    // m_SceneRenderGraph->AddSceneNode(sponza);
+
+    SceneNode::Ptr helmet = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    m_SceneRenderGraph->AddSceneNode(helmet);
 
     // Get the real size in pixels
     int realWidth, realHeight;
     glfwGetFramebufferSize(m_Window, &realWidth, &realHeight);
     glViewport(0, 0, realWidth, realHeight);
-    
-    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(9.0f, 1.5f, -0.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    std::cout << "Viewport width: " << realWidth << ", and viewport height: " << realHeight << std::endl;
+
+    // ArcballCamera::New(glm::vec3(9.0f, 1.5f, -0.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+    ArcballCamera::Ptr arcballCamera = ArcballCamera::New(glm::vec3(0.0f, 0.0f, 5.5f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     arcballCamera->SetPerspective(glm::radians(60.0f), realWidth, realHeight, 0.1f, 100.0f);
     m_SceneRenderGraph->SetCamera(arcballCamera);
 

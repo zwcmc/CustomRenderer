@@ -94,7 +94,6 @@ void EnvironmentIBL::GenerateCubemaps()
     m_Cube->SetOverrideMaterial(cubemapPrefilteredMat);
 
     const uint32_t numMips = static_cast<uint32_t>(floor(std::log2(512))) + 1;
-    std::cout << "Pre-filtered environment cubemap mipmap nums is: " << numMips << std::endl;
     for (unsigned int mip = 0; mip < numMips; ++mip)
     {
         cubemapPrefilteredMat->AddOrSetFloat("uRoughness", (float)(mip) / (numMips - 1));
