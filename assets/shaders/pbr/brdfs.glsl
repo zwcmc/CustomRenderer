@@ -2,6 +2,7 @@
 #define BRDFS_GLSL
 
 #include "common/constants.glsl"
+#include "common/functions.glsl"
 
 float SchlickFresnel(float u)
 {
@@ -45,6 +46,12 @@ float GTR2(float NdotH, float a)
     return a2 / (M_PI * t * t);
 }
 
+// Anisotropy GGX(Trowbridge-Reitz) Distribution
+float GTR2_aniso(float NdotH, float HdotX, float HdotY, float ax, float ay)
+{
+    return 1.0 / (M_PI * ax * ay * Sqr(Sqr(HdotX / ax) + Sqr(HdotY / ay) + NdotH * NdotH));
+}
+
 // Smith-G-GGX
 // alphaG = (0.5 * roughness + 0.5)^2
 float SmithG_GGX(float NdotV, float alphaG)
@@ -52,6 +59,12 @@ float SmithG_GGX(float NdotV, float alphaG)
     float a2 = alphaG * alphaG;
     float b = NdotV * NdotV;
     return 1.0 / (NdotV + sqrt(a2 + b - a2 * b));
+}
+
+// Anisotropy Smith-G-GGX
+float SmithG_GGX_aniso(float NdotV, float VdotX, float VdotY, float ax, float ay)
+{
+    return 1.0 / (NdotV + sqrt(Sqr(VdotX * ax) + Sqr(VdotY * ay) + Sqr(NdotV)));
 }
 
 // Smith-G-GGX Epic
