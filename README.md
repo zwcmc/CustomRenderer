@@ -2,6 +2,8 @@
 
 A customized renderer built with C++ and OpenGL 4.1 Core.
 
+![CustomRenderer_pic](/CustomRenderer_pic.jpeg)
+
 ## Feature
 
 - [x] Loading glTF 2.0 models
