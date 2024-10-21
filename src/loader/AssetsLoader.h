@@ -23,8 +23,6 @@ public:
     static SceneNode::Ptr LoadModel(const std::string &filePath, const bool &calculateAABB = true);
 
 private:
-    AssetsLoader() = default;
-
     static std::string ReadShader(std::ifstream &file, const std::string &name);
     static SceneNode::Ptr ProcessAssimpNode(aiNode* aNode, const aiScene* aScene, const std::string &directory, const bool &calculateAABB);
     static Mesh::Ptr ParseMesh(aiMesh* aMesh, const aiScene* aScene);
