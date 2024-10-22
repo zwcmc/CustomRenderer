@@ -106,6 +106,10 @@ int main()
     SceneNode::Ptr helmet = AssetsLoader::LoadModel("models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
     m_SceneRenderGraph->AddSceneNode(helmet);
 
+    SceneNode::Ptr floor = AssetsLoader::LoadModel("models/obj/floor/floor.obj");
+    floor->Translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    m_SceneRenderGraph->AddSceneNode(floor);
+
     // Get the real size in pixels
     int realWidth, realHeight;
     glfwGetFramebufferSize(m_Window, &realWidth, &realHeight);
@@ -120,7 +124,7 @@ int main()
 
     m_SceneRenderGraph->SetRenderSize(realWidth, realHeight);
 
-    DirectionalLight::Ptr mainLight = DirectionalLight::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(1.0f), false);
+    DirectionalLight::Ptr mainLight = DirectionalLight::New(glm::vec3(32.0f, 30.0f, 12.0f), glm::vec3(1.0f), true);
     m_SceneRenderGraph->SetMainLight(mainLight);
 
     // Setup Dear ImGui context

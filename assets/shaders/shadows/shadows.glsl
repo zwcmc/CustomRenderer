@@ -129,7 +129,7 @@ float SampleShadowMapPoissonDisk(sampler2DShadow shadowmap, vec4 texShadowView)
     float shadow = 0.0;
     for (int i = 0; i < POISSON_SAMPLE_NUM; ++i)
     {
-        shadow += SampleShadowMap(shadowmap, vec4(shadowCoord.xy + poissonUV[i] * ShadowMapTexelSize.xy, shadowCoord.zw), vec4(vec2(0.0), vec2(1.0)));
+        shadow += SampleShadowMap(shadowmap, vec4(shadowCoord.xy + poissonUV[i] * ShadowMapTexelSize.xy, shadowCoord.zw), clampedCascadeTexcoord);
     }
     return shadow / float(POISSON_SAMPLE_NUM);
 }
