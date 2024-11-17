@@ -27,17 +27,6 @@ A customized renderer built with C++ and OpenGL 4.1 Core.
 - [x] FXAA
 - [x] Deferred Rendering
 
-## To-do List
-
-- [ ] Optimization: Use only one material for rendering scene node
-- [ ] First-person Camera
-- [ ] Kulla-Conty BRDF
-- [ ] SSR
-- [ ] TAA
-- [ ] VSM (Variance Shadow Maps)
-- [ ] PCSS (Percentage Closer Soft Shadow)
-- [ ] SSAO
-
 ## Reference
 
 - [filament](https://github.com/google/filament)
