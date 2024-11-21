@@ -29,11 +29,11 @@ void main()
 
         vec3 L = normalize(2.0 * dot(V, H) * H - V); // reflect(-V, H);
 
-        float NdotL = max(dot(N, L), 0.0);
-        if (NdotL > 0.0)
+        float w = max(dot(N, L), 0.0);
+        if (w > 0.0)
         {
-            prefilteredColor += texture(uEnvironmentCubemap, L).rgb * NdotL;
-            totalWeight += NdotL;
+            prefilteredColor += texture(uEnvironmentCubemap, L).rgb * w;
+            totalWeight += w;
         }
     }
 
