@@ -111,7 +111,7 @@ void main()
     }
     // Environment irradiance
     vec3 diffuseIrradiance = texture(uIrradianceCubemap, N).rgb;
-    vec3 iblFd = diffuseColor * diffuseIrradiance * (1.0 - E) * diffuseAO;
+    vec3 iblFd = diffuseColor * diffuseIrradiance * diffuseAO;
 
     Lo += iblFr + iblFd;
 

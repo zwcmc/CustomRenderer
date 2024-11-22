@@ -158,7 +158,7 @@ void main()
     float diffuseAO = 1.0;//texture(uSSAOTexture, uv).r;
     // Environment irradiance
     vec3 diffuseIrradiance = texture(uIrradianceCubemap, N).rgb;
-    vec3 iblFd = diffuseColor * diffuseIrradiance * (1.0 - E) * diffuseAO;
+    vec3 iblFd = diffuseColor * diffuseIrradiance * diffuseAO;
 
     Lo += iblFr + iblFd;
 
